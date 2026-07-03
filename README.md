@@ -28,6 +28,25 @@ npm run runner:build
 npm run smoke
 ```
 
+## uni-app CLI project
+
+This repository is now a real uni-app Vue3/Vite CLI project:
+
+- `src/main.js` creates the uni-app Vue3 SSR app.
+- `src/App.vue` is the uni-app root component.
+- `vite.config.js` loads `@dcloudio/vite-plugin-uni`.
+- `src/pages.json` and `src/manifest.json` are generated for the uni-app CLI source root.
+- root `pages.json` / `manifest.json` are kept as generated review snapshots.
+
+Build a tenant for Weixin Mini Program:
+
+```bash
+npm run uni:build:app1
+npm run uni:build:app2
+```
+
+The uni-app compiler writes the runnable mini-program to `dist/build/mp-weixin`, which is intentionally ignored by git.
+
 ## Runner
 
 `npm run runner:build` generates every tenant schema into `dist/tenants/<tenant>` and records `dist/runner-report.json`. Local runner upload is intentionally stubbed as `skipped-local-runner` so CI can replace it with a platform uploader.

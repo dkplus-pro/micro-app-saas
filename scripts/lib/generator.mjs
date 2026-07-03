@@ -247,6 +247,10 @@ export function buildTenantArtifacts(inputs) {
   const routeConstants = `${GENERATED_BANNER}\n\nexport const tenantId = ${JSON.stringify(tenant.id)};\nexport const configHash = ${JSON.stringify(configHash)};\nexport const routes = ${JSON.stringify(routeConfig.routes, null, 2)};\nexport const tabRoutes = ${JSON.stringify(routeConfig.tabRoutes, null, 2)};\nexport const pagePathById = Object.freeze(Object.fromEntries(routes.map((route) => [route.pageId, route.path])));\n`;
   const registryImports = pageBModules.map((module) => `import ${module.componentName} from '${normalizeComponentImport(module.componentPath)}';`).join('\n');
   const moduleRegistryJs = `${GENERATED_BANNER}\n${registryImports}\n\nexport const tenantId = ${JSON.stringify(tenant.id)};\nexport const configHash = ${JSON.stringify(configHash)};\nexport const moduleRegistry = Object.freeze([\n${pageBModules.map((module) => `  { id: ${JSON.stringify(module.moduleId)}, order: ${module.order}, component: ${module.componentName}, props: ${JSON.stringify(module.props)}, dataSource: ${JSON.stringify(module.dataSource)} }`).join(',\n')}\n]);\n\nexport function resolveModule(moduleId) {\n  return moduleRegistry.find((entry) => entry.id === moduleId);\n}\n`;
+  const flowRendererBranches = pageBModules
+    .map((module) => `      <${module.componentName} v-if="entry.moduleId === '${module.moduleId}'" v-bind="entry.props" :data-source="entry.dataSource" />`)
+    .join('\n');
+  const flowRendererVue = `<template>\n  <view>\n    <view class="module-card" v-for="entry in modules" :key="entry.moduleId">\n${flowRendererBranches}\n    </view>\n  </view>\n</template>\n\n<script>\nimport runtimeConfig from './tenant.js';\n${registryImports}\n\nexport default {\n  name: 'FlowPageBModules',\n  components: { ${pageBModules.map((module) => module.componentName).join(', ')} },\n  computed: {\n    modules() {\n      return runtimeConfig.layouts.B.modules;\n    }\n  }\n};\n</script>\n`;
   const runtimeJs = jsonModuleExport('runtimeConfig', runtimeConfig);
 
   return {
@@ -262,6 +266,7 @@ export function buildTenantArtifacts(inputs) {
       'tenant.js': runtimeJs,
       'routes.js': routeConstants,
       'module-registry.js': moduleRegistryJs,
+      'flow-page-b-modules.vue': flowRendererVue,
       'runtime-config.js': runtimeJs,
       'route-config.json': `${JSON.stringify(routeConfig, null, 2)}\n`,
       'module-registry.json': `${JSON.stringify(moduleRegistry, null, 2)}\n`,
@@ -287,6 +292,8 @@ export async function generateTenant({ tenantId, rootDir = process.cwd(), writeR
   if (writeRoot) {
     await writeJson(path.join(rootDir, 'pages.json'), artifacts.pagesJson);
     await writeJson(path.join(rootDir, 'manifest.json'), artifacts.manifestJson);
+    await writeJson(path.join(rootDir, 'src/pages.json'), artifacts.pagesJson);
+    await writeJson(path.join(rootDir, 'src/manifest.json'), artifacts.manifestJson);
     await writeGeneratedDir(path.join(rootDir, 'src/generated'), artifacts.generatedFiles);
   }
 

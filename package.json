@@ -11,9 +11,26 @@
     "lint": "node scripts/lint.mjs",
     "test": "node --test tests/*.test.mjs tests/contracts/*.test.mjs",
     "smoke": "node scripts/smoke.mjs",
-    "verify": "npm run typecheck && npm run lint && npm test && npm run runner:build && npm run smoke"
+    "verify": "npm run typecheck && npm run lint && npm test && npm run runner:build && npm run smoke",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "uni:dev:app1": "npm run generate:app1 && uni -p mp-weixin",
+    "uni:dev:app2": "npm run generate:app2 && uni -p mp-weixin",
+    "uni:build:app1": "npm run generate:app1 && uni build -p mp-weixin",
+    "uni:build:app2": "npm run generate:app2 && uni build -p mp-weixin"
   },
   "engines": {
     "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-5010420260703001",
+    "@dcloudio/uni-components": "3.0.0-5010420260703001",
+    "@dcloudio/uni-mp-weixin": "3.0.0-5010420260703001",
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "3.4.31",
+    "@dcloudio/vite-plugin-uni": "3.0.0-5010420260703001",
+    "vite": "5.2.8"
   }
 }

@@ -4,6 +4,7 @@ import path from 'node:path';
 
 const rootDir = process.cwd();
 const ignore = new Set(['.git', '.omx', 'node_modules']);
+const ignoredPathPrefixes = ['dist/build'];
 const errors = [];
 const files = [];
 
@@ -12,6 +13,8 @@ async function walk(dir) {
   for (const entry of entries) {
     if (ignore.has(entry.name)) continue;
     const fullPath = path.join(dir, entry.name);
+    const relativePath = path.relative(rootDir, fullPath).split(path.sep).join('/');
+    if (ignoredPathPrefixes.some((prefix) => relativePath === prefix || relativePath.startsWith(`${prefix}/`))) continue;
     if (entry.isDirectory()) {
       await walk(fullPath);
     } else if (/\.(json|mjs|js|vue|md)$/.test(entry.name)) {
