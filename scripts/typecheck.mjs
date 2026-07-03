@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
 const checked = [];
+const errors = [];
 const ignore = new Set(['.git', '.omx', 'node_modules', 'dist']);
 
 async function walk(dir) {
@@ -17,14 +18,17 @@ async function walk(dir) {
     } else if (/\.(mjs|js)$/.test(entry.name)) {
       const result = spawnSync(process.execPath, ['--check', fullPath], { encoding: 'utf8' });
       if (result.status !== 0) {
-        process.stderr.write(result.stderr || result.stdout);
-        process.exitCode = 1;
-        return;
+        errors.push(`${path.relative(rootDir, fullPath)}:\n${result.stderr || result.stdout}`);
+      } else {
+        checked.push(path.relative(rootDir, fullPath));
       }
-      checked.push(path.relative(rootDir, fullPath));
     }
   }
 }
 
 await walk(rootDir);
+if (errors.length > 0) {
+  console.error(`typecheck: FAIL\n${errors.join('\n')}`);
+  process.exit(1);
+}
 console.log(`typecheck: PASS (${checked.length} JavaScript modules checked with node --check)`);

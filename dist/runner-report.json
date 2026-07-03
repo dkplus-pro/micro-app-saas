@@ -4,16 +4,16 @@
     {
       "tenantId": "app1",
       "status": "success",
-      "schemaVersion": "2026.07.03-app1",
-      "configHash": "e6a71559bcf4bae2",
+      "schemaVersion": "2026.07.03",
+      "configHash": "3c1d12894c9f857f",
       "artifactPath": "dist/tenants/app1",
       "uploadResult": "skipped-local-runner"
     },
     {
       "tenantId": "app2",
       "status": "success",
-      "schemaVersion": "2026.07.03-app2",
-      "configHash": "50a4609a863faf0f",
+      "schemaVersion": "2026.07.03",
+      "configHash": "b6a067ce4480ce89",
       "artifactPath": "dist/tenants/app2",
       "uploadResult": "skipped-local-runner"
     }

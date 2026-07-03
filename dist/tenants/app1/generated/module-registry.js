@@ -5,12 +5,12 @@ import ModuleC from '../modules/c/index.vue';
 import ModuleD from '../modules/d/index.vue';
 
 export const tenantId = "app1";
-export const configHash = "e6a71559bcf4bae2";
+export const configHash = "3c1d12894c9f857f";
 export const moduleRegistry = Object.freeze([
-  { id: "a", order: 1, component: ModuleA, props: {"title":"App1 模块 A"}, dataSource: "app1.summary" },
-  { id: "b", order: 2, component: ModuleB, props: {"title":"App1 模块 B"}, dataSource: "app1.metrics" },
-  { id: "c", order: 3, component: ModuleC, props: {"title":"App1 模块 C"}, dataSource: "app1.activity" },
-  { id: "d", order: 4, component: ModuleD, props: {"title":"App1 模块 D"}, dataSource: "app1.actions" }
+  { id: "a", order: 1, component: ModuleA, props: {"title":"App1 模块 A"}, dataSource: "app1.moduleA" },
+  { id: "b", order: 2, component: ModuleB, props: {"title":"App1 模块 B"}, dataSource: "app1.moduleB" },
+  { id: "c", order: 3, component: ModuleC, props: {"title":"App1 模块 C"}, dataSource: "app1.moduleC" },
+  { id: "d", order: 4, component: ModuleD, props: {"title":"App1 模块 D"}, dataSource: "app1.moduleD" }
 ]);
 
 export function resolveModule(moduleId) {
