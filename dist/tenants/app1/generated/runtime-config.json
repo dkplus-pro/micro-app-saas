@@ -116,6 +116,15 @@
           "dataSource": "app1.actions"
         }
       ]
+    },
+    "b": {
+      "layoutType": "flow",
+      "moduleOrder": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
     }
   }
 }
