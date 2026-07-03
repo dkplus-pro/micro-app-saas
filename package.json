@@ -1,0 +1,10 @@
+{
+  "name": "micro-app-saas",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/contracts/*.test.mjs",
+    "typecheck": "node --check tests/fixtures/tenant-contracts.mjs && node --check tests/contracts/pages-manifest.contract.test.mjs && node --check tests/contracts/module-runtime.contract.test.mjs",
+    "lint": "node --check tests/fixtures/tenant-contracts.mjs && node --check tests/contracts/pages-manifest.contract.test.mjs && node --check tests/contracts/module-runtime.contract.test.mjs"
+  }
+}
