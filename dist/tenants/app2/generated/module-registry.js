@@ -3,6 +3,8 @@ import ModuleA from '../modules/a/index.vue';
 import ModuleD from '../modules/d/index.vue';
 import ModuleC from '../modules/c/index.vue';
 
+export const tenantId = "app2";
+export const configHash = "50a4609a863faf0f";
 export const moduleRegistry = Object.freeze([
   { id: "a", order: 1, component: ModuleA, props: {"title":"App2 模块 A"}, dataSource: "app2.summary" },
   { id: "d", order: 2, component: ModuleD, props: {"title":"App2 模块 D"}, dataSource: "app2.actions" },

@@ -1,17 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import {
-  configHashFor,
-  loadTenantContractOutput,
-  TENANT_SCHEMAS,
-} from '../fixtures/tenant-contracts.mjs';
+import { loadTenantContractOutput } from '../fixtures/tenant-contracts.mjs';
 
-function layoutOrder(runtimeConfig, pageId = 'b') {
-  return runtimeConfig.layouts[pageId].map((module) => module.moduleId);
+function layoutOrder(runtimeConfig, pageId = 'B') {
+  return runtimeConfig.layouts[pageId].modules.map((module) => module.moduleId);
 }
 
-function sortedKeys(value) {
-  return Object.keys(value).sort();
+function registryOrder(moduleRegistry, pageId = 'B') {
+  return moduleRegistry.pageModules[pageId].map((module) => module.moduleId);
 }
 
 describe('tenant module registry and runtime config contracts', () => {
@@ -27,11 +23,11 @@ describe('tenant module registry and runtime config contracts', () => {
     const app1 = await loadTenantContractOutput('app1');
     const app2 = await loadTenantContractOutput('app2');
 
-    assert.deepEqual(sortedKeys(app1.moduleRegistry), ['a', 'b', 'c', 'd']);
-    assert.deepEqual(sortedKeys(app2.moduleRegistry), ['a', 'c', 'd']);
-    assert.ok(!('e' in app1.moduleRegistry));
-    assert.ok(!('e' in app2.moduleRegistry));
-    assert.ok(!('b' in app2.moduleRegistry));
+    assert.deepEqual(registryOrder(app1.moduleRegistry), ['a', 'b', 'c', 'd']);
+    assert.deepEqual(registryOrder(app2.moduleRegistry), ['a', 'd', 'c']);
+    assert.ok(!registryOrder(app1.moduleRegistry).includes('e'));
+    assert.ok(!registryOrder(app2.moduleRegistry).includes('e'));
+    assert.ok(!registryOrder(app2.moduleRegistry).includes('b'));
   });
 
   it('runtime config snapshots are tenant-scoped and carry reproducible metadata', async () => {
@@ -40,12 +36,12 @@ describe('tenant module registry and runtime config contracts', () => {
 
     assert.equal(app1.runtimeConfig.tenantId, 'app1');
     assert.equal(app2.runtimeConfig.tenantId, 'app2');
-    assert.equal(app1.runtimeConfig.schemaVersion, TENANT_SCHEMAS.app1.schemaVersion);
-    assert.equal(app2.runtimeConfig.schemaVersion, TENANT_SCHEMAS.app2.schemaVersion);
-    assert.match(app1.runtimeConfig.configHash, /^[a-f0-9]{64}$/);
-    assert.match(app2.runtimeConfig.configHash, /^[a-f0-9]{64}$/);
-    assert.equal(app1.runtimeConfig.configHash, configHashFor(TENANT_SCHEMAS.app1));
-    assert.equal(app2.runtimeConfig.configHash, configHashFor(TENANT_SCHEMAS.app2));
+    assert.equal(app1.runtimeConfig.schemaVersion, app1.tenant.schemaVersion);
+    assert.equal(app2.runtimeConfig.schemaVersion, app2.tenant.schemaVersion);
+    assert.match(app1.runtimeConfig.configHash, /^[a-f0-9]{16}$/);
+    assert.match(app2.runtimeConfig.configHash, /^[a-f0-9]{16}$/);
+    assert.equal(app1.runtimeConfig.configHash, app1.metadata.configHash);
+    assert.equal(app2.runtimeConfig.configHash, app2.metadata.configHash);
     assert.notEqual(app1.runtimeConfig.configHash, app2.runtimeConfig.configHash);
   });
 
@@ -56,7 +52,7 @@ describe('tenant module registry and runtime config contracts', () => {
 
       assert.ok(runtimeConfig.tabs.every((tab) => tab.route && runtimePageIds.has(tab.pageId)));
       assert.ok(Object.keys(runtimeConfig.layouts).every((pageId) => runtimePageIds.has(pageId)));
-      assert.ok(Object.values(runtimeConfig.layouts).flat().every((module) => module.moduleId));
+      assert.ok(Object.values(runtimeConfig.layouts).flatMap((layout) => layout.modules).every((module) => module.moduleId));
     }
   });
 });

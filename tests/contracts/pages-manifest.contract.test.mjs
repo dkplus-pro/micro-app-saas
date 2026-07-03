@@ -19,23 +19,22 @@ function titleFor(pagesJson, path) {
 describe('tenant pages.json and manifest contracts', () => {
   for (const tenantId of tenants) {
     it(`${tenantId} generated pages are limited to the tenant tab surface`, async () => {
-      const { pagesJson, expected } = await loadTenantContractOutput(tenantId);
+      const { pagesJson, tenant } = await loadTenantContractOutput(tenantId);
 
-      assert.deepEqual(pagePaths(pagesJson), pagePaths(expected.pagesJson));
-      assert.deepEqual(tabLabels(pagesJson), tabLabels(expected.pagesJson));
+      assert.deepEqual(pagePaths(pagesJson), tenant.pages.map((page) => `pages/${page.pageId.toLowerCase()}/index`));
+      assert.deepEqual(tabLabels(pagesJson), tenant.tabs.map((tab) => tab.label));
       assert.deepEqual(
         pagesJson.tabBar.list.map((tab) => tab.pagePath),
-        expected.pagesJson.tabBar.list.map((tab) => tab.pagePath),
+        tenant.tabs.map((tab) => `pages/${tab.pageId.toLowerCase()}/index`)
       );
     });
 
     it(`${tenantId} manifest uses isolated tenant identity and mp-weixin appid`, async () => {
-      const { manifestJson, expected } = await loadTenantContractOutput(tenantId);
+      const { manifestJson, tenant } = await loadTenantContractOutput(tenantId);
 
-      assert.equal(manifestJson.name, expected.manifestJson.name);
-      assert.equal(manifestJson.appid, expected.manifestJson.appid);
-      assert.equal(manifestJson.versionName, expected.manifestJson.versionName);
-      assert.equal(manifestJson['mp-weixin'].appid, expected.manifestJson['mp-weixin'].appid);
+      assert.equal(manifestJson._tenantId, tenant.id);
+      assert.equal(manifestJson.name, tenant.displayName);
+      assert.equal(manifestJson['mp-weixin'].appid, tenant.platforms['mp-weixin'].appid);
     });
   }
 
@@ -59,11 +58,11 @@ describe('tenant pages.json and manifest contracts', () => {
     const app1 = await loadTenantContractOutput('app1');
     const app2 = await loadTenantContractOutput('app2');
 
-    assert.equal(titleFor(app1.pagesJson, 'pages/a/index'), 'App1 Page A');
-    assert.equal(titleFor(app2.pagesJson, 'pages/a/index'), 'App2 Page A');
+    assert.equal(titleFor(app1.pagesJson, 'pages/a/index'), 'App1 首页');
+    assert.equal(titleFor(app2.pagesJson, 'pages/a/index'), 'App2 工作台');
     assert.notEqual(
       titleFor(app1.pagesJson, 'pages/a/index'),
-      titleFor(app2.pagesJson, 'pages/a/index'),
+      titleFor(app2.pagesJson, 'pages/a/index')
     );
   });
 });

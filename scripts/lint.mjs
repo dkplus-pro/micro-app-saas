@@ -3,7 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const rootDir = process.cwd();
-const ignore = new Set(['.git', 'node_modules']);
+const ignore = new Set(['.git', '.omx', 'node_modules']);
 const errors = [];
 const files = [];
 
@@ -35,7 +35,7 @@ for (const file of files) {
   }
 }
 
-for (const generatedFile of ['src/generated/tenant.js', 'src/generated/routes.js', 'src/generated/module-registry.js']) {
+for (const generatedFile of ['src/generated/tenant.js', 'src/generated/routes.js', 'src/generated/module-registry.js', 'src/generated/runtime-config.js']) {
   const content = await readFile(path.join(rootDir, generatedFile), 'utf8').catch(() => '');
   if (!content.startsWith('// AUTO-GENERATED')) errors.push(`${generatedFile}: missing generated banner`);
 }

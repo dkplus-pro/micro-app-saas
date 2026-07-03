@@ -9,7 +9,7 @@
     "runner:build": "node scripts/runner.mjs --all",
     "typecheck": "node scripts/typecheck.mjs",
     "lint": "node scripts/lint.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs tests/contracts/*.test.mjs",
     "smoke": "node scripts/smoke.mjs",
     "verify": "npm run typecheck && npm run lint && npm test && npm run runner:build && npm run smoke"
   },

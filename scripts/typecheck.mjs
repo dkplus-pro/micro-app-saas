@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 
 const rootDir = process.cwd();
 const checked = [];
-const ignore = new Set(['.git', 'node_modules', 'dist']);
+const ignore = new Set(['.git', '.omx', 'node_modules', 'dist']);
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
