@@ -1,0 +1,52 @@
+{
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f7f8fa"
+  },
+  "pages": [
+    {
+      "path": "pages/a/index",
+      "style": {
+        "navigationBarTitleText": "App2 工作台"
+      }
+    },
+    {
+      "path": "pages/b/index",
+      "style": {
+        "navigationBarTitleText": "App2 模块流"
+      }
+    },
+    {
+      "path": "pages/d/index",
+      "style": {
+        "navigationBarTitleText": "App2 页面 D"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#6B7F77",
+    "selectedColor": "#00A676",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/a/index",
+        "text": "A",
+        "iconPath": "static/tabs/app2/a.png",
+        "selectedIconPath": "static/tabs/app2/a-selected.png"
+      },
+      {
+        "pagePath": "pages/b/index",
+        "text": "B",
+        "iconPath": "static/tabs/app2/b.png",
+        "selectedIconPath": "static/tabs/app2/b-selected.png"
+      },
+      {
+        "pagePath": "pages/d/index",
+        "text": "D",
+        "iconPath": "static/tabs/app2/d.png",
+        "selectedIconPath": "static/tabs/app2/d-selected.png"
+      }
+    ]
+  }
+}

@@ -18,6 +18,16 @@ npm run generate:app1
 npm run verify
 ```
 
+## App2
+
+App2 declares tabs `A/B/D`, page A title `App2 工作台`, and page B modules `a → d → c`.
+
+```bash
+npm run generate:app2
+npm run runner:build
+npm run smoke
+```
+
 ## Runner
 
 `npm run runner:build` generates every tenant schema into `dist/tenants/<tenant>` and records `dist/runner-report.json`. Local runner upload is intentionally stubbed as `skipped-local-runner` so CI can replace it with a platform uploader.

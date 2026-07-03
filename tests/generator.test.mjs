@@ -31,3 +31,32 @@ test('App1 generation registers only A/B/C tabs and modules a/b/c/d', async () =
     await rm(tempDir, { recursive: true, force: true });
   }
 });
+
+
+test('App2 generation registers only A/B/D tabs and modules a/d/c', async () => {
+  const tempDir = await mkdtemp(path.join(tmpdir(), 'micro-app-saas-'));
+  try {
+    const result = await generateTenant({
+      tenantId: 'app2',
+      rootDir: process.cwd(),
+      writeRoot: false,
+      snapshotRoot: path.join(tempDir, 'app2')
+    });
+
+    assert.equal(result.tenant.id, 'app2');
+    assert.deepEqual(result.pagesJson.pages.map((page) => page.path), ['pages/a/index', 'pages/b/index', 'pages/d/index']);
+    assert.deepEqual(result.pagesJson.tabBar.list.map((tab) => tab.text), ['A', 'B', 'D']);
+    assert.equal(result.pagesJson.pages[0].style.navigationBarTitleText, 'App2 工作台');
+    assert.deepEqual(result.runtimeConfig.layouts.B.modules.map((module) => module.moduleId), ['a', 'd', 'c']);
+    assert.equal(result.manifestJson['mp-weixin'].appid, 'wx-app2-placeholder');
+
+    const registry = await readFile(path.join(tempDir, 'app2/generated/module-registry.js'), 'utf8');
+    assert.match(registry, /import ModuleA/);
+    assert.match(registry, /import ModuleD/);
+    assert.match(registry, /import ModuleC/);
+    assert.doesNotMatch(registry, /import ModuleB/);
+    assert.doesNotMatch(registry, /import ModuleE/);
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});

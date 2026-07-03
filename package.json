@@ -3,8 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/contracts/*.test.mjs",
-    "typecheck": "node --check tests/fixtures/tenant-contracts.mjs && node --check tests/contracts/pages-manifest.contract.test.mjs && node --check tests/contracts/module-runtime.contract.test.mjs",
-    "lint": "node --check tests/fixtures/tenant-contracts.mjs && node --check tests/contracts/pages-manifest.contract.test.mjs && node --check tests/contracts/module-runtime.contract.test.mjs"
+    "generate": "node scripts/generate.mjs",
+    "generate:app1": "node scripts/generate.mjs --tenant app1",
+    "generate:app2": "node scripts/generate.mjs --tenant app2",
+    "runner:build": "node scripts/runner.mjs --all",
+    "typecheck": "node scripts/typecheck.mjs",
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run runner:build && npm run smoke"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   }
 }

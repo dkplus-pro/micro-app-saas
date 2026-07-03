@@ -1,0 +1,21 @@
+{
+  "tenantId": "app2",
+  "schemaVersion": "2026.07.03-app2",
+  "configHash": "50a4609a863faf0f",
+  "platform": "mp-weixin",
+  "pages": [
+    "A",
+    "B",
+    "D"
+  ],
+  "tabs": [
+    "A",
+    "B",
+    "D"
+  ],
+  "pageBModules": [
+    "a",
+    "d",
+    "c"
+  ]
+}
