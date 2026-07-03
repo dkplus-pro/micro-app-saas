@@ -1,0 +1,32 @@
+{
+  "pages": [
+    {
+      "id": "a",
+      "name": "Page A",
+      "path": "pages/a/index",
+      "type": "standard",
+      "defaultTitle": "首页"
+    },
+    {
+      "id": "b",
+      "name": "Page B",
+      "path": "pages/b/index",
+      "type": "flow",
+      "defaultTitle": "模块流"
+    },
+    {
+      "id": "c",
+      "name": "Page C",
+      "path": "pages/c/index",
+      "type": "standard",
+      "defaultTitle": "App1 专属"
+    },
+    {
+      "id": "d",
+      "name": "Page D",
+      "path": "pages/d/index",
+      "type": "standard",
+      "defaultTitle": "App2 专属"
+    }
+  ]
+}
