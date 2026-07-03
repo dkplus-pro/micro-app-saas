@@ -1,32 +1,32 @@
 {
   "pages": [
     {
-      "id": "A",
-      "route": "pages/a/index",
+      "id": "a",
+      "name": "Page A",
+      "path": "pages/a/index",
       "type": "standard",
-      "defaultTitle": "首页",
-      "component": "src/pages/a/index.vue"
+      "defaultTitle": "首页"
     },
     {
-      "id": "B",
-      "route": "pages/b/index",
+      "id": "b",
+      "name": "Page B",
+      "path": "pages/b/index",
       "type": "flow",
-      "defaultTitle": "模块流",
-      "component": "src/pages/b/index.vue"
+      "defaultTitle": "模块流"
     },
     {
-      "id": "C",
-      "route": "pages/c/index",
+      "id": "c",
+      "name": "Page C",
+      "path": "pages/c/index",
       "type": "standard",
-      "defaultTitle": "页面 C",
-      "component": "src/pages/c/index.vue"
+      "defaultTitle": "App1 专属"
     },
     {
-      "id": "D",
-      "route": "pages/d/index",
+      "id": "d",
+      "name": "Page D",
+      "path": "pages/d/index",
       "type": "standard",
-      "defaultTitle": "页面 D",
-      "component": "src/pages/d/index.vue"
+      "defaultTitle": "App2 专属"
     }
   ]
 }

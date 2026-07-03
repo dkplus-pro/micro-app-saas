@@ -1,8 +1,8 @@
 {
   "id": "app1",
   "name": "App1",
-  "displayName": "App1 SaaS Mini App",
-  "schemaVersion": "2026.07.03-app1",
+  "displayName": "App1 SaaS",
+  "schemaVersion": "2026.07.03",
   "releaseChannel": "preview",
   "platforms": {
     "mp-weixin": {
@@ -10,64 +10,57 @@
     }
   },
   "theme": {
-    "primaryColor": "#276EF1",
-    "backgroundColor": "#F6F8FF",
-    "textColor": "#172B4D",
-    "tabColor": "#7A869A",
-    "tabSelectedColor": "#276EF1"
+    "primaryColor": "#2563eb",
+    "backgroundColor": "#f8fafc",
+    "textColor": "#0f172a",
+    "tabColor": "#64748b",
+    "selectedColor": "#2563eb"
   },
   "runtime": {
     "apiBaseUrl": "https://api.example.com/app1",
     "featureFlags": {
-      "flowPageB": true
+      "flowPage": true
     }
   },
-  "allowedModules": ["a", "b", "c", "d"],
   "pages": [
     {
-      "pageId": "A",
-      "title": "App1 首页",
-      "isTab": true
+      "pageId": "a",
+      "title": "App1 首页"
     },
     {
-      "pageId": "B",
-      "title": "App1 模块流",
-      "isTab": true
+      "pageId": "b",
+      "title": "App1 模块流"
     },
     {
-      "pageId": "C",
-      "title": "App1 页面 C",
-      "isTab": true
+      "pageId": "c",
+      "title": "App1 专属页"
     }
   ],
   "tabs": [
     {
       "id": "tab-a",
       "label": "A",
-      "pageId": "A",
-      "iconPath": "static/tabs/app1/a.png",
-      "selectedIconPath": "static/tabs/app1/a-selected.png",
-      "order": 1
+      "pageId": "a",
+      "iconPath": "static/app1/tab-a.png",
+      "selectedIconPath": "static/app1/tab-a-active.png"
     },
     {
       "id": "tab-b",
       "label": "B",
-      "pageId": "B",
-      "iconPath": "static/tabs/app1/b.png",
-      "selectedIconPath": "static/tabs/app1/b-selected.png",
-      "order": 2
+      "pageId": "b",
+      "iconPath": "static/app1/tab-b.png",
+      "selectedIconPath": "static/app1/tab-b-active.png"
     },
     {
       "id": "tab-c",
       "label": "C",
-      "pageId": "C",
-      "iconPath": "static/tabs/app1/c.png",
-      "selectedIconPath": "static/tabs/app1/c-selected.png",
-      "order": 3
+      "pageId": "c",
+      "iconPath": "static/app1/tab-c.png",
+      "selectedIconPath": "static/app1/tab-c-active.png"
     }
   ],
   "layouts": {
-    "B": {
+    "b": {
       "layoutType": "flow",
       "modules": [
         {
@@ -75,28 +68,28 @@
           "props": {
             "title": "App1 模块 A"
           },
-          "dataSource": "app1.summary"
+          "dataSource": "app1.moduleA"
         },
         {
           "moduleId": "b",
           "props": {
             "title": "App1 模块 B"
           },
-          "dataSource": "app1.metrics"
+          "dataSource": "app1.moduleB"
         },
         {
           "moduleId": "c",
           "props": {
             "title": "App1 模块 C"
           },
-          "dataSource": "app1.activity"
+          "dataSource": "app1.moduleC"
         },
         {
           "moduleId": "d",
           "props": {
             "title": "App1 模块 D"
           },
-          "dataSource": "app1.actions"
+          "dataSource": "app1.moduleD"
         }
       ]
     }

@@ -2,33 +2,28 @@
   "modules": [
     {
       "id": "a",
-      "name": "ModuleA",
-      "component": "src/modules/a/index.vue",
-      "capabilities": ["summary"]
+      "componentRef": "ModuleA",
+      "componentPath": "@/modules/a/index.vue"
     },
     {
       "id": "b",
-      "name": "ModuleB",
-      "component": "src/modules/b/index.vue",
-      "capabilities": ["metrics"]
+      "componentRef": "ModuleB",
+      "componentPath": "@/modules/b/index.vue"
     },
     {
       "id": "c",
-      "name": "ModuleC",
-      "component": "src/modules/c/index.vue",
-      "capabilities": ["activity"]
+      "componentRef": "ModuleC",
+      "componentPath": "@/modules/c/index.vue"
     },
     {
       "id": "d",
-      "name": "ModuleD",
-      "component": "src/modules/d/index.vue",
-      "capabilities": ["actions"]
+      "componentRef": "ModuleD",
+      "componentPath": "@/modules/d/index.vue"
     },
     {
       "id": "e",
-      "name": "ModuleE",
-      "component": "src/modules/e/index.vue",
-      "capabilities": ["reserved"]
+      "componentRef": "ModuleE",
+      "componentPath": "@/modules/e/index.vue"
     }
   ]
 }
