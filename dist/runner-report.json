@@ -1,0 +1,13 @@
+{
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "records": [
+    {
+      "tenantId": "app1",
+      "status": "success",
+      "schemaVersion": "2026.07.03-app1",
+      "configHash": "e6a71559bcf4bae2",
+      "artifactPath": "dist/tenants/app1",
+      "uploadResult": "skipped-local-runner"
+    }
+  ]
+}
