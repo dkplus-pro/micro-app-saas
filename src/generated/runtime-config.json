@@ -53,6 +53,15 @@
         "c",
         "d"
       ]
+    },
+    "b": {
+      "layoutType": "flow",
+      "moduleOrder": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
     }
   }
 }

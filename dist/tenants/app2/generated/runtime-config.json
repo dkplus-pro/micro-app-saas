@@ -109,6 +109,14 @@
           "dataSource": "app2.activity"
         }
       ]
+    },
+    "b": {
+      "layoutType": "flow",
+      "moduleOrder": [
+        "a",
+        "d",
+        "c"
+      ]
     }
   }
 }
