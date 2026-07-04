@@ -22,7 +22,7 @@ export interface GenerateOptions {
 }
 
 export async function loadTenantSchema(tenant: string, schemaDir = 'schemas/tenants'): Promise<TenantSchema> {
-  const schemaPath = path.join(process.cwd(), schemaDir, `${tenant}.schema.json`);
+  const schemaPath = path.resolve(schemaDir, `${tenant}.schema.json`);
   const schema = JSON.parse(await readFile(schemaPath, 'utf8')) as TenantSchema;
   assertValidTenantSchema(schema);
   return schema;
@@ -100,7 +100,7 @@ function tsExport(name: string, value: unknown): string {
 export async function generateTenant(options: GenerateOptions): Promise<GeneratedTenantArtifacts> {
   const schema = await loadTenantSchema(options.tenant, options.schemaDir);
   const artifacts = createArtifacts(schema);
-  const outputDir = path.join(process.cwd(), options.outputDir ?? 'apps/miniapp-template/src/generated');
+  const outputDir = path.resolve(options.outputDir ?? 'apps/miniapp-template/src/generated');
   await mkdir(outputDir, { recursive: true });
   await writeFile(path.join(outputDir, 'tenant.config.ts'), tsExport('tenantConfig', schema.tenant));
   await writeFile(path.join(outputDir, 'app.config.ts'), tsExport('appConfig', artifacts.appConfig));
