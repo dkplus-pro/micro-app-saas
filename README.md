@@ -47,6 +47,79 @@ apps/miniapp-template/dist/
 npm run guard:artifacts
 ```
 
+## Schema 用法与含义
+
+租户 schema 放在：
+
+```txt
+schemas/tenants/app1.schema.json
+schemas/tenants/app2.schema.json
+```
+
+构建命令会按 `--tenant=<id>` 读取对应 schema，先生成租户配置，再启动 uni-app 编译。例如：
+
+```bash
+npm run build -- --tenant=app1
+npm run dev -- --tenant=app2
+```
+
+常用字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `tenant` | 租户元信息，`tenantId` 必须和文件名/命令参数对应，`tenantName` 用于展示和生成描述 |
+| `app` | 小程序应用信息，包含 `appKey`、微信 `appid`、应用名和版本号 |
+| `tabs` | 底部 tabBar 配置；每项通过 `page` 指向 `pages` 里的页面 key |
+| `pages` | 页面开关、路由、标题、分包归属和页面模块配置 |
+| `features` | 功能开关；页面或模块被 schema 引用时，对应 feature 不能是 `false` |
+| `runtime` | 运行时配置，例如主题色 `themeColor`、接口地址 `apiBase` |
+| `release` | 上传、审核、发布等流水线开关；当前 runner 默认 dry-run |
+
+`pages` 中每个页面的关键字段：
+
+| 字段 | 含义 |
+| --- | --- |
+| `route` | uni-app 页面路径，格式为 `pages/<page>/index` |
+| `title` | 生成到 `pages.json` 的导航栏标题 |
+| `enabled` | 是否进入当前租户构建；`false` 的页面不会进入 `pages.json` / 路由表 |
+| `package` | `main` 表示主包，`subPackage` 表示分包 |
+| `subPackageRoot` | 可选；自定义分包 root。未填时默认用页面目录，例如 `pages/page-d` |
+| `layout` | 页面布局提示，目前支持 `standard` / `stream` |
+| `modules` | 当前页面静态引用的模块列表；只引用启用租户需要的模块 |
+
+当前规则：
+
+- tab 页面必须在主包，因为微信小程序 tabBar 不能指向分包页面。
+- 非 tab 的启用页面默认进入分包；需要跳转到分包页时，目标页面仍必须 `enabled: true`。
+- `module-a` 在 Page A 上可通过 `props.targetPage` 指向页面 key，例如 `page-d`，生成后会解析为 `uni.navigateTo` 可用的真实路由。
+- 修改 schema 后先运行 `npm run validate:schema`，再运行对应租户的 `npm run build -- --tenant=<id>`。
+
+示例：App1 的 Page A 多一个可跳转 Page D 的 `module-a`：
+
+```json
+{
+  "pages": {
+    "page-a": {
+      "enabled": true,
+      "package": "main",
+      "modules": [
+        {
+          "key": "module-a",
+          "props": {
+            "title": "App1 专属 Module A",
+            "targetPage": "page-d"
+          }
+        }
+      ]
+    },
+    "page-d": {
+      "enabled": true,
+      "package": "subPackage"
+    }
+  }
+}
+```
+
 ## Page A 模块导航
 
 Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并按顺序渲染。`module-a` 只在生成的 `route.config.ts` 注册了 Page D 路由时才触发 `uni.navigateTo`，避免跳转到未进入当前租户包的页面。
