@@ -13,6 +13,7 @@ test('artifact guard rejects tracked generated tenant files and local outputs', 
     '.runner-records/app1.release-record.json',
     'node_modules/vite/package.json',
     'schemas/tenants/invalid-module.schema.json',
+    'apps/miniapp-template/vite.config.ts.timestamp-123456-temp.mjs',
     'src/source-file.ts'
   ]);
 
@@ -24,6 +25,7 @@ test('artifact guard rejects tracked generated tenant files and local outputs', 
     'apps/miniapp-template/dist/build/mp-weixin/app.js',
     '.runner-records/app1.release-record.json',
     'node_modules/vite/package.json',
-    'schemas/tenants/invalid-module.schema.json'
+    'schemas/tenants/invalid-module.schema.json',
+    'apps/miniapp-template/vite.config.ts.timestamp-123456-temp.mjs'
   ]);
 });
