@@ -4,6 +4,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { createArtifacts, generateTenant, loadTenantSchema } from '../packages/generator/src/generator.ts';
 import { validateTenantSchema } from '../packages/schema/src/validation.ts';
+import type { TenantPage, TenantSchema } from '../packages/schema/src/types.ts';
 
 async function buildSummary(tenant: string) {
   const artifacts = await generateTenant({ tenant });
@@ -89,7 +90,7 @@ test('validator rejects tabs pointing at disabled pages and unknown modules', as
   const schema = await loadTenantSchema('app1');
   const badSchema = structuredClone(schema);
   badSchema.tabs = [{ key: 'D', text: 'D', page: 'page-d' }];
-  badSchema.pages['page-b'].modules = [{ key: 'module-x' as never }];
+  pageByKey(badSchema, 'page-b').modules = [{ key: 'module-x' as never }];
   const result = validateTenantSchema(badSchema);
   assert.equal(result.valid, false);
   assert.ok(result.errors.some((error) => error.includes('subPackage page')));
@@ -105,3 +106,10 @@ test('artifact creation is pure and does not require loading all tenants', async
     'page-d': 'pages/page-d/index'
   });
 });
+
+
+function pageByKey(schema: TenantSchema, key: string): TenantPage {
+  const page = Array.isArray(schema.pages) ? schema.pages.find((entry) => entry.key === key) : schema.pages[key as keyof typeof schema.pages];
+  if (!page) throw new Error(`Missing test page ${key}`);
+  return page;
+}
