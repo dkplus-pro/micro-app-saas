@@ -1,10 +1,33 @@
-import { readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-import { readArg, repoRootFromCwd } from "./args.ts";
+import { makeOptions, loadRecord, printResult, saveRecord } from './runner-utils.ts';
 
-const tenant = readArg("tenant");
-const reportPath = path.join(repoRootFromCwd(), "apps", "miniapp-template", "dist", "tenants", tenant, "build-report.json");
-const report = JSON.parse(await readFile(reportPath, "utf8"));
-const next = { ...report, uploadStatus: "dry_run_success", previewQrCode: `dry-run://${tenant}/preview`, uploadedAt: new Date().toISOString() };
-await writeFile(reportPath, `${JSON.stringify(next, null, 2)}\n`);
-console.log(`DRY-RUN upload tenant ${tenant}; no external upload performed`);
+try {
+  const options = makeOptions(process.argv.slice(2));
+  const record = loadRecord(options);
+  if (record.buildStatus !== 'success') {
+    throw new Error(`Cannot upload ${options.tenantId}: buildStatus=${record.buildStatus}`);
+  }
+  record.uploadStatus = 'success';
+  record.previewQrCode = `simulated://preview/${options.tenantId}/${encodeURIComponent(record.version)}`;
+  record.phases.push({
+    phase: 'upload',
+    result: {
+      command: `simulated upload --tenant ${options.tenantId}`,
+      status: 'success',
+      exitCode: 0,
+      stdout: 'External mini-program upload intentionally simulated; no network publish performed.\n',
+      stderr: '',
+    },
+  });
+  record.finishedAt = new Date().toISOString();
+  saveRecord(options, record);
+  printResult(record);
+} catch (error) {
+  const options = makeOptions(process.argv.slice(2));
+  const record = loadRecord(options);
+  record.uploadStatus = 'failed';
+  record.errorMessage = error instanceof Error ? error.message : String(error);
+  record.finishedAt = new Date().toISOString();
+  saveRecord(options, record);
+  printResult(record);
+  process.exitCode = 1;
+}
