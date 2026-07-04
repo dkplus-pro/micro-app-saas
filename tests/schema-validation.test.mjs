@@ -37,6 +37,21 @@ test('runtime and backend validators reject unsupported modules consistently', a
   );
 });
 
+test('runtime and backend validators reject legacy page feature flags consistently', async () => {
+  const schema = await readTenantSchema('app1');
+  schema.features.pageD = false;
+
+  const result = validateTenantSchema(schema);
+  assert.equal(result.valid, false);
+  assert.ok(result.errors.some((error) => error.includes('features.pageD is not supported')));
+
+  assert.throws(
+    () => validateTenantSchemaStrict(schema),
+    (error) => error instanceof SchemaValidationError
+      && error.issues.some((issue) => issue.includes('features.pageD is not supported'))
+  );
+});
+
 test('runtime and backend validators reject non-object JSON payloads without crashing', () => {
   assert.deepEqual(validateTenantSchema(null), { valid: false, errors: ['schema must be an object'] });
   assert.throws(() => validateTenantSchemaStrict(null), SchemaValidationError);

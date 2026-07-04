@@ -1,5 +1,11 @@
 export type ModuleKey = 'module-a' | 'module-b' | 'module-c' | 'module-d' | 'module-e';
 export type PageKey = 'page-a' | 'page-b' | 'page-c' | 'page-d';
+export type ModuleFeatureKey = 'moduleA' | 'moduleB' | 'moduleC' | 'moduleD' | 'moduleE';
+export type PageFeatureKey = 'pageA' | 'pageB' | 'pageC' | 'pageD';
+export type TenantLegacyFeatures = Partial<Record<ModuleFeatureKey, boolean>> & {
+  /** Page inclusion is controlled only by pages[].enabled / tabs, never by legacy features. */
+  [K in PageFeatureKey]?: never;
+};
 
 export interface TenantInfo {
   tenantId: string;
@@ -91,8 +97,8 @@ export interface TenantSchema {
   tabs: TenantTab[];
   pages: TenantPages;
   capabilities?: TenantCapabilities;
-  /** @deprecated Use capabilities.modules for runtime/business switches; page composition lives in pages. */
-  features?: Record<string, boolean>;
+  /** @deprecated Module-only compatibility fallback; use capabilities.modules for new schemas. Page composition lives in pages. */
+  features?: TenantLegacyFeatures;
   theme?: Record<string, unknown>;
   runtime?: TenantRuntimeConfig;
   release?: TenantReleaseConfig;
@@ -114,7 +120,7 @@ export interface GeneratedTenantConfig {
   pages: EnabledPage[];
   tabs: Array<TabSchema & { route: string }>;
   modules: ModuleKey[];
-  features: Record<string, boolean>;
+  features: TenantLegacyFeatures;
   runtime: Record<string, unknown>;
 }
 
@@ -133,6 +139,6 @@ export interface NormalizedTenantBuild {
   routes: Record<string, string>;
   pageModules: Record<string, TenantModuleRef[]>;
   modules: GeneratedModuleEntry[];
-  features: Record<string, boolean>;
+  features: TenantLegacyFeatures;
   runtime: Record<string, unknown>;
 }

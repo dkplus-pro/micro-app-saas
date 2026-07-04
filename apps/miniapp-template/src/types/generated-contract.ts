@@ -40,8 +40,11 @@ export type GeneratedModuleComponent = unknown;
 
 export type GeneratedModuleRegistry = Readonly<Record<string, GeneratedModuleComponent>>;
 
+export type LegacyModuleFeatureKey = 'moduleA' | 'moduleB' | 'moduleC' | 'moduleD' | 'moduleE';
+export type RuntimeLegacyFeatures = Partial<Record<LegacyModuleFeatureKey, boolean>>;
+
 export interface RuntimeConfig {
   theme?: Record<string, unknown>;
-  features?: Record<string, boolean>;
+  features?: RuntimeLegacyFeatures;
   [key: string]: unknown;
 }

@@ -27,6 +27,14 @@ describe('tenant schema validation', () => {
     expect(() => validateTenantSchema(schema)).toThrow(/disabled capability moduleA/);
   });
 
+
+  it('rejects legacy page feature flags before generation', async () => {
+    const schema = JSON.parse(await readFile('schemas/tenants/app1.schema.json', 'utf8'));
+    schema.features.pageD = false;
+
+    expect(() => validateTenantSchema(schema)).toThrow(/features\.pageD is not supported/);
+  });
+
   it('rejects tabs that point at disabled pages', async () => {
     const schema = JSON.parse(await readFile('schemas/tenants/app2.schema.json', 'utf8'));
     schema.tabs.push({ key: 'C', text: 'C', page: 'page-c' });

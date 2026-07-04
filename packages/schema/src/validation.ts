@@ -1,6 +1,6 @@
 import { normalizeTenantPages, tenantPagesToRecord, isModuleCapabilityEnabled } from './normalize.ts';
 import { MODULE_REGISTRY, MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
-import type { ModuleKey, TenantPage, TenantSchema, ValidationResult } from './types.ts';
+import type { ModuleKey, PageFeatureKey, TenantPage, TenantSchema, ValidationResult } from './types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -93,6 +93,28 @@ export function validateTenantSchema(input: unknown): ValidationResult {
 export function assertValidTenantSchema(schema: TenantSchema): void {
   const result = validateTenantSchema(schema);
   if (!result.valid) throw new Error(`Invalid tenant schema ${schemaTenantId(schema)}:\n- ${result.errors.join('\n- ')}`);
+}
+
+function validateLegacyFeatures(features: unknown, errors: string[]): void {
+  if (features === undefined) return;
+  if (!isRecord(features)) {
+    errors.push('features must be an object when provided');
+    return;
+  }
+
+  const moduleFeatureKeys = new Set(MODULE_REGISTRY.map(featureKeyForModule));
+  const pageFeatureKeys = new Set<PageFeatureKey>(['pageA', 'pageB', 'pageC', 'pageD']);
+  for (const [key, value] of Object.entries(features)) {
+    if (pageFeatureKeys.has(key as PageFeatureKey)) {
+      errors.push(`features.${key} is not supported; control page inclusion with pages[].enabled`);
+      continue;
+    }
+    if (!moduleFeatureKeys.has(key)) {
+      errors.push(`features.${key} is not supported; legacy features only accepts module flags`);
+      continue;
+    }
+    if (typeof value !== 'boolean') errors.push(`features.${key} must be boolean`);
+  }
 }
 
 function schemaTenantId(schema: unknown): string {

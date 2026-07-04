@@ -84,7 +84,7 @@ npm run dev -- --tenant=app2
 | `tabs` | 底部 tabBar 配置；每项通过 `page` 指向 `pages` 里的页面 key |
 | `pages` | 首选数组形式：每项用显式 `key` 表示页面 key，并配置页面开关、路由、标题、分包归属和页面模块 |
 | `capabilities` | 业务/运行时能力开关；当前支持 `capabilities.modules` 控制模块是否可被页面引用 |
-| `features` | 旧版兼容字段；仍会被读取作为模块开关 fallback，但新 schema 应优先使用 `capabilities.modules` |
+| `features` | 旧版兼容字段；仅允许 `moduleA`/`moduleB` 等模块开关作为 fallback。不要放 `pageA`/`pageD` 等页面开关；页面结构只由 `pages`/`tabs` 决定，新 schema 应优先使用 `capabilities.modules` |
 | `runtime` | 运行时配置，例如主题色 `themeColor`、接口地址 `apiBase`、租户资源 `assets` |
 | `release` | 上传、审核、发布等流水线开关；当前 runner 默认 dry-run |
 
@@ -111,7 +111,8 @@ npm run dev -- --tenant=app2
 - 同一页面位置展示不同租户图片时，把图片放到 `apps/miniapp-template/src/assets/tenants/<tenantId>/`，再在 schema 的 `runtime.assets.pageAImage.src` 配置 `assets/...` 路径；生成器会生成 `page-a-assets.ts` 静态 import 当前租户资源，Page A 在固定位置渲染。
 - `module-a` 在 Page A 上可通过 `props.targetPage` 指向页面 key，例如 `page-d`，生成后会解析为 `uni.navigateTo` 可用的真实路由。
 - 页面/模块结构放在 `pages`；业务能力开关放在 `capabilities`，避免用开关字段表达结构。
-- JSON schema 继续支持旧的 `pages` 对象 map 和 `features` 字段以兼容历史/后端输入，但内置租户使用数组 `pages` + 显式 `key` 的首选格式。
+- 旧版 `features` 只作为模块能力 fallback；校验会拒绝 `features.pageA`/`features.pageD` 等页面开关，防止它们和 `pages[].enabled` 冲突或重新成为页面来源。
+- JSON schema 继续支持旧的 `pages` 对象 map 和模块 `features` 字段以兼容历史/后端输入，但内置租户使用数组 `pages` + 显式 `key` 的首选格式。
 - TS-first authoring 可通过 `defineTenantSchema()` 获得类型约束，再输出 JSON 给现有构建/运行时消费；JSON 运行时校验仍保留。
 - 修改 schema 后先运行 `npm run validate:schema`，再运行对应租户的 `npm run build -- --tenant=<id>`。
 
