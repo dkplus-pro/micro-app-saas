@@ -35,6 +35,11 @@ test('npm scripts expose a small uni-app mini-program command set', () => {
   assert.match(scripts['build:app1'], /app1/, 'build:app1 should select tenant app1');
   assert.equal(scripts['build:vite'], undefined, 'legacy Vite aliases should stay removed');
   assert.equal(scripts['dev:mp-weixin'], undefined, 'platform detail should not duplicate the main dev command');
+  assert.deepEqual(
+    Object.keys(scripts).filter((scriptName) => /vite|mp-weixin/i.test(scriptName)),
+    [],
+    'script names should stay tenant-focused instead of exposing Vite or platform aliases'
+  );
 });
 
 test('README documents the simplified command surface', async () => {
@@ -46,6 +51,7 @@ test('README documents the simplified command surface', async () => {
   assert.match(readme, /src\/generated/i, 'README should mention generated tenant output directory');
   assert.match(readme, /src\/pages\.json/i, 'README should mention generated pages.json');
   assert.match(readme, /不要提交|not (?:commit|committed)|local-only/i, 'README should warn generated tenant outputs are local-only');
+  assert.doesNotMatch(readme, /npm run (?:dev|build):(?:vite|mp-weixin)/, 'README should not document legacy Vite/platform aliases');
 });
 
 test('miniapp template package declares uni-app platform dependencies for DCloud CLI plugin discovery', () => {
