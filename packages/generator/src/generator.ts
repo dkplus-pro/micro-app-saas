@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { normalizeTenantCapabilities, normalizeTenantPages, tenantPagesToRecord } from '../../schema/src/normalize.ts';
 import { assertValidTenantSchema } from '../../schema/src/validation.ts';
 import type { ModuleKey, TenantImageAsset, TenantPage, TenantSchema, UniAppPackageType } from '../../schema/src/types.ts';
 
@@ -67,7 +68,7 @@ export async function loadTenantSchema(tenant: string, schemaDir = 'schemas/tena
 }
 
 export function collectEnabledPages(schema: TenantSchema): Array<[string, TenantPage]> {
-  return Object.entries(schema.pages).filter(([, page]) => page.enabled);
+  return normalizeTenantPages(schema.pages).filter(([, page]) => page.enabled);
 }
 
 export function collectUsedModules(schema: TenantSchema): ModuleKey[] {
@@ -90,6 +91,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   const homeModules = collectPageModules(enabledPages.filter(([key]) => key === 'page-a'));
   const subPackageModules = usedModules.filter((moduleKey) => !homeModules.includes(moduleKey));
   const tabPageKeys = new Set<string>(schema.tabs.map((tab) => tab.page));
+  const pagesByKey = tenantPagesToRecord(schema.pages);
   const pagesConfig = enabledPages.map(([key, page]) => {
     const packageType = getPagePackage(page, tabPageKeys.has(key));
     const subPackageRoot = packageType === 'subPackage' ? getSubPackageRoot(page) : undefined;
@@ -105,7 +107,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     });
   });
   const tabs = schema.tabs.map((tab) => {
-    const page = schema.pages[tab.page];
+    const page = pagesByKey[tab.page];
     return {
       key: tab.key,
       text: tab.text,
@@ -123,7 +125,11 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     version: schema.app.version ?? '0.0.0'
   };
   const routeConfig = Object.fromEntries(enabledPages.map(([key, page]) => [key, page.route]));
-  const runtimeConfig = { features: schema.features, runtime: schema.runtime ?? {} };
+  const runtimeConfig = {
+    capabilities: normalizeTenantCapabilities(schema),
+    features: schema.features ?? {},
+    runtime: schema.runtime ?? {}
+  };
   const subPackagesConfig = withModuleAssetsSubPackage(createSubPackagesConfig(pagesConfig), subPackageModules);
   const uniPagesJson = removeUndefined({
     pages: pagesConfig

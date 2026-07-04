@@ -1,5 +1,6 @@
+import { normalizeTenantPages, tenantPagesToRecord, isModuleCapabilityEnabled } from './normalize.ts';
 import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
-import type { ModuleKey, TenantSchema, ValidationResult } from './types.ts';
+import type { ModuleKey, TenantPage, TenantSchema, ValidationResult } from './types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -13,35 +14,16 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   const errors: string[] = [];
   if (!isRecord(input)) return { valid: false, errors: ['schema must be an object'] };
 
-  const schema = input;
-  const tenant: Record<string, unknown> = isRecord(schema.tenant) ? schema.tenant : {};
-  const app: Record<string, unknown> = isRecord(schema.app) ? schema.app : {};
-  if (!hasText(tenant.tenantId)) errors.push('tenant.tenantId is required');
-  if (!hasText(tenant.tenantName)) errors.push('tenant.tenantName is required');
-  if (!hasText(app.appKey)) errors.push('app.appKey is required');
-  if (!hasText(app.appid)) errors.push('app.appid is required');
-  if (!hasText(app.name)) errors.push('app.name is required');
-
-  const pages: Record<string, unknown> = isRecord(schema.pages) ? schema.pages : {};
-  if (!isRecord(schema.pages)) errors.push('pages must be an object');
-  const tabs = Array.isArray(schema.tabs) ? schema.tabs : [];
-  const features = isRecord(schema.features) ? schema.features : {};
-  if (!isRecord(schema.features)) errors.push('features must be an object');
+  const pages = tenantPagesToRecord(schema.pages);
+  const pageEntries = pageEntriesForValidation(schema.pages, errors);
   const enabledRoutes = new Set<string>();
   const allRoutes = new Set<string>();
   const tabPageKeys = new Set<string>(tabs.filter(isRecord).map((tab) => String(tab.page)));
 
-  for (const [pageKey, page] of Object.entries(pages)) {
-    if (!isRecord(page)) {
-      errors.push(`${pageKey} must be an object`);
-      continue;
-    }
-    const route = typeof page.route === 'string' ? page.route : '';
-    const packageValue = typeof page.package === 'string' ? page.package : undefined;
-    const subPackageRoot = typeof page.subPackageRoot === 'string' ? page.subPackageRoot : undefined;
-    if (!PAGE_ROUTE_PATTERN.test(route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
-    if (allRoutes.has(route)) errors.push(`${pageKey}.route duplicates ${route}`);
-    allRoutes.add(route);
+  for (const [pageKey, page] of pageEntries) {
+    if (!PAGE_ROUTE_PATTERN.test(page.route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
+    if (allRoutes.has(page.route)) errors.push(`${pageKey}.route duplicates ${page.route}`);
+    allRoutes.add(page.route);
     const isTabPage = tabPageKeys.has(pageKey);
     const packageType = getDefaultPackageType(route, isTabPage, packageValue);
     if (packageType !== 'main' && packageType !== 'subPackage') errors.push(`${pageKey}.package must be main or subPackage`);
@@ -62,22 +44,12 @@ export function validateTenantSchema(input: unknown): ValidationResult {
     if (page.enabled && !hasText(page.title)) errors.push(`${pageKey}.title is required for enabled page`);
 
     const seenModules = new Set<string>();
-    const modules = page.modules === undefined ? [] : Array.isArray(page.modules) ? page.modules : undefined;
-    if (!modules) {
-      errors.push(`${pageKey}.modules must be an array`);
-      continue;
-    }
-    for (const moduleRef of modules) {
-      if (!isRecord(moduleRef)) {
-        errors.push(`${pageKey}.modules entries must be objects`);
-        continue;
-      }
-      const moduleKey = String(moduleRef.key);
-      if (!MODULE_REGISTRY_SET.has(moduleKey)) errors.push(`${pageKey}.modules references unknown module ${moduleKey}`);
-      if (seenModules.has(moduleKey)) errors.push(`${pageKey}.modules contains duplicate module ${moduleKey}`);
-      seenModules.add(moduleKey);
-      const featureKey = featureKeyForModule(moduleKey as ModuleKey);
-      if (features[featureKey] === false) errors.push(`${pageKey}.modules references disabled feature ${featureKey}`);
+    for (const moduleRef of page.modules ?? []) {
+      if (!MODULE_REGISTRY_SET.has(moduleRef.key)) errors.push(`${pageKey}.modules references unknown module ${moduleRef.key}`);
+      if (seenModules.has(moduleRef.key)) errors.push(`${pageKey}.modules contains duplicate module ${moduleRef.key}`);
+      seenModules.add(moduleRef.key);
+      const featureKey = featureKeyForModule(moduleRef.key as ModuleKey);
+      if (!isModuleCapabilityEnabled(schema, moduleRef.key as ModuleKey)) errors.push(`${pageKey}.modules references disabled capability ${featureKey}`);
     }
   }
 
@@ -141,4 +113,19 @@ function validateImageAsset(path: string, value: unknown, errors: string[]): voi
       errors.push(`${path}.${key} must be a string`);
     }
   }
+}
+
+
+function pageEntriesForValidation(pages: TenantSchema['pages'], errors: string[]): Array<[string, TenantPage]> {
+  if (!pages || (typeof pages !== 'object' && !Array.isArray(pages))) {
+    errors.push('pages must be an object map or an array');
+    return [];
+  }
+  const entries = normalizeTenantPages(pages) as Array<[string, TenantPage]>;
+  const seen = new Set<string>();
+  for (const [pageKey] of entries) {
+    if (seen.has(pageKey)) errors.push(`pages contains duplicate page key ${pageKey}`);
+    seen.add(pageKey);
+  }
+  return entries;
 }
