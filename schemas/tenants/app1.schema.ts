@@ -28,8 +28,9 @@ export default defineTenantSchema({
       "page": "page-c"
     }
   ],
-  "pages": {
-    "page-a": {
+  "pages": [
+    {
+      "key": "page-a",
       "route": "pages/page-a/index",
       "title": "App1 首页",
       "enabled": true,
@@ -45,7 +46,8 @@ export default defineTenantSchema({
         }
       ]
     },
-    "page-b": {
+    {
+      "key": "page-b",
       "route": "pages/page-b/index",
       "title": "App1 页面B",
       "enabled": true,
@@ -66,19 +68,21 @@ export default defineTenantSchema({
       ],
       "package": "main"
     },
-    "page-c": {
+    {
+      "key": "page-c",
       "route": "pages/page-c/index",
       "title": "App1 页面C",
       "enabled": true,
       "package": "main"
     },
-    "page-d": {
+    {
+      "key": "page-d",
       "route": "pages/page-d/index",
       "title": "App1 页面D",
       "enabled": true,
       "package": "subPackage"
     }
-  },
+  ],
   "features": {
     "pageA": true,
     "pageB": true,

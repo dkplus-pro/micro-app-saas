@@ -14,7 +14,7 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   const errors: string[] = [];
   if (!isRecord(input)) return { valid: false, errors: ['schema must be an object'] };
 
-  const schema = input as TenantSchema;
+  const schema = input as unknown as TenantSchema;
   const tabs = Array.isArray(schema.tabs) ? schema.tabs : [];
   const pages = tenantPagesToRecord(schema.pages);
   const pageEntries = pageEntriesForValidation(schema.pages, errors);
@@ -69,7 +69,7 @@ export function validateTenantSchema(input: unknown): ValidationResult {
     }
     const tabKey = String(tab.key);
     const tabPage = String(tab.page);
-    const target = pages[tabPage];
+    const target = pages[tabPage as keyof typeof pages];
     if (!target) errors.push(`tab ${tabKey} points to missing page ${tabPage}`);
     if (isRecord(target) && !target.enabled) errors.push(`tab ${tabKey} points to disabled page ${tabPage}`);
     const targetRoute = isRecord(target) && typeof target.route === 'string' ? target.route : '';
