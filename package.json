@@ -1,24 +1,24 @@
 {
-  "name": "schema-uniapp-saas-factory",
+  "name": "micro-app-saas",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "node scripts/lint.mjs",
+    "validate:schema": "tsx scripts/validate-schema.ts",
+    "generate:tenant": "tsx scripts/generate-tenant.ts",
+    "build:tenant": "tsx scripts/build-tenant.ts",
+    "batch:build": "tsx scripts/batch-build.ts",
+    "upload:tenant": "tsx scripts/upload-tenant.ts",
+    "release:tenant": "tsx scripts/release-tenant.ts",
     "typecheck": "tsc --noEmit",
-    "validate:schema": "node scripts/validate-schema.ts",
-    "generate:tenant": "node scripts/generate-tenant.ts",
-    "build:mp": "node scripts/build-tenant.ts",
-    "build:tenant": "node scripts/build-tenant.ts",
-    "build:all": "node scripts/batch-build.ts --tenants=app1,app2",
-    "upload:tenant": "node scripts/upload-tenant.ts",
-    "release:tenant": "node scripts/release-tenant.ts",
-    "test": "node --test tests/*.test.mjs",
-    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build:all"
+    "test": "vitest run",
+    "lint": "node scripts/lint.mjs",
+    "verify": "pnpm typecheck && pnpm test && pnpm lint && pnpm build:tenant -- --tenant=app1 && pnpm build:tenant -- --tenant=app2"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
-    "typescript": "^5.8.3"
-  },
-  "packageManager": "pnpm@10.10.0"
+    "@types/node": "^24.0.10",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
 }

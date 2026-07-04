@@ -1,0 +1,9 @@
+{
+  "tenant": { "tenantId": "app1", "tenantName": "App1 租户" },
+  "app": { "appKey": "app1", "appid": "wx_app1", "name": "App1 小程序", "version": "0.1.0" },
+  "pages": [],
+  "tabs": [],
+  "modules": ["module-a", "module-b", "module-c", "module-d"],
+  "features": {},
+  "runtime": {}
+}
