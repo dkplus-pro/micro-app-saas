@@ -170,7 +170,7 @@ test('runtime image assets must point to local bundled assets', async () => {
       'page-a': { route: 'pages/page-a/index', title: 'Bad Asset A', enabled: true, package: 'main' },
       'page-b': { route: 'pages/page-b/index', title: 'Bad Asset B', enabled: true, package: 'main' }
     },
-    features: { pageA: true, pageB: true },
+    capabilities: { modules: {} },
     runtime: {
       assets: {
         pageAImage: { src: 'https://example.com/not-local.png' }
