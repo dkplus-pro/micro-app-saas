@@ -124,4 +124,51 @@ li {
 li span {
   color: #64748b;
 }
+
+.tenant-shell {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.tenant-hero,
+.tenant-section {
+  max-width: 840px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+}
+
+.tenant-hero__eyebrow,
+.tenant-hero__meta {
+  margin: 0 0 8px;
+  color: #64748b;
+}
+
+h1,
+h2 {
+  margin: 0 0 16px;
+}
+
+ul {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+li span {
+  color: #64748b;
+}
 </style>
