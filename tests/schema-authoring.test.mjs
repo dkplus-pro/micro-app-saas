@@ -59,3 +59,24 @@ test('TS-first tenant schema source reports stale JSON in check mode', async () 
   assert.notEqual(child.status, 0);
   assert.match(child.stderr, /Schema JSON is out of date/);
 });
+
+test('JSON tenant schema migrates to canonical TS source', async () => {
+  const outDir = await mkdtemp(path.join(tmpdir(), 'schema-source-'));
+  const child = run(['--from-json', '--tenant=app1', '--out-dir', outDir]);
+
+  assert.match(child.stdout, /WROTE schema source/);
+  assert.equal(
+    await readFile(path.join(outDir, 'app1.schema.ts'), 'utf8'),
+    await readFile('schemas/tenants/app1.schema.ts', 'utf8')
+  );
+});
+
+test('JSON tenant schema source reports stale TS in check mode', async () => {
+  const outDir = await mkdtemp(path.join(tmpdir(), 'schema-source-'));
+  await writeFile(path.join(outDir, 'app1.schema.ts'), 'export default {};\n');
+
+  const child = runRaw(['--from-json', '--check', '--tenant=app1', '--out-dir', outDir]);
+
+  assert.notEqual(child.status, 0);
+  assert.match(child.stderr, /Schema TS source is out of date/);
+});

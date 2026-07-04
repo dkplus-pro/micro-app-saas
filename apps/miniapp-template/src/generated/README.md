@@ -27,4 +27,4 @@ npm run build -- --tenant=app1
 
 Tenant schemas should prefer `pages: [{ key, enabled, ... }]` for structural composition/page inclusion and `capabilities.modules` for module ability switches. The generator still accepts legacy page maps and module-only `features` for backend JSON compatibility, but generated page files are always derived from `pages[].enabled`.
 
-For TS-first authoring, define tenant source with `defineTenantSchema(...)`, emit JSON for the existing runtime/build pipeline, and keep runtime validation as the compatibility gate for backend-produced JSON.
+For TS-first authoring, define tenant source with `defineTenantSchema(...)`, then run `npm run emit:schema-json` to emit JSON for the existing runtime/build pipeline. Backend-produced or legacy JSON can be migrated back to canonical TS source with `npm run emit:schema-json -- --from-json`; add `--check` to verify TS and JSON stay synchronized without writing files. Runtime validation remains the compatibility gate for backend-produced JSON.

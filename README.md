@@ -68,6 +68,15 @@ npm run emit:schema-json
 
 该命令会从 TS schema 源生成对应 `.schema.json`，供构建、runner 和后端 JSON 流程读取。提交前可用 `npm run emit:schema-json -- --check` 检查 JSON 是否和 TS 源同步。
 
+如果需要把后端或旧流程产出的 JSON schema 迁移回 TS-first 源，可运行：
+
+```bash
+npm run emit:schema-json -- --from-json --tenant=app1
+npm run emit:schema-json -- --from-json --check
+```
+
+`--from-json` 会从 `.schema.json` 生成规范化的 `.schema.ts`，`--check` 只校验现有 TS 源是否与 JSON 同步，不会写文件。
+
 构建命令会按 `--tenant=<id>` 读取对应 schema，先生成租户配置，再启动 uni-app 编译。例如：
 
 ```bash
