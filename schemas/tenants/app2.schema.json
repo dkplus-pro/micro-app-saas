@@ -1,26 +1,59 @@
 {
-  "tenant": { "tenantId": "app2", "tenantName": "App2 租户" },
-  "app": { "appKey": "app2", "appid": "wx_app2", "name": "App2 小程序", "version": "0.1.0" },
+  "tenant": {
+    "tenantId": "app2",
+    "tenantName": "App2 租户"
+  },
+  "app": {
+    "appKey": "app2",
+    "appid": "wx_app2",
+    "name": "App2 小程序",
+    "version": "0.1.0"
+  },
   "tabs": [
-    { "key": "A", "text": "A", "page": "page-a" },
-    { "key": "B", "text": "B", "page": "page-b" },
-    { "key": "D", "text": "D", "page": "page-d" }
+    {
+      "key": "A",
+      "text": "A",
+      "page": "page-a"
+    }
   ],
   "pages": {
-    "page-a": { "route": "pages/page-a/index", "title": "App2 首页", "enabled": true },
+    "page-a": {
+      "route": "pages/page-a/index",
+      "title": "App2 首页",
+      "enabled": true,
+      "package": "main",
+      "modules": []
+    },
     "page-b": {
       "route": "pages/page-b/index",
       "title": "App2 页面B",
       "enabled": true,
       "layout": "stream",
       "modules": [
-        { "key": "module-a" },
-        { "key": "module-d" },
-        { "key": "module-c" }
-      ]
+        {
+          "key": "module-a"
+        },
+        {
+          "key": "module-d"
+        },
+        {
+          "key": "module-c"
+        }
+      ],
+      "package": "subPackage"
     },
-    "page-c": { "route": "pages/page-c/index", "title": "App2 页面C", "enabled": false },
-    "page-d": { "route": "pages/page-d/index", "title": "App2 页面D", "enabled": true }
+    "page-c": {
+      "route": "pages/page-c/index",
+      "title": "App2 页面C",
+      "enabled": false,
+      "package": "subPackage"
+    },
+    "page-d": {
+      "route": "pages/page-d/index",
+      "title": "App2 页面D",
+      "enabled": true,
+      "package": "subPackage"
+    }
   },
   "features": {
     "pageA": true,
@@ -33,6 +66,13 @@
     "moduleD": true,
     "moduleE": false
   },
-  "runtime": { "themeColor": "#52c41a", "apiBase": "https://api.example.com/app2" },
-  "release": { "uploadEnabled": false, "auditEnabled": false, "releaseEnabled": false }
+  "runtime": {
+    "themeColor": "#52c41a",
+    "apiBase": "https://api.example.com/app2"
+  },
+  "release": {
+    "uploadEnabled": false,
+    "auditEnabled": false,
+    "releaseEnabled": false
+  }
 }

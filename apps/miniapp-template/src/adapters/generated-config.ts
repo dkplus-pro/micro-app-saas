@@ -6,6 +6,7 @@ import type {
 } from '../types/generated-contract.ts';
 
 import { pagesConfig } from '../generated/pages.config.ts';
+import { subPackagesConfig } from '../generated/subpackages.config.ts';
 import { tabbarConfig } from '../generated/tabbar.config.ts';
 import { runtimeConfig } from '../generated/runtime.config.ts';
 import { moduleEntries } from '../generated/module-entry.ts';
@@ -18,6 +19,9 @@ function normalizePage(page: RawGeneratedPage): GeneratedPageConfig {
     route: page.path,
     title: page.style.navigationBarTitleText,
     enabled: true,
+    package: page.package,
+    subPackageRoot: 'subPackageRoot' in page ? page.subPackageRoot : undefined,
+    subPackagePath: 'subPackagePath' in page ? page.subPackagePath : undefined,
     layout: page.layout,
     modules: [...(page.modules ?? [])]
   };
@@ -33,6 +37,10 @@ export function getGeneratedPage(routeOrKey: string): GeneratedPageConfig | unde
 
 export function getGeneratedTabBar(): readonly TabBarItemConfig[] {
   return tabbarConfig.list;
+}
+
+export function getGeneratedSubPackages() {
+  return subPackagesConfig;
 }
 
 export function getGeneratedRuntimeConfig(): RuntimeConfig {

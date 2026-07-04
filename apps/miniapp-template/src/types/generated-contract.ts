@@ -29,6 +29,9 @@ export interface GeneratedPageConfig {
   route: string;
   title: string;
   enabled: true;
+  package?: 'main' | 'subPackage' | string;
+  subPackageRoot?: string;
+  subPackagePath?: string;
   layout?: 'stream' | 'standard' | string;
   modules?: GeneratedModuleConfig[];
 }

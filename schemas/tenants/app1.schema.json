@@ -1,39 +1,90 @@
 {
-  "tenant": { "tenantId": "app1", "tenantName": "App1 租户" },
-  "app": { "appKey": "app1", "appid": "wx_app1", "name": "App1 小程序", "version": "0.1.0" },
+  "tenant": {
+    "tenantId": "app1",
+    "tenantName": "App1 租户"
+  },
+  "app": {
+    "appKey": "app1",
+    "appid": "wx_app1",
+    "name": "App1 小程序",
+    "version": "0.1.0"
+  },
   "tabs": [
-    { "key": "A", "text": "A", "page": "page-a" },
-    { "key": "B", "text": "B", "page": "page-b" },
-    { "key": "C", "text": "C", "page": "page-c" }
+    {
+      "key": "A",
+      "text": "A",
+      "page": "page-a"
+    }
   ],
   "pages": {
-    "page-a": { "route": "pages/page-a/index", "title": "App1 首页", "enabled": true },
+    "page-a": {
+      "route": "pages/page-a/index",
+      "title": "App1 首页",
+      "enabled": true,
+      "package": "main",
+      "modules": [
+        {
+          "key": "module-a",
+          "props": {
+            "title": "App1 专属 Module A",
+            "description": "点击进入页面D",
+            "targetPage": "page-d"
+          }
+        }
+      ]
+    },
     "page-b": {
       "route": "pages/page-b/index",
       "title": "App1 页面B",
       "enabled": true,
       "layout": "stream",
       "modules": [
-        { "key": "module-a" },
-        { "key": "module-b" },
-        { "key": "module-c" },
-        { "key": "module-d" }
-      ]
+        {
+          "key": "module-a"
+        },
+        {
+          "key": "module-b"
+        },
+        {
+          "key": "module-c"
+        },
+        {
+          "key": "module-d"
+        }
+      ],
+      "package": "subPackage"
     },
-    "page-c": { "route": "pages/page-c/index", "title": "App1 页面C", "enabled": true },
-    "page-d": { "route": "pages/page-d/index", "title": "App1 页面D", "enabled": false }
+    "page-c": {
+      "route": "pages/page-c/index",
+      "title": "App1 页面C",
+      "enabled": true,
+      "package": "subPackage"
+    },
+    "page-d": {
+      "route": "pages/page-d/index",
+      "title": "App1 页面D",
+      "enabled": true,
+      "package": "subPackage"
+    }
   },
   "features": {
     "pageA": true,
     "pageB": true,
     "pageC": true,
-    "pageD": false,
+    "pageD": true,
     "moduleA": true,
     "moduleB": true,
     "moduleC": true,
     "moduleD": true,
     "moduleE": false
   },
-  "runtime": { "themeColor": "#1677ff", "apiBase": "https://api.example.com/app1" },
-  "release": { "uploadEnabled": false, "auditEnabled": false, "releaseEnabled": false }
+  "runtime": {
+    "themeColor": "#1677ff",
+    "apiBase": "https://api.example.com/app1"
+  },
+  "release": {
+    "uploadEnabled": false,
+    "auditEnabled": false,
+    "releaseEnabled": false
+  }
 }

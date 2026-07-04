@@ -1,4 +1,3 @@
-export default {
-  key: 'module-a',
-  renderLabel: 'module-a'
-} as const;
+import ModuleA from './index.vue';
+
+export default ModuleA;
