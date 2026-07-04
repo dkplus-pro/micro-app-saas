@@ -20,7 +20,7 @@ export declare function usePageBController(): {
             readonly apiBase: "https://api.example.com/app2";
         };
     };
-    modules: import("../types/page-b.type.js").PageBModuleViewModel[];
+    modules: import("../types/page-b.type.ts").PageBModuleViewModel[];
     moduleEntries: {
         readonly 'module-a': {
             readonly key: "module-a";

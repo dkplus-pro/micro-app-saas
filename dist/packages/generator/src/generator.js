@@ -1,8 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { assertValidTenantSchema } from '../../schema/src/validation.js';
+import { assertValidTenantSchema } from '../../schema/src/validation.ts';
 export async function loadTenantSchema(tenant, schemaDir = 'schemas/tenants') {
-    const schemaPath = path.join(process.cwd(), schemaDir, `${tenant}.schema.json`);
+    const schemaPath = path.resolve(schemaDir, `${tenant}.schema.json`);
     const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
     assertValidTenantSchema(schema);
     return schema;
@@ -35,7 +35,7 @@ export function createArtifacts(schema) {
         return {
             key: tab.key,
             text: tab.text,
-            pagePath: page.route,
+            pagePath: page?.route ?? (() => { throw new Error(`tab ${tab.key} references missing page ${tab.page}`); })(),
             iconPath: tab.iconPath,
             selectedIconPath: tab.selectedIconPath
         };
@@ -76,7 +76,7 @@ function tsExport(name, value) {
 export async function generateTenant(options) {
     const schema = await loadTenantSchema(options.tenant, options.schemaDir);
     const artifacts = createArtifacts(schema);
-    const outputDir = path.join(process.cwd(), options.outputDir ?? 'apps/miniapp-template/src/generated');
+    const outputDir = path.resolve(options.outputDir ?? 'apps/miniapp-template/src/generated');
     await mkdir(outputDir, { recursive: true });
     await writeFile(path.join(outputDir, 'tenant.config.ts'), tsExport('tenantConfig', schema.tenant));
     await writeFile(path.join(outputDir, 'app.config.ts'), tsExport('appConfig', artifacts.appConfig));

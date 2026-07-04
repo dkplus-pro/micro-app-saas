@@ -1,5 +1,5 @@
 export declare function usePageBModulesController(): {
-    modules: import("../types/page-b.type.js").PageBModuleViewModel[];
+    modules: import("../types/page-b.type.ts").PageBModuleViewModel[];
     moduleEntries: {
         readonly 'module-a': {
             readonly key: "module-a";

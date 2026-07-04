@@ -1,4 +1,4 @@
-import type { ModuleKey, TenantPage, TenantSchema } from '../../schema/src/types.js';
+import type { ModuleKey, TenantPage, TenantSchema } from '../../schema/src/types.ts';
 export interface GeneratedTenantArtifacts {
     tenantId: string;
     appConfig: unknown;

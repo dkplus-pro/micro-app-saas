@@ -1,4 +1,4 @@
-import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.js';
+import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
 function hasText(value) {
     return typeof value === 'string' && value.trim().length > 0;
 }
