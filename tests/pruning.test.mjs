@@ -30,20 +30,22 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   const app1 = await readBuild('app1');
   const app2 = await readBuild('app2');
 
-  assert.deepEqual(app1.pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index']);
+  assert.deepEqual(app1.pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index', 'pages/page-d/index']);
   assert.deepEqual(app2.pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-d/index']);
   assert.equal(app1.pages.find((page) => page.path === 'pages/page-a/index').style.navigationBarTitleText, 'App1 首页');
   assert.equal(app2.pages.find((page) => page.path === 'pages/page-a/index').style.navigationBarTitleText, 'App2 首页');
-  assert.deepEqual(app1.tabBar.list.map((tab) => tab.text), ['A', 'B', 'C']);
-  assert.deepEqual(app2.tabBar.list.map((tab) => tab.text), ['A', 'B', 'D']);
+  assert.deepEqual(app1.tabBar.list.map((tab) => tab.text), ['A']);
+  assert.deepEqual(app2.tabBar.list.map((tab) => tab.text), ['A']);
   assert.deepEqual(app1.modules.map((moduleEntry) => moduleEntry.key), ['module-a', 'module-b', 'module-c', 'module-d']);
+  assert.deepEqual(app1.subPackages.map((subPackage) => subPackage.root), ['pages/page-b', 'pages/page-c', 'pages/page-d']);
+  assert.deepEqual(app2.subPackages.map((subPackage) => subPackage.root), ['pages/page-b', 'pages/page-d']);
   assert.deepEqual(app2.modules.map((moduleEntry) => moduleEntry.key), ['module-a', 'module-d', 'module-c']);
 
   const app1Entry = await readModuleEntry('app1');
   const app2Entry = await readModuleEntry('app2');
   assert.match(app1Entry, /module-b/);
   assert.doesNotMatch(app1Entry, /module-e/);
-  assert.doesNotMatch(app1Entry, /page-d/);
+  assert.match(JSON.stringify(app1), /pages\/page-d\/index/);
   assert.doesNotMatch(app2Entry, /module-b/);
   assert.doesNotMatch(app2Entry, /module-e/);
   assert.doesNotMatch(JSON.stringify(app2), /pages\/page-c\/index/);

@@ -16,9 +16,10 @@ describe('tenant generator compile-time pruning', () => {
   it('generates App1 pages A/B/C and modules A/B/C/D only', async () => {
     const { config, moduleEntry } = await generateToTemp('app1');
 
-    expect(config.pages.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-c']);
-    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a', 'page-b', 'page-c']);
+    expect(config.pages.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-c', 'page-d']);
+    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a']);
     expect(config.pages.find((page) => page.key === 'page-a')?.title).toBe('App1 首页');
+    expect(config.pages.find((page) => page.key === 'page-a')?.modules?.map((module) => module.key)).toEqual(['module-a']);
     expect(config.pages.find((page) => page.key === 'page-b')?.modules?.map((module) => module.key)).toEqual([
       'module-a',
       'module-b',
@@ -28,15 +29,16 @@ describe('tenant generator compile-time pruning', () => {
     expect(config.modules).toEqual(['module-a', 'module-b', 'module-c', 'module-d']);
     expect(moduleEntry).not.toContain("../modules/module-e");
     expect(moduleEntry).not.toContain("'module-e':");
-    expect(config.pages.map((page) => page.key)).not.toContain('page-d');
+    expect(config.pages.map((page) => page.key)).toContain('page-d');
   });
 
   it('generates App2 pages A/B/D and modules A/D/C only', async () => {
     const { config, moduleEntry } = await generateToTemp('app2');
 
     expect(config.pages.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-d']);
-    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a', 'page-b', 'page-d']);
+    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a']);
     expect(config.pages.find((page) => page.key === 'page-a')?.title).toBe('App2 首页');
+    expect(config.pages.find((page) => page.key === 'page-a')?.modules).toEqual([]);
     expect(config.pages.find((page) => page.key === 'page-b')?.modules?.map((module) => module.key)).toEqual([
       'module-a',
       'module-d',

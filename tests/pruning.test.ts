@@ -19,13 +19,16 @@ test('schemas validate strictly for app1 and app2', async () => {
   }
 });
 
-test('app1 generation prunes page-d and module-e', async () => {
+test('app1 generation enables page-a module and subpackages while pruning module-e', async () => {
   const { artifacts, moduleEntry } = await buildSummary('app1');
   assert.equal(artifacts.tenantId, 'app1');
-  assert.deepEqual(artifacts.pageRoutes, ['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index']);
+  assert.deepEqual(artifacts.pageRoutes, ['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index', 'pages/page-d/index']);
   assert.deepEqual(artifacts.usedModules, ['module-a', 'module-b', 'module-c', 'module-d']);
   assert.match(JSON.stringify(artifacts.pagesConfig), /App1 首页/);
-  assert.doesNotMatch(JSON.stringify(artifacts.pagesConfig), /pages\/page-d\/index/);
+  assert.deepEqual(artifacts.pagesConfig.find((page) => page.key === 'page-a')?.modules?.map((module) => module.key), ['module-a']);
+  assert.match(JSON.stringify(artifacts.pagesConfig), /pages\/page-d\/index/);
+  assert.deepEqual((artifacts.uniPagesJson as { pages: Array<{ path: string }> }).pages.map((page) => page.path), ['pages/page-a/index']);
+  assert.deepEqual(artifacts.subPackagesConfig.map((subPackage) => subPackage.root), ['pages/page-b', 'pages/page-c', 'pages/page-d']);
   assert.match(moduleEntry, /module-a/);
   assert.match(moduleEntry, /module-b/);
   assert.match(moduleEntry, /module-c/);
@@ -38,6 +41,9 @@ test('app2 generation prunes page-c, module-b, and module-e while preserving mod
   assert.equal(artifacts.tenantId, 'app2');
   assert.deepEqual(artifacts.pageRoutes, ['pages/page-a/index', 'pages/page-b/index', 'pages/page-d/index']);
   assert.deepEqual(artifacts.usedModules, ['module-a', 'module-d', 'module-c']);
+  assert.deepEqual(artifacts.pagesConfig.find((page) => page.key === 'page-a')?.modules, []);
+  assert.deepEqual((artifacts.uniPagesJson as { pages: Array<{ path: string }> }).pages.map((page) => page.path), ['pages/page-a/index']);
+  assert.deepEqual(artifacts.subPackagesConfig.map((subPackage) => subPackage.root), ['pages/page-b', 'pages/page-d']);
   assert.match(JSON.stringify(artifacts.pagesConfig), /App2 首页/);
   assert.doesNotMatch(JSON.stringify(artifacts.pagesConfig), /pages\/page-c\/index/);
   assert.match(moduleEntry, /module-a/);
@@ -54,7 +60,7 @@ test('validator rejects tabs pointing at disabled pages and unknown modules', as
   badSchema.pages['page-b'].modules = [{ key: 'module-x' as never }];
   const result = validateTenantSchema(badSchema);
   assert.equal(result.valid, false);
-  assert.ok(result.errors.some((error) => error.includes('disabled page')));
+  assert.ok(result.errors.some((error) => error.includes('subPackage page')));
   assert.ok(result.errors.some((error) => error.includes('unknown module')));
 });
 

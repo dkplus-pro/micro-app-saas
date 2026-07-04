@@ -7,6 +7,7 @@ The generated TypeScript and JSON files in this directory are local build artifa
 The template imports these generated TypeScript modules after generation:
 
 - `pages.config` exporting `pagesConfig`
+- `subpackages.config` exporting `subPackagesConfig`
 - `tabbar.config` exporting `tabbarConfig`
 - `runtime.config` exporting `runtimeConfig`
 - `module-entry` exporting tenant-scoped `moduleEntries`
@@ -18,4 +19,4 @@ npm run dev -- --tenant=app1
 npm run build -- --tenant=app1
 ```
 
-`module-entry` must import only enabled modules for the active tenant so disabled modules have no static import edge in that tenant build.
+`subpackages.config` must keep non-home pages out of the main package. `module-entry` must import only enabled modules for the active tenant so disabled modules have no static import edge in that tenant build.

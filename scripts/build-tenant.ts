@@ -22,11 +22,12 @@ try {
   if (shouldGenerate) {
     const artifacts = await generateTenant({ tenant: options.tenantId, schemaDir: options.schemaDir, outputDir: artifactDir });
     writeJson(path.join(artifactDir, 'manifest.generated.json'), artifacts.appConfig);
-    writeJson(path.join(artifactDir, 'pages.generated.json'), { pages: artifacts.pagesConfig, tabBar: artifacts.tabbarConfig });
+    writeJson(path.join(artifactDir, 'pages.generated.json'), { pages: artifacts.pagesConfig, subPackages: artifacts.subPackagesConfig, tabBar: artifacts.tabbarConfig });
     writeJson(path.join(artifactDir, 'build.generated.json'), {
       tenantId: artifacts.tenantId,
       pages: artifacts.pagesConfig,
       tabBar: artifacts.tabbarConfig,
+      subPackages: artifacts.subPackagesConfig,
       modules: artifacts.usedModules.map((key) => ({ key }))
     });
     await import('node:fs/promises').then(({ writeFile }) => writeFile(path.join(artifactDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`));
