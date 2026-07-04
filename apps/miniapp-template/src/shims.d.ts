@@ -1,10 +1,5 @@
 declare module '*.vue' {
-  const component: unknown;
+  import type { DefineComponent } from 'vue';
+  const component: DefineComponent<Record<string, never>, Record<string, never>, unknown>;
   export default component;
-}
-
-declare module 'vue' {
-  export function computed<T>(getter: () => T): { readonly value: T };
-  export function createApp(rootComponent: unknown): { mount(selector: string): void; use(plugin: unknown): unknown };
-  export function createSSRApp(rootComponent: unknown): { mount(selector: string): void; use(plugin: unknown): unknown };
 }
