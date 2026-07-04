@@ -28,6 +28,8 @@ apps/miniapp-template/dist/build/mp-weixin/
 
 用微信开发者工具导入该目录即可预览。
 
+> 注意：请导入 `dist/build/mp-weixin/`，不要导入仓库根目录或 `apps/miniapp-template/`。构建脚本会在微信小程序产物的 `app.json` 中保留 `subPackages` 字段，以兼容部分开发者工具版本的配置读取逻辑。
+
 ## 生成文件不要提交
 
 每次 `dev` / `build` 都会先按租户生成本地文件：

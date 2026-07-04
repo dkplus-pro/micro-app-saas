@@ -3,6 +3,11 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { generateTenant } from '../packages/generator/src/generator.ts';
 import { getArg, requireArg } from './args.ts';
+import {
+  ensureWeixinDevtoolsAppJsonCompat,
+  startWeixinDevtoolsAppJsonCompatPatcher,
+  type WeixinAppJsonCompatResult
+} from './weixin-app-json.ts';
 
 const tenant = requireArg('tenant');
 const positionalCommand = process.argv.slice(2).find((arg) => arg === 'dev' || arg === 'build');
@@ -45,6 +50,10 @@ const executable = existsSync(uniBin) ? uniBin : 'npx';
 const executableArgs = existsSync(uniBin)
   ? commandPlan
   : ['--yes', '--package', '@dcloudio/vite-plugin-uni', '--', 'uni', ...commandPlan];
+const weixinOutputDir = path.join('apps/miniapp-template/dist', command === 'build' ? 'build' : 'dev', 'mp-weixin');
+const stopCompatPatcher = platform === 'mp-weixin' && command === 'dev'
+  ? startWeixinDevtoolsAppJsonCompatPatcher(weixinOutputDir, logCompatPatch)
+  : undefined;
 
 const child = spawn(executable, executableArgs, {
   cwd: path.resolve('apps/miniapp-template'),
@@ -53,13 +62,15 @@ const child = spawn(executable, executableArgs, {
   env: { ...process.env, TENANT_ID: tenant, UNI_PLATFORM: platform }
 });
 
-child.on('exit', (code, signal) => {
-  if (signal) {
-    process.kill(process.pid, signal);
-    return;
-  }
-  process.exit(code ?? 1);
-});
+const { code, signal } = await waitForChild(child);
+stopCompatPatcher?.();
+if (signal) {
+  process.kill(process.pid, signal);
+} else if ((code ?? 1) === 0 && platform === 'mp-weixin') {
+  const result = await ensureWeixinDevtoolsAppJsonCompat(weixinOutputDir);
+  logCompatPatch(result);
+}
+process.exit(code ?? 1);
 
 function uniCommandArgs(selectedCommand: string, selectedPlatform: string, forwarded: string[]): string[] {
   const base = ['-p', selectedPlatform];
@@ -90,4 +101,17 @@ function hasFlag(name: string): boolean {
   const exact = `--${name}`;
   const prefix = `${exact}=`;
   return process.argv.slice(2).some((arg) => arg === exact || arg.startsWith(prefix));
+}
+
+function waitForChild(childProcess: ReturnType<typeof spawn>): Promise<{ code: number | null; signal: NodeJS.Signals | null }> {
+  return new Promise((resolve, reject) => {
+    childProcess.on('error', reject);
+    childProcess.on('exit', (code, signal) => resolve({ code, signal }));
+  });
+}
+
+function logCompatPatch(result: WeixinAppJsonCompatResult): void {
+  if (result.changed) {
+    console.log(`[uniapp-tenant] patched ${path.relative(process.cwd(), result.appJsonPath)} with subPackages: [] for WeChat DevTools compatibility`);
+  }
 }
