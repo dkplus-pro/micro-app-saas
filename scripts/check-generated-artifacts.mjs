@@ -27,10 +27,13 @@ const ignoredCandidates = [
   'dist/scripts/generate-tenant.js',
   'node_modules/.vite'
 ];
-const ignored = spawnSync('git', ['check-ignore', '-q', ...ignoredCandidates], { encoding: 'utf8' });
-if (ignored.status !== 0) {
+const notIgnored = ignoredCandidates.filter((file) => {
+  const ignored = spawnSync('git', ['check-ignore', '-q', file], { encoding: 'utf8' });
+  return ignored.status !== 0;
+});
+if (notIgnored.length > 0) {
   console.error('Expected generated/build output paths to be ignored by git.');
-  console.error(`Check-ignore candidates:\n${ignoredCandidates.map((file) => `- ${file}`).join('\n')}`);
+  console.error(`Not ignored:\n${notIgnored.map((file) => `- ${file}`).join('\n')}`);
   process.exit(1);
 }
 
