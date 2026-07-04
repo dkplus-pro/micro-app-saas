@@ -59,3 +59,16 @@ test('legacy module feature flags remain a runtime JSON compatibility gate', asy
   assert.equal(validation.valid, false);
   assert.match(validation.errors.join('\n'), /page-a\.modules references disabled capability moduleA/);
 });
+
+test('legacy module-only feature flags remain accepted for backend JSON compatibility', async () => {
+  const schema = await loadSchema('app1');
+  delete schema.capabilities;
+  schema.features = { moduleA: true, moduleB: true, moduleC: true, moduleD: true, moduleE: false };
+
+  const validation = validateTenantSchema(schema);
+  assert.deepEqual(validation.errors, []);
+
+  const artifacts = createArtifacts(schema);
+  assert.deepEqual(artifacts.runtimeConfig.features, schema.features);
+  assert.equal(artifacts.runtimeConfig.capabilities.modules['module-a'], true);
+});
