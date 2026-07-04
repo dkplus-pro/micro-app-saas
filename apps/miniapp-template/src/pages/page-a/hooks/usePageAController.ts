@@ -1,8 +1,8 @@
 import type { PageModuleConfig } from '../../../../../../packages/schema/src/types.js';
-import type { PageAModuleViewModel } from '../types/page-a.type.js';
-import { pagesConfig } from '../../../generated/pages.config.js';
-import { routeConfig } from '../../../generated/route.config.js';
-import { PAGE_A_KEY } from '../consts/module.const.js';
+import type { PageAModuleViewModel } from '../types/page-a.type.ts';
+import { pagesConfig } from '../../../generated/pages.config.ts';
+import { routeConfig } from '../../../generated/route.config.ts';
+import { PAGE_A_KEY } from '../consts/module.const.ts';
 import { toPageAModules } from '../utils/module-visible.util.js';
 
 interface GeneratedPageConfig {

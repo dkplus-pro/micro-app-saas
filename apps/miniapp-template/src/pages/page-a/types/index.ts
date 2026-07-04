@@ -1,1 +1,1 @@
-export * from './page-a.type.js';
+export * from './page-a.type.ts';

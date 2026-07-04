@@ -1,2 +1,2 @@
-export * from './module-navigation.util.js';
-export * from './module-visible.util.js';
+export * from './module-navigation.util.ts';
+export * from './module-visible.util.ts';

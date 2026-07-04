@@ -1,5 +1,5 @@
 import type { ModuleKey } from '../../../../../../packages/schema/src/types.js';
-import { MODULE_A_KEY, PAGE_D_KEY } from '../consts/module.const.js';
+import { MODULE_A_KEY, PAGE_D_KEY } from '../consts/module.const.ts';
 
 export type GeneratedRouteConfig = Readonly<Record<string, string | undefined>>;
 

@@ -1,7 +1,7 @@
 import type { PageModuleConfig } from '../../../../../../packages/schema/src/types.js';
-import type { PageAModuleViewModel } from '../types/page-a.type.js';
-import type { GeneratedRouteConfig } from './module-navigation.util.js';
-import { resolvePageAModuleNavigationUrl } from './module-navigation.util.js';
+import type { PageAModuleViewModel } from '../types/page-a.type.ts';
+import type { GeneratedRouteConfig } from './module-navigation.util.ts';
+import { resolvePageAModuleNavigationUrl } from './module-navigation.util.ts';
 
 export function toPageAModules(
   modules: readonly PageModuleConfig[] = [],

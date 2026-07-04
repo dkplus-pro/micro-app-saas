@@ -1,1 +1,1 @@
-export * from './usePageAController.js';
+export * from './usePageAController.ts';
