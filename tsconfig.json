@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "declaration": true,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "include": ["packages/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "apps/miniapp-template/src/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}
