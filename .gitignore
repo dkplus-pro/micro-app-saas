@@ -5,10 +5,7 @@ coverage/
 
 # Local runner and build outputs
 .runner-records/
-apps/miniapp-template/dist/
-apps/miniapp-template/.vite/
-
-# Tenant files are generated locally before dev/build; only the README is source.
 apps/miniapp-template/src/generated/*
-!apps/miniapp-template/src/generated/
 !apps/miniapp-template/src/generated/README.md
+!apps/miniapp-template/src/generated/.gitkeep
+apps/miniapp-template/.vite/

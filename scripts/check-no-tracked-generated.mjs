@@ -1,26 +1,25 @@
 import { spawnSync } from 'node:child_process';
 
-const allowed = new Set(['apps/miniapp-template/src/generated/README.md']);
-const result = spawnSync('git', ['ls-files', 'apps/miniapp-template/src/generated/*'], { encoding: 'utf8' });
+const generatedRoot = 'apps/miniapp-template/src/generated';
+const allowedTracked = new Set([`${generatedRoot}/README.md`, `${generatedRoot}/.gitkeep`]);
 
-if (result.status !== 0) {
-  process.stderr.write(result.stderr || 'git ls-files apps/miniapp-template/src/generated/* failed\n');
-  process.exit(result.status ?? 1);
+const child = spawnSync('git', ['ls-files', `${generatedRoot}/*`], { encoding: 'utf8' });
+if (child.status !== 0) {
+  process.stderr.write(child.stderr || 'git ls-files failed while checking generated tenant artifacts\n');
+  process.exit(child.status ?? 1);
 }
 
-const trackedFiles = result.stdout
+const trackedGeneratedArtifacts = child.stdout
   .split('\n')
   .map((line) => line.trim())
   .filter(Boolean)
-  .filter((file) => !allowed.has(file));
+  .filter((file) => !allowedTracked.has(file));
 
-if (trackedFiles.length > 0) {
-  console.error('FAIL tracked generated tenant artifacts found:');
-  console.error(trackedFiles.slice(0, 20).join('\n'));
-  if (trackedFiles.length > 20) {
-    console.error(`...and ${trackedFiles.length - 20} more`);
-  }
-  console.error('Run: git rm --cached apps/miniapp-template/src/generated/<generated files>');
+if (trackedGeneratedArtifacts.length > 0) {
+  console.error([
+    'Generated tenant artifacts must not be tracked. Regenerate them locally instead of committing them:',
+    ...trackedGeneratedArtifacts.map((file) => `- ${file}`),
+  ].join('\n'));
   process.exit(1);
 }
 

@@ -7,5 +7,5 @@ export function createApp() {
 }
 
 if (typeof document !== 'undefined') {
-  createVueApp(App).mount('#app');
+  createApp().app.mount('#app');
 }

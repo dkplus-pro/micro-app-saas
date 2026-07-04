@@ -2,6 +2,11 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
+const generated = spawnSync(process.execPath, ['scripts/generate-tenant.ts', '--tenant=app1'], { encoding: 'utf8' });
+process.stdout.write(generated.stdout || '');
+process.stderr.write(generated.stderr || '');
+if (generated.status !== 0) process.exit(generated.status ?? 1);
+
 const localTsc = process.platform === 'win32'
   ? join('node_modules', '.bin', 'tsc.cmd')
   : join('node_modules', '.bin', 'tsc');

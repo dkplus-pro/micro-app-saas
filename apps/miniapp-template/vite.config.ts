@@ -1,22 +1,16 @@
-import { fileURLToPath } from 'node:url';
-import vue from '@vitejs/plugin-vue';
+import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
-
-const appRoot = fileURLToPath(new URL('.', import.meta.url));
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
-  root: appRoot,
   plugins: [vue()],
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true
-  },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
   },
-  server: {
-    host: '127.0.0.1'
-  }
+  build: {
+    outDir: 'dist/vite',
+    emptyOutDir: true,
+  },
 });

@@ -8,7 +8,7 @@ This repository is a minimal runnable scaffold for the `DESIGN.md` proposal: one
 npm install
 npm run validate:schema
 npm run generate:tenant -- --tenant=app1
-npm run dev:tenant -- --tenant=app1
+npm run dev:app1
 npm run build:vite:app1
 npm run build:app1
 npm run build:app2
@@ -44,11 +44,6 @@ Switching tenants requires rerunning the tenant command so `src/generated/` refl
 - `app2` generates pages A/B/D and modules `module-a,module-d,module-c`.
 - The generated `module-entry.ts` statically imports only modules used by the selected tenant.
 
-
 ## Generated tenant artifacts
 
-`apps/miniapp-template/src/generated/` is local generated output. The committed source of truth is the tenant schema under `schemas/tenants/`; generated `.ts`/`.json` files, Vite output, runner records, `dist/`, and `node_modules/` must stay untracked.
-
-Use `npm run dev:tenant -- --tenant=app1` for local Vite development. The script regenerates `src/generated/` for the selected tenant, then starts Vite in `apps/miniapp-template`. Use `npm run build:vite:tenant -- --tenant=app1` or `npm run build:vite:app1` for a smokeable production build.
-
-`npm run lint` includes `guard:generated-untracked`, which fails if generated tenant TS/JSON files are tracked again.
+Generated files under `apps/miniapp-template/src/generated/` are local build artifacts. Only the explanatory README is tracked; generated TypeScript/JSON outputs are ignored and must be recreated with `npm run generate:tenant -- --tenant=<tenant>`, `npm run dev:tenant -- --tenant=<tenant>`, or `npm run build:vite:tenant -- --tenant=<tenant>`. The Vite tenant scripts generate the selected tenant first, then run `vite` or `vite build` from `apps/miniapp-template`.
