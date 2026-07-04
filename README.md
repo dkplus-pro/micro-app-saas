@@ -17,6 +17,7 @@ npm run build:app1
 | `npm run build -- --tenant=app1` | 生成 App1 配置并构建微信小程序产物 |
 | `npm run dev:app1` / `npm run dev:app2` | 指定租户开发快捷命令 |
 | `npm run build:app1` / `npm run build:app2` | 指定租户构建快捷命令 |
+| `npm run emit:schema-json -- --check` | 校验 TS-first schema 源和 JSON schema 是否同步 |
 | `npm run validate:schema` | 校验内置租户 schema |
 | `npm run typecheck` / `npm run lint` / `npm test` | 类型、静态检查和测试 |
 
@@ -53,9 +54,19 @@ npm run guard:artifacts
 租户 schema 放在：
 
 ```txt
+schemas/tenants/app1.schema.ts
+schemas/tenants/app2.schema.ts
 schemas/tenants/app1.schema.json
 schemas/tenants/app2.schema.json
 ```
+
+优先编辑 `.schema.ts` 文件，它们使用 `TenantSchema` 类型做编译期校验；然后运行：
+
+```bash
+npm run emit:schema-json
+```
+
+该命令会从 TS schema 源生成对应 `.schema.json`，供构建、runner 和后端 JSON 流程读取。提交前可用 `npm run emit:schema-json -- --check` 检查 JSON 是否和 TS 源同步。
 
 构建命令会按 `--tenant=<id>` 读取对应 schema，先生成租户配置，再启动 uni-app 编译。例如：
 
@@ -106,7 +117,7 @@ npm run dev -- --tenant=app2
 - 当存在首页未引用模块时，生成器会自动追加隐藏技术分包 `pages/module-assets`；tab 页面仍保留在主包，模块入口则从分包侧承载。
 - 同一页面位置展示不同租户图片时，把图片放到 `apps/miniapp-template/src/assets/tenants/<tenantId>/`，再在 schema 的 `runtime.assets.pageAImage.src` 配置 `assets/...` 路径；生成器会生成 `page-a-assets.ts` 静态 import 当前租户资源，Page A 在固定位置渲染。
 - `module-a` 在 Page A 上可通过 `props.targetPage` 指向页面 key，例如 `page-d`，生成后会解析为 `uni.navigateTo` 可用的真实路由。
-- 修改 schema 后先运行 `npm run validate:schema`，再运行对应租户的 `npm run build -- --tenant=<id>`。
+- 修改 TS schema 后先运行 `npm run emit:schema-json`，再运行 `npm run validate:schema` 和对应租户的 `npm run build -- --tenant=<id>`。
 
 示例：App1 的 Page A 多一个可跳转 Page D 的 `module-a`：
 

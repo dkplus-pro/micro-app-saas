@@ -19,6 +19,7 @@ test('npm scripts expose a small uni-app mini-program command set', () => {
     'batch:build',
     'upload:tenant',
     'release:tenant',
+    'emit:schema-json',
     'validate:schema',
     'build:tools',
     'typecheck',

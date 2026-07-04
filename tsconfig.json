@@ -18,6 +18,7 @@
   },
   "include": [
     "packages/**/*.ts",
+    "schemas/**/*.ts",
     "scripts/**/*.ts",
     "apps/miniapp-template/src/**/*.ts",
     "apps/miniapp-template/vite.config.ts"

@@ -15,6 +15,7 @@
     "batch:build": "npm run build:tools && node dist/scripts/batch-build.js",
     "upload:tenant": "npm run build:tools && node dist/scripts/upload-tenant.js -- --dry-run",
     "release:tenant": "npm run build:tools && node dist/scripts/release-tenant.js -- --dry-run",
+    "emit:schema-json": "node scripts/emit-schema-json.ts",
     "validate:schema": "npm run build:tools && node dist/scripts/validate-schema.js",
     "build:tools": "tsc -p tsconfig.json",
     "typecheck": "node scripts/typecheck.mjs",
