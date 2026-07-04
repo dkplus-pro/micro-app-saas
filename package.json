@@ -15,11 +15,12 @@
     "upload:tenant": "npm run build:tools && node dist/scripts/upload-tenant.js -- --dry-run",
     "release:tenant": "npm run build:tools && node dist/scripts/release-tenant.js -- --dry-run",
     "test": "node --test tests/*.test.mjs",
-    "lint": "node scripts/lint.mjs",
+    "lint": "node scripts/check-no-tracked-node-modules.mjs && node scripts/lint.mjs",
     "runner:build": "node scripts/build-tenant.ts",
     "runner:batch": "node scripts/batch-build.ts",
     "runner:upload": "node scripts/upload-tenant.ts",
-    "runner:release": "node scripts/release-tenant.ts"
+    "runner:release": "node scripts/release-tenant.ts",
+    "guard:no-tracked-node-modules": "node scripts/check-no-tracked-node-modules.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4",
