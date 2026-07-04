@@ -49,8 +49,21 @@ export interface TenantRuntimeConfig {
   themeColor?: string;
   logo?: string;
   banner?: string;
+  assets?: TenantAssetsConfig;
   apiBase?: string;
   theme?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface TenantImageAsset {
+  src: `assets/${string}`;
+  title?: string;
+  description?: string;
+  alt?: string;
+}
+
+export interface TenantAssetsConfig {
+  pageAImage?: TenantImageAsset;
   [key: string]: unknown;
 }
 

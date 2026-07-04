@@ -73,7 +73,7 @@ npm run dev -- --tenant=app2
 | `tabs` | 底部 tabBar 配置；每项通过 `page` 指向 `pages` 里的页面 key |
 | `pages` | 页面开关、路由、标题、分包归属和页面模块配置 |
 | `features` | 功能开关；页面或模块被 schema 引用时，对应 feature 不能是 `false` |
-| `runtime` | 运行时配置，例如主题色 `themeColor`、接口地址 `apiBase` |
+| `runtime` | 运行时配置，例如主题色 `themeColor`、接口地址 `apiBase`、租户资源 `assets` |
 | `release` | 上传、审核、发布等流水线开关；当前 runner 默认 dry-run |
 
 `pages` 中每个页面的关键字段：
@@ -95,6 +95,7 @@ npm run dev -- --tenant=app2
 - `module-entry.ts` / `home-module-renderer.vue` 只生成首页 Page A 引用的模块，避免首页/主包静态加载其它模块。
 - 首页没有引用、但其它页面引用的模块会进入 `subpackage-module-entry.ts`，并同步生成到技术分包 `pages/module-assets/module-entry.ts`。
 - 当存在首页未引用模块时，生成器会自动追加隐藏技术分包 `pages/module-assets`；tab 页面仍保留在主包，模块入口则从分包侧承载。
+- 同一页面位置展示不同租户图片时，把图片放到 `apps/miniapp-template/src/assets/tenants/<tenantId>/`，再在 schema 的 `runtime.assets.pageAImage.src` 配置 `assets/...` 路径；生成器会生成 `page-a-assets.ts` 静态 import 当前租户资源，Page A 在固定位置渲染。
 - `module-a` 在 Page A 上可通过 `props.targetPage` 指向页面 key，例如 `page-d`，生成后会解析为 `uni.navigateTo` 可用的真实路由。
 - 修改 schema 后先运行 `npm run validate:schema`，再运行对应租户的 `npm run build -- --tenant=<id>`。
 
@@ -124,9 +125,25 @@ npm run dev -- --tenant=app2
 }
 ```
 
+示例：App1 和 App2 在 Page A 同一位置展示不同图片资源：
+
+```json
+{
+  "runtime": {
+    "assets": {
+      "pageAImage": {
+        "src": "assets/tenants/app1/page-a-demo.png",
+        "title": "App1 同位置图片",
+        "description": "App1 引用自己的蓝色租户资源"
+      }
+    }
+  }
+}
+```
+
 ## Page A 模块导航
 
-Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并按顺序渲染。`module-a` 只在生成的 `route.config.ts` 注册了 Page D 路由时才触发 `uni.navigateTo`，避免跳转到未进入当前租户包的页面。
+Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并按顺序渲染，也从 `page-a-assets.ts` 读取当前租户图片，在固定位置展示 `runtime.assets.pageAImage` 对应资源。`module-a` 只在生成的 `route.config.ts` 注册了 Page D 路由时才触发 `uni.navigateTo`，避免跳转到未进入当前租户包的页面。
 
 ## 租户裁剪规则
 

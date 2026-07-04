@@ -51,11 +51,14 @@ test('README documents the simplified command surface', async () => {
   assert.match(readme, /npm run build:app1/, 'README should document app1 shortcut');
   assert.match(readme, /src\/generated/i, 'README should mention generated tenant output directory');
   assert.match(readme, /src\/pages\.json/i, 'README should mention generated pages.json');
+  assert.match(readme, /runtime\.assets\.pageAImage/, 'README should document tenant image asset configuration');
   assert.match(readme, /不要提交|not (?:commit|committed)|local-only/i, 'README should warn generated tenant outputs are local-only');
   assert.doesNotMatch(readme, /npm run (?:dev|build):(?:vite|mp-weixin)/, 'README should not document legacy Vite/platform aliases');
   assert.match(generatedReadme, /npm run dev -- --tenant=app1/, 'generated README placeholder should document tenant dev command');
   assert.match(generatedReadme, /npm run build -- --tenant=app1/, 'generated README placeholder should document tenant build command');
   assert.match(generatedReadme, /home-module-renderer/, 'generated README should document generated homepage renderer');
+  assert.match(generatedReadme, /page-a-assets/, 'generated README should document tenant-specific page assets');
+  assert.match(generatedReadme, /pageAImage/, 'generated README should mention runtime image assets');
   assert.match(generatedReadme, /subpackage-module-entry/, 'generated README should document split module entries');
   assert.match(generatedReadme, /module-assets/, 'generated README should document technical module subpackage entry');
   assert.doesNotMatch(generatedReadme, /npm run (?:dev:tenant|vite:build:tenant)/, 'generated README placeholder should not document removed tenant aliases');

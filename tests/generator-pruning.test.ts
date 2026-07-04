@@ -9,14 +9,15 @@ async function generateToTemp(tenant: string) {
   const config = await generateTenant({ tenant, outputDir: dir });
   const moduleEntry = await readFile(join(dir, 'module-entry.ts'), 'utf8');
   const homeModuleRenderer = await readFile(join(dir, 'home-module-renderer.vue'), 'utf8');
+  const pageAAssets = await readFile(join(dir, 'page-a-assets.ts'), 'utf8');
   const subPackageModuleEntry = await readFile(join(dir, 'subpackage-module-entry.ts'), 'utf8');
   await rm(dir, { recursive: true, force: true });
-  return { config, moduleEntry, homeModuleRenderer, subPackageModuleEntry };
+  return { config, moduleEntry, homeModuleRenderer, pageAAssets, subPackageModuleEntry };
 }
 
 describe('tenant generator compile-time pruning', () => {
   it('generates App1 pages A/B/C and modules A/B/C/D only', async () => {
-    const { config, moduleEntry, homeModuleRenderer, subPackageModuleEntry } = await generateToTemp('app1');
+    const { config, moduleEntry, homeModuleRenderer, pageAAssets, subPackageModuleEntry } = await generateToTemp('app1');
 
     expect(config.pagesConfig.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-c', 'page-d']);
     expect((config.tabbarConfig as { list: Array<{ pagePath: string }> }).list.map((tab) => tab.pagePath)).toEqual(['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index']);
@@ -32,6 +33,9 @@ describe('tenant generator compile-time pruning', () => {
     expect(config.usedModules).toEqual(['module-a', 'module-b', 'module-c', 'module-d']);
     expect(config.homeModules).toEqual(['module-a']);
     expect(config.subPackageModules).toEqual(['module-b', 'module-c', 'module-d']);
+    expect((config.runtimeConfig as { runtime: { assets: { pageAImage: { src: string } } } }).runtime.assets.pageAImage.src).toBe('assets/tenants/app1/page-a-demo.png');
+    expect(pageAAssets).toContain("assets/tenants/app1/page-a-demo.png");
+    expect(pageAAssets).not.toContain("assets/tenants/app2/page-a-demo.png");
     expect(moduleEntry).toContain("../modules/module-a");
     expect(moduleEntry).not.toContain("../modules/module-b");
     expect(moduleEntry).not.toContain("../modules/module-c");
@@ -50,7 +54,7 @@ describe('tenant generator compile-time pruning', () => {
   });
 
   it('generates App2 pages A/B/D and modules A/D/C only', async () => {
-    const { config, moduleEntry, homeModuleRenderer, subPackageModuleEntry } = await generateToTemp('app2');
+    const { config, moduleEntry, homeModuleRenderer, pageAAssets, subPackageModuleEntry } = await generateToTemp('app2');
 
     expect(config.pagesConfig.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-d']);
     expect((config.tabbarConfig as { list: Array<{ pagePath: string }> }).list.map((tab) => tab.pagePath)).toEqual(['pages/page-a/index', 'pages/page-b/index', 'pages/page-d/index']);
@@ -65,6 +69,9 @@ describe('tenant generator compile-time pruning', () => {
     expect(config.usedModules).toEqual(['module-a', 'module-d', 'module-c']);
     expect(config.homeModules).toEqual([]);
     expect(config.subPackageModules).toEqual(['module-a', 'module-d', 'module-c']);
+    expect((config.runtimeConfig as { runtime: { assets: { pageAImage: { src: string } } } }).runtime.assets.pageAImage.src).toBe('assets/tenants/app2/page-a-demo.png');
+    expect(pageAAssets).toContain("assets/tenants/app2/page-a-demo.png");
+    expect(pageAAssets).not.toContain("assets/tenants/app1/page-a-demo.png");
     expect(moduleEntry).not.toContain("../modules/module-a");
     expect(moduleEntry).not.toContain("../modules/module-d");
     expect(moduleEntry).not.toContain("../modules/module-c");

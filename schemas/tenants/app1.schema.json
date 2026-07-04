@@ -90,7 +90,14 @@
   },
   "runtime": {
     "themeColor": "#1677ff",
-    "apiBase": "https://api.example.com/app1"
+    "apiBase": "https://api.example.com/app1",
+    "assets": {
+      "pageAImage": {
+        "src": "assets/tenants/app1/page-a-demo.png",
+        "title": "App1 同位置图片",
+        "description": "App1 引用自己的蓝色租户资源"
+      }
+    }
   },
   "release": {
     "uploadEnabled": false,

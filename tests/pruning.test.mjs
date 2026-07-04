@@ -26,8 +26,16 @@ async function readHomeModuleRenderer(tenant) {
   return readFile(path.join(distRoot, tenant, 'home-module-renderer.vue'), 'utf8');
 }
 
+async function readPageAAssets(tenant) {
+  return readFile(path.join(distRoot, tenant, 'page-a-assets.ts'), 'utf8');
+}
+
 async function readSubPackageModuleEntry(tenant) {
   return readFile(path.join(distRoot, tenant, 'subpackage-module-entry.ts'), 'utf8');
+}
+
+async function readRuntimeConfig(tenant) {
+  return readFile(path.join(distRoot, tenant, 'runtime.config.ts'), 'utf8');
 }
 
 test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', async () => {
@@ -59,8 +67,12 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   const app2Entry = await readModuleEntry('app2');
   const app1HomeRenderer = await readHomeModuleRenderer('app1');
   const app2HomeRenderer = await readHomeModuleRenderer('app2');
+  const app1PageAAssets = await readPageAAssets('app1');
+  const app2PageAAssets = await readPageAAssets('app2');
   const app1SubPackageEntry = await readSubPackageModuleEntry('app1');
   const app2SubPackageEntry = await readSubPackageModuleEntry('app2');
+  const app1Runtime = await readRuntimeConfig('app1');
+  const app2Runtime = await readRuntimeConfig('app2');
   assert.match(app1Entry, /module-a/);
   assert.doesNotMatch(app1Entry, /module-b/);
   assert.doesNotMatch(app1Entry, /module-c/);
@@ -73,6 +85,9 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   assert.match(app1SubPackageEntry, /module-c/);
   assert.match(app1SubPackageEntry, /module-d/);
   assert.doesNotMatch(app1SubPackageEntry, /\.\.\/modules/);
+  assert.match(app1Runtime, /assets\/tenants\/app1\/page-a-demo\.png/);
+  assert.match(app1PageAAssets, /assets\/tenants\/app1\/page-a-demo\.png/);
+  assert.doesNotMatch(app1PageAAssets, /assets\/tenants\/app2\/page-a-demo\.png/);
   assert.doesNotMatch(app1Entry, /module-e/);
   assert.match(JSON.stringify(app1), /pages\/page-d\/index/);
   assert.doesNotMatch(app2Entry, /module-a/);
@@ -85,6 +100,9 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   assert.match(app2SubPackageEntry, /module-d/);
   assert.match(app2SubPackageEntry, /module-c/);
   assert.doesNotMatch(app2SubPackageEntry, /\.\.\/modules/);
+  assert.match(app2Runtime, /assets\/tenants\/app2\/page-a-demo\.png/);
+  assert.match(app2PageAAssets, /assets\/tenants\/app2\/page-a-demo\.png/);
+  assert.doesNotMatch(app2PageAAssets, /assets\/tenants\/app1\/page-a-demo\.png/);
   assert.doesNotMatch(app2Entry, /module-b/);
   assert.doesNotMatch(app2Entry, /module-e/);
   assert.doesNotMatch(JSON.stringify(app2), /pages\/page-c\/index/);
@@ -117,6 +135,37 @@ test('invalid schema fails before build output is produced', async () => {
   await assert.rejects(
     runScript('scripts/build-tenant.ts', [`--tenant=${badTenant}`]),
     /unknown module module-x/
+  );
+  await rm(badSchemaPath, { force: true });
+});
+
+test('runtime image assets must point to local bundled assets', async () => {
+  const badTenant = 'invalid-asset';
+  const schemaDir = path.join(repoRoot, 'schemas', 'tenants');
+  const badSchemaPath = path.join(schemaDir, `${badTenant}.schema.json`);
+  await mkdir(schemaDir, { recursive: true });
+  await writeFile(badSchemaPath, JSON.stringify({
+    tenant: { tenantId: badTenant, tenantName: 'Bad Asset Tenant' },
+    app: { appKey: badTenant, appid: 'wx_bad_asset', name: 'Bad Asset 小程序' },
+    tabs: [
+      { key: 'A', text: 'A', page: 'page-a' },
+      { key: 'B', text: 'B', page: 'page-b' }
+    ],
+    pages: {
+      'page-a': { route: 'pages/page-a/index', title: 'Bad Asset A', enabled: true, package: 'main' },
+      'page-b': { route: 'pages/page-b/index', title: 'Bad Asset B', enabled: true, package: 'main' }
+    },
+    features: { pageA: true, pageB: true },
+    runtime: {
+      assets: {
+        pageAImage: { src: 'https://example.com/not-local.png' }
+      }
+    }
+  }, null, 2));
+
+  await assert.rejects(
+    runScript('scripts/build-tenant.ts', [`--tenant=${badTenant}`]),
+    /runtime\.assets\.pageAImage\.src/
   );
   await rm(badSchemaPath, { force: true });
 });

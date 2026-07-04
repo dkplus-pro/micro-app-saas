@@ -65,6 +65,8 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
     if (!hasText(tab.text)) errors.push(`tab ${tab.key} text is required`);
   }
 
+  validateImageAsset('runtime.assets.pageAImage', schema.runtime?.assets?.pageAImage, errors);
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -75,4 +77,23 @@ export function assertValidTenantSchema(schema: TenantSchema): void {
 
 function getDefaultPackageType(route: string, isTabPage: boolean, explicitPackage?: string): string {
   return explicitPackage ?? (route === 'pages/page-a/index' || isTabPage ? 'main' : 'subPackage');
+}
+
+function validateImageAsset(path: string, value: unknown, errors: string[]): void {
+  if (value === undefined) return;
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    errors.push(`${path} must be an object`);
+    return;
+  }
+  const asset = value as Record<string, unknown>;
+  if (!hasText(asset.src)) {
+    errors.push(`${path}.src is required`);
+  } else if (!/^assets\/[a-z0-9/_-]+\.(?:png|jpe?g|webp|gif)$/i.test(asset.src)) {
+    errors.push(`${path}.src must point to a local assets image`);
+  }
+  for (const key of ['title', 'description', 'alt']) {
+    if (asset[key] !== undefined && typeof asset[key] !== 'string') {
+      errors.push(`${path}.${key} must be a string`);
+    }
+  }
 }

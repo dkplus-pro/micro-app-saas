@@ -35,6 +35,7 @@ try {
     await import('node:fs/promises').then(async ({ writeFile }) => {
       await writeFile(path.join(artifactDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`);
       await writeFile(path.join(artifactDir, 'home-module-renderer.vue'), `${artifacts.homeModuleRendererSource}\n`);
+      await writeFile(path.join(artifactDir, 'page-a-assets.ts'), `${artifacts.pageAAssetsSource}\n`);
       await writeFile(path.join(artifactDir, 'subpackage-module-entry.ts'), `${artifacts.subPackageModuleEntrySource}\n`);
     });
   } else {

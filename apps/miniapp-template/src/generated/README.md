@@ -9,7 +9,8 @@ The template imports these generated TypeScript modules after generation:
 - `pages.config` exporting `pagesConfig`
 - `subpackages.config` exporting `subPackagesConfig`
 - `tabbar.config` exporting `tabbarConfig`
-- `runtime.config` exporting `runtimeConfig`
+- `runtime.config` exporting `runtimeConfig`, including tenant assets such as `runtime.assets.pageAImage`
+- `page-a-assets` importing the current tenant's Page A image asset
 - `module-entry` exporting homepage/main-package `moduleEntries`
 - `home-module-renderer.vue` rendering homepage modules with tenant-specific static imports
 - `subpackage-module-entry` exporting `subPackageModuleEntries` for modules not referenced by Page A

@@ -96,8 +96,27 @@ export function validateTenantSchema(input: unknown): TenantSchema {
     }
   }
 
+  validateImageAsset('runtime.assets.pageAImage', schema.runtime?.assets?.pageAImage, issues);
+
   if (issues.length > 0) {
     throw new SchemaValidationError(issues);
   }
   return schema;
+}
+
+function validateImageAsset(path: string, value: unknown, issues: string[]): void {
+  if (value === undefined) return;
+  if (!isObject(value)) {
+    issues.push(`${path} must be an object`);
+    return;
+  }
+  assertString(value.src, `${path}.src`, issues);
+  if (typeof value.src === 'string' && !/^assets\/[a-z0-9/_-]+\.(?:png|jpe?g|webp|gif)$/i.test(value.src)) {
+    issues.push(`${path}.src must point to a local assets image`);
+  }
+  for (const key of ['title', 'description', 'alt']) {
+    if (value[key] !== undefined && typeof value[key] !== 'string') {
+      issues.push(`${path}.${key} must be a string`);
+    }
+  }
 }

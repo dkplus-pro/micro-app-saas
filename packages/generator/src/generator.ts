@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { assertValidTenantSchema } from '../../schema/src/validation.ts';
-import type { ModuleKey, TenantPage, TenantSchema, UniAppPackageType } from '../../schema/src/types.ts';
+import type { ModuleKey, TenantImageAsset, TenantPage, TenantSchema, UniAppPackageType } from '../../schema/src/types.ts';
 
 interface GeneratedPageArtifact {
   key: string;
@@ -43,6 +43,7 @@ export interface GeneratedTenantArtifacts {
   uniManifestJson: unknown;
   moduleEntrySource: string;
   homeModuleRendererSource: string;
+  pageAAssetsSource: string;
   subPackageModuleEntrySource: string;
   usedModules: ModuleKey[];
   homeModules: ModuleKey[];
@@ -161,6 +162,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   };
   const moduleEntrySource = moduleEntrySourceFor('moduleEntries', 'GeneratedModuleKey', homeModules);
   const homeModuleRendererSource = homeModuleRendererSourceFor(homeModules);
+  const pageAAssetsSource = pageAAssetsSourceFor(schema.runtime?.assets?.pageAImage);
   const subPackageModuleEntrySource = moduleDescriptorEntrySourceFor('subPackageModuleEntries', 'GeneratedSubPackageModuleKey', subPackageModules);
   return {
     tenantId: schema.tenant.tenantId,
@@ -174,6 +176,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     uniManifestJson,
     moduleEntrySource,
     homeModuleRendererSource,
+    pageAAssetsSource,
     subPackageModuleEntrySource,
     usedModules,
     homeModules,
@@ -301,6 +304,27 @@ function moduleDescriptorEntrySourceFor(exportName: string, typeName: string, mo
   ].join('\n');
 }
 
+function pageAAssetsSourceFor(image?: TenantImageAsset): string {
+  if (!image) {
+    return [
+      'export const pageAAssets = {',
+      '  image: undefined',
+      '} as const;'
+    ].join('\n');
+  }
+  return [
+    `import pageAImageSrc from '../${image.src}';`,
+    '',
+    'export const pageAAssets = {',
+    '  image: {',
+    '    src: pageAImageSrc,',
+    `    title: ${JSON.stringify(image.title ?? '')},`,
+    `    description: ${JSON.stringify(image.description ?? '')}`,
+    '  }',
+    '} as const;'
+  ].join('\n');
+}
+
 export async function generateTenant(options: GenerateOptions): Promise<GeneratedTenantArtifacts> {
   const schema = await loadTenantSchema(options.tenant, options.schemaDir);
   const artifacts = createArtifacts(schema);
@@ -315,6 +339,7 @@ export async function generateTenant(options: GenerateOptions): Promise<Generate
   await writeFile(path.join(outputDir, 'runtime.config.ts'), tsExport('runtimeConfig', artifacts.runtimeConfig));
   await writeFile(path.join(outputDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`);
   await writeFile(path.join(outputDir, 'home-module-renderer.vue'), `${artifacts.homeModuleRendererSource}\n`);
+  await writeFile(path.join(outputDir, 'page-a-assets.ts'), `${artifacts.pageAAssetsSource}\n`);
   await writeFile(path.join(outputDir, 'subpackage-module-entry.ts'), `${artifacts.subPackageModuleEntrySource}\n`);
   await writeFile(path.join(outputDir, 'build-summary.json'), `${JSON.stringify({
     tenantId: artifacts.tenantId,
