@@ -22,6 +22,22 @@ npm test
 
 Upload and release scripts are intentionally dry-run only; they never call external mini-program services.
 
+
+## Local tenant Vite development
+
+Generated tenant files under `apps/miniapp-template/src/generated/` are local build artifacts. They are regenerated for the selected tenant and must not be committed; keep generated TypeScript/JSON, Vite output, `dist/`, `node_modules/`, and `.runner-records/` out of git.
+
+Use the tenant Vite commands when developing or smoke-testing a tenant locally. Each command generates the selected tenant first, then runs Vite from `apps/miniapp-template`:
+
+```bash
+npm run dev:tenant -- --tenant=app1
+npm run dev:app1
+npm run build:vite -- --tenant=app1
+npm run build:vite:app1
+```
+
+Switching tenants requires rerunning the tenant command so `src/generated/` reflects the new tenant before Vite starts.
+
 ## Compile-time pruning contract
 
 - `app1` generates pages A/B/C and modules `module-a,module-b,module-c,module-d`.
