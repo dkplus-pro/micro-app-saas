@@ -25,7 +25,7 @@ Upload and release scripts are intentionally dry-run only; they never call exter
 
 ## Local tenant Vite development
 
-Generated tenant files under `apps/miniapp-template/src/generated/` are local build artifacts. They are regenerated for the selected tenant and must not be committed; keep generated TypeScript/JSON, Vite output, `dist/`, `node_modules/`, and `.runner-records/` out of git.
+Generated tenant files under `apps/miniapp-template/src/generated/` are local build artifacts. They are regenerated for the selected tenant and must stay local-only and not committed; keep generated TypeScript/JSON, Vite output, `dist/`, `node_modules/`, and `.runner-records/` out of git.
 
 Use the tenant Vite commands when developing or smoke-testing a tenant locally. Each command generates the selected tenant first, then runs Vite from `apps/miniapp-template`:
 
