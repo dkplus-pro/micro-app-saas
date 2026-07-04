@@ -18,11 +18,17 @@ function normalizePage(page: RawGeneratedPage): GeneratedPageConfig {
     title: page.style.navigationBarTitleText,
     enabled: true,
     package: page.package,
-    subPackageRoot: 'subPackageRoot' in page ? page.subPackageRoot : undefined,
-    subPackagePath: 'subPackagePath' in page ? page.subPackagePath : undefined,
+    subPackageRoot: optionalString(page, 'subPackageRoot'),
+    subPackagePath: optionalString(page, 'subPackagePath'),
     layout: page.layout,
     modules: [...(page.modules ?? [])]
   };
+}
+
+function optionalString(value: object, key: string): string | undefined {
+  if (!(key in value)) return undefined;
+  const entry = (value as Record<string, unknown>)[key];
+  return typeof entry === 'string' ? entry : undefined;
 }
 
 export function getGeneratedPages(): readonly GeneratedPageConfig[] {
