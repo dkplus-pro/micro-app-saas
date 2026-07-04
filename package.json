@@ -1,0 +1,23 @@
+{
+  "name": "schema-uniapp-saas-factory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build:tools": "tsc -p tsconfig.json",
+    "validate:schema": "npm run build:tools && node dist/scripts/validate-schema.js",
+    "generate:tenant": "npm run build:tools && node dist/scripts/generate-tenant.js",
+    "build:tenant": "npm run build:tools && node dist/scripts/build-tenant.js",
+    "build:app1": "npm run build:tenant -- --tenant=app1",
+    "build:app2": "npm run build:tenant -- --tenant=app2",
+    "batch:build": "npm run build:tools && node dist/scripts/batch-build.js",
+    "upload:tenant": "npm run build:tools && node dist/scripts/upload-tenant.js -- --dry-run",
+    "release:tenant": "npm run build:tools && node dist/scripts/release-tenant.js -- --dry-run",
+    "test": "npm run build:tools && node --test dist/tests/*.test.js",
+    "lint": "node scripts/lint.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
