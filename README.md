@@ -152,6 +152,29 @@ npm run dev -- --tenant=app2
 }
 ```
 
+TS-first authoring scaffold example:
+
+```ts
+import { defineTenantSchema } from './packages/schema/src/authoring.ts';
+
+export default defineTenantSchema({
+  tenant: { tenantId: 'app1', tenantName: 'App1 租户' },
+  app: { appKey: 'app1', appid: 'wx_app1', name: 'App1 小程序' },
+  tabs: [{ key: 'A', text: 'A', page: 'page-a' }],
+  pages: [
+    {
+      key: 'page-a',
+      route: 'pages/page-a/index',
+      title: 'App1 首页',
+      enabled: true,
+      package: 'main',
+      modules: [{ key: 'module-a' }]
+    }
+  ],
+  capabilities: { modules: { 'module-a': true } }
+});
+```
+
 示例：App1 和 App2 在 Page A 同一位置展示不同图片资源：
 
 ```json

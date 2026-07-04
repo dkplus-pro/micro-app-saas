@@ -26,3 +26,5 @@ npm run build -- --tenant=app1
 `subpackages.config` must keep non-home, non-tab pages out of the main package. `module-entry` and `home-module-renderer.vue` must import only modules referenced by Page A; modules used only outside Page A belong in `subpackage-module-entry` and the `pages/module-assets` technical subpackage so they do not create a static import edge from the homepage bundle.
 
 Tenant schemas should prefer `pages: [{ key, ... }]` for structural composition and `capabilities.modules` for module ability switches. The generator still accepts legacy page maps/features for compatibility, but generated files are always derived from the normalized contract.
+
+For TS-first authoring, define tenant source with `defineTenantSchema(...)`, emit JSON for the existing runtime/build pipeline, and keep runtime validation as the compatibility gate for backend-produced JSON.
