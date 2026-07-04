@@ -92,7 +92,6 @@ export default defineTenantSchema({
       "module-e": false
     }
   },
-  "features": {},
   "runtime": {
     "themeColor": "#1677ff",
     "apiBase": "https://api.example.com/app1",

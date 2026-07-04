@@ -39,16 +39,16 @@ test('runtime and backend validators reject unsupported modules consistently', a
 
 test('runtime and backend validators reject legacy page feature flags consistently', async () => {
   const schema = await readTenantSchema('app1');
-  schema.features.pageD = false;
+  schema.features = { pageD: false };
 
   const result = validateTenantSchema(schema);
   assert.equal(result.valid, false);
-  assert.ok(result.errors.some((error) => error.includes('features.pageD is not supported')));
+  assert.ok(result.errors.some((error) => error.includes('features.pageD is no longer supported')));
 
   assert.throws(
     () => validateTenantSchemaStrict(schema),
     (error) => error instanceof SchemaValidationError
-      && error.issues.some((issue) => issue.includes('features.pageD is not supported'))
+      && error.issues.some((issue) => issue.includes('features.pageD is no longer supported'))
   );
 });
 

@@ -30,9 +30,9 @@ describe('tenant schema validation', () => {
 
   it('rejects legacy page feature flags before generation', async () => {
     const schema = JSON.parse(await readFile('schemas/tenants/app1.schema.json', 'utf8'));
-    schema.features.pageD = false;
+    schema.features = { pageD: false };
 
-    expect(() => validateTenantSchema(schema)).toThrow(/features\.pageD is not supported/);
+    expect(() => validateTenantSchema(schema)).toThrow(/features\.pageD is no longer supported/);
   });
 
   it('rejects tabs that point at disabled pages', async () => {

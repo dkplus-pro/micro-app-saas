@@ -53,7 +53,7 @@ test('legacy page feature flags are rejected instead of controlling page inclusi
 test('legacy module feature flags remain a runtime JSON compatibility gate', async () => {
   const schema = await loadSchema('app1');
   delete schema.capabilities;
-  schema.features.moduleA = false;
+  schema.features = { moduleA: false };
 
   const validation = validateTenantSchema(schema);
   assert.equal(validation.valid, false);

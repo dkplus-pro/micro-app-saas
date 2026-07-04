@@ -106,7 +106,7 @@ function validateLegacyFeatures(features: unknown, errors: string[]): void {
   const pageFeatureKeys = new Set<PageFeatureKey>(['pageA', 'pageB', 'pageC', 'pageD']);
   for (const [key, value] of Object.entries(features)) {
     if (pageFeatureKeys.has(key as PageFeatureKey)) {
-      errors.push(`features.${key} is not supported; control page inclusion with pages[].enabled`);
+      errors.push(`features.${key} is no longer supported; use pages[].enabled for page inclusion`);
       continue;
     }
     if (!moduleFeatureKeys.has(key)) {
@@ -158,19 +158,4 @@ function pageEntriesForValidation(pages: TenantSchema['pages'], errors: string[]
     seen.add(pageKey);
   }
   return entries;
-}
-
-const LEGACY_MODULE_FEATURE_KEYS = new Set<string>(MODULE_REGISTRY.map((moduleKey) => featureKeyForModule(moduleKey)));
-const LEGACY_PAGE_FEATURE_KEYS = new Set(['pageA', 'pageB', 'pageC', 'pageD']);
-
-function validateLegacyFeatures(features: TenantSchema['features'], errors: string[]): void {
-  if (!features) return;
-  for (const key of Object.keys(features)) {
-    if (LEGACY_MODULE_FEATURE_KEYS.has(key)) continue;
-    if (LEGACY_PAGE_FEATURE_KEYS.has(key)) {
-      errors.push(`features.${key} is no longer supported; use pages[].enabled for page inclusion`);
-      continue;
-    }
-    errors.push(`features.${key} is not supported; legacy features only accepts module flags`);
-  }
 }
