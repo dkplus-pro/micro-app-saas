@@ -1,5 +1,6 @@
-import type { GeneratedModuleEntry } from "../../../../../packages/schema/src/index.ts";
+import type { PageModuleConfig } from '../../../../../../packages/schema/src/types.js';
+import type { PageBModuleViewModel } from '../types/page-b.type.js';
 
-export function toDisplayModules<T extends Pick<GeneratedModuleEntry, "key" | "displayName" | "props">>(modules: readonly T[]): readonly T[] {
-  return modules.filter((moduleRef) => Boolean(moduleRef.key));
+export function toVisibleModules(modules: readonly PageModuleConfig[] = []): PageBModuleViewModel[] {
+  return modules.map((module) => ({ key: module.key, props: module.props ?? {} }));
 }

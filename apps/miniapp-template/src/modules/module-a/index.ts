@@ -1,6 +1,4 @@
-export const moduleKey = "module-a";
-export const displayName = "Module A";
-
-export function render(): string {
-  return displayName;
-}
+export default {
+  key: 'module-a',
+  renderLabel: 'module-a'
+} as const;
