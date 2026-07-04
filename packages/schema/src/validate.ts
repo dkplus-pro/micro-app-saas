@@ -24,7 +24,7 @@ export function validateTenantSchema(input: unknown): TenantSchema {
     throw new SchemaValidationError(['schema must be an object']);
   }
 
-  const schema = input as TenantSchema;
+  const schema = input as unknown as TenantSchema;
   assertString(schema.tenant?.tenantId, 'tenant.tenantId', issues);
   assertString(schema.tenant?.tenantName, 'tenant.tenantName', issues);
   assertString(schema.app?.appKey, 'app.appKey', issues);
