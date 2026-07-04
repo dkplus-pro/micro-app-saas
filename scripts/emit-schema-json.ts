@@ -65,8 +65,8 @@ async function emitTenantSourcesFromJson({ rootDir, jsonDir, tsDir, check }: Jso
   for (const tenant of tenants) {
     const schema = await loadJsonSchema(jsonDir, tenant);
     assertValidTenantSchema(schema);
-    const source = tenantSourceFor(schema);
     const outputPath = path.join(tsDir, `${tenant}.schema.ts`);
+    const source = tenantSourceFor(schema, outputPath, rootDir);
 
     if (check) {
       const current = await readFile(outputPath, 'utf8');
@@ -108,13 +108,22 @@ async function loadJsonSchema(jsonDir: string, tenant: string): Promise<TenantSc
   return JSON.parse(await readFile(sourcePath, 'utf8')) as TenantSchema;
 }
 
-function tenantSourceFor(schema: TenantSchema): string {
+function tenantSourceFor(schema: TenantSchema, outputPath: string, rootDir: string): string {
+  const importPath = relativeImportPath(
+    path.dirname(outputPath),
+    path.join(rootDir, 'packages/schema/src/authoring.ts')
+  );
   return [
-    "import { defineTenantSchema } from '../../packages/schema/src/authoring.ts';",
+    `import { defineTenantSchema } from '${importPath}';`,
     '',
     `export default defineTenantSchema(${JSON.stringify(schema, null, 2)});`,
     ''
   ].join('\n');
+}
+
+function relativeImportPath(fromDir: string, targetFile: string): string {
+  const relativePath = path.relative(fromDir, targetFile).split(path.sep).join(path.posix.sep);
+  return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
 }
 
 function hasFlag(flag: string): boolean {

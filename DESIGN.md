@@ -256,10 +256,13 @@ packages/
 
 schemas/
   tenants/
+    app1.schema.ts
+    app2.schema.ts
     app1.schema.json
     app2.schema.json
 
 scripts/
+  emit-schema-json.ts
   validate-schema.ts
   generate-tenant.ts
   build-tenant.ts
@@ -272,12 +275,14 @@ scripts/
 
 ```txt
 apps/miniapp-template：唯一的小程序模板工程
-schemas/tenants：多租户 schema 配置
+schemas/tenants：多租户 schema 配置，优先维护 TS-first `.schema.ts`，并通过 `emit-schema-json.ts` 生成运行时/后端兼容 `.schema.json`
 packages/generator：根据 schema 生成配置代码
 src/generated：每次构建前按租户生成
 manifest.config.js：读取 generated 配置生成 manifest
 pages.config.js：读取 generated 配置生成 pages
 ```
+
+`emit-schema-json.ts` 也支持 `--from-json`，用于把后端或旧流程产出的 `.schema.json` 迁移回规范化 TS-first 源；配合 `--check` 可验证 TS 与 JSON 是否同步而不写文件。
 
 ---
 
