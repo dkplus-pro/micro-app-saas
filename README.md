@@ -82,24 +82,17 @@ npm run dev -- --tenant=app2
 | `tenant` | 租户元信息，`tenantId` 必须和文件名/命令参数对应，`tenantName` 用于展示和生成描述 |
 | `app` | 小程序应用信息，包含 `appKey`、微信 `appid`、应用名和版本号 |
 | `tabs` | 底部 tabBar 配置；每项通过 `page` 指向 `pages` 里的页面 key |
-| `pages` | 页面开关、路由、标题、分包归属和页面模块配置 |
-| `features` | 功能开关；页面或模块被 schema 引用时，对应 feature 不能是 `false` |
+| `pages` | 首选数组形式：每项用显式 `key` 表示页面 key，并配置页面开关、路由、标题、分包归属和页面模块 |
+| `capabilities` | 业务/运行时能力开关；当前支持 `capabilities.modules` 控制模块是否可被页面引用 |
+| `features` | 旧版兼容字段；仍会被读取作为模块开关 fallback，但新 schema 应优先使用 `capabilities.modules` |
 | `runtime` | 运行时配置，例如主题色 `themeColor`、接口地址 `apiBase`、租户资源 `assets` |
 | `release` | 上传、审核、发布等流水线开关；当前 runner 默认 dry-run |
 
-### Schema contract migration notes
-
-当前内置 JSON schema 仍兼容既有 `pages` 对象写法和 `features` 开关，以便后续由后台产出 JSON 后继续走同一套运行时校验。新的 schema 设计方向是把“结构组合”和“业务能力开关”分开：
-
-- 首选页面结构会迁移到 `pages` 数组，每一项显式声明 `key`，例如 `{ "key": "page-a", "route": "pages/page-a/index", ... }`。生成器/校验层应先归一化为按 `key` 索引的内部结构，再保持现有 pages、tabBar、subPackages 输出行为。
-- 页面是否进入包、tabBar 指向哪里、模块挂在哪个页面，由 `pages`、`tabs` 和页面 `modules` 决定；不要用页面级 feature 开关推断结构。
-- 业务/运行时能力开关建议迁移到 `capabilities`；旧的 `features` 仍作为 JSON 兼容输入保留，特别是 `moduleA` / `moduleB` 这类模块开关为 `false` 时，校验仍会拒绝引用该模块的页面。
-- TS-first authoring 可以生成同形 JSON 给构建和后台校验复用；提交源 schema / 测试 / 文档即可，不提交生成出的本地产物。
-
-`pages` 中每个页面的关键字段：
+`pages` 首选数组形式，数组顺序就是生成顺序；每个页面的关键字段：
 
 | 字段 | 含义 |
 | --- | --- |
+| `key` | 页面 key，例如 `page-a`；`tabs[].page` 和模块跳转通过它引用页面 |
 | `route` | uni-app 页面路径，格式为 `pages/<page>/index` |
 | `title` | 生成到 `pages.json` 的导航栏标题 |
 | `enabled` | 是否进入当前租户构建；`false` 的页面不会进入 `pages.json` / 路由表 |
@@ -117,14 +110,20 @@ npm run dev -- --tenant=app2
 - 当存在首页未引用模块时，生成器会自动追加隐藏技术分包 `pages/module-assets`；tab 页面仍保留在主包，模块入口则从分包侧承载。
 - 同一页面位置展示不同租户图片时，把图片放到 `apps/miniapp-template/src/assets/tenants/<tenantId>/`，再在 schema 的 `runtime.assets.pageAImage.src` 配置 `assets/...` 路径；生成器会生成 `page-a-assets.ts` 静态 import 当前租户资源，Page A 在固定位置渲染。
 - `module-a` 在 Page A 上可通过 `props.targetPage` 指向页面 key，例如 `page-d`，生成后会解析为 `uni.navigateTo` 可用的真实路由。
-- 修改 TS schema 后先运行 `npm run emit:schema-json`，再运行 `npm run validate:schema` 和对应租户的 `npm run build -- --tenant=<id>`。
+- 页面/模块结构放在 `pages`；业务能力开关放在 `capabilities`，避免用开关字段表达结构。
+- JSON schema 继续支持旧的 `pages` 对象 map 和 `features` 字段以兼容历史/后端输入，但内置租户使用数组 `pages` + 显式 `key` 的首选格式。
+- TS-first authoring 可通过 `defineTenantSchema()` 获得类型约束，再输出 JSON 给现有构建/运行时消费；JSON 运行时校验仍保留。
+- 修改 schema 后先运行 `npm run validate:schema`，再运行对应租户的 `npm run build -- --tenant=<id>`。
 
 示例：App1 的 Page A 多一个可跳转 Page D 的 `module-a`：
 
 ```json
 {
-  "pages": {
-    "page-a": {
+  "pages": [
+    {
+      "key": "page-a",
+      "route": "pages/page-a/index",
+      "title": "App1 首页",
       "enabled": true,
       "package": "main",
       "modules": [
@@ -137,9 +136,17 @@ npm run dev -- --tenant=app2
         }
       ]
     },
-    "page-d": {
+    {
+      "key": "page-d",
+      "route": "pages/page-d/index",
+      "title": "App1 页面D",
       "enabled": true,
       "package": "subPackage"
+    }
+  ],
+  "capabilities": {
+    "modules": {
+      "module-a": true
     }
   }
 }

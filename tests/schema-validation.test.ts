@@ -19,6 +19,14 @@ describe('tenant schema validation', () => {
     expect(() => validateTenantSchema(schema)).toThrow(/unsupported module module-x/);
   });
 
+
+  it('rejects modules disabled through capabilities', async () => {
+    const schema = JSON.parse(await readFile('schemas/tenants/app1.schema.json', 'utf8'));
+    schema.capabilities = { modules: { 'module-a': false } };
+
+    expect(() => validateTenantSchema(schema)).toThrow(/disabled capability moduleA/);
+  });
+
   it('rejects tabs that point at disabled pages', async () => {
     const schema = JSON.parse(await readFile('schemas/tenants/app2.schema.json', 'utf8'));
     schema.tabs.push({ key: 'C', text: 'C', page: 'page-c' });

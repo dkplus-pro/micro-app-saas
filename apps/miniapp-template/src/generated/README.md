@@ -9,7 +9,7 @@ The template imports these generated TypeScript modules after generation:
 - `pages.config` exporting `pagesConfig`
 - `subpackages.config` exporting `subPackagesConfig`
 - `tabbar.config` exporting `tabbarConfig`
-- `runtime.config` exporting `runtimeConfig`, including tenant assets such as `runtime.assets.pageAImage`
+- `runtime.config` exporting `runtimeConfig`, including normalized `capabilities`, legacy `features` compatibility data, and tenant assets such as `runtime.assets.pageAImage`
 - `page-a-assets` importing the current tenant's Page A image asset
 - `module-entry` exporting homepage/main-package `moduleEntries`
 - `home-module-renderer.vue` rendering homepage modules with tenant-specific static imports
@@ -24,3 +24,5 @@ npm run build -- --tenant=app1
 ```
 
 `subpackages.config` must keep non-home, non-tab pages out of the main package. `module-entry` and `home-module-renderer.vue` must import only modules referenced by Page A; modules used only outside Page A belong in `subpackage-module-entry` and the `pages/module-assets` technical subpackage so they do not create a static import edge from the homepage bundle.
+
+Tenant schemas should prefer `pages: [{ key, ... }]` for structural composition and `capabilities.modules` for module ability switches. The generator still accepts legacy page maps/features for compatibility, but generated files are always derived from the normalized contract.
