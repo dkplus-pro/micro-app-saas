@@ -22,7 +22,21 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
     if (!PAGE_ROUTE_PATTERN.test(page.route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
     if (allRoutes.has(page.route)) errors.push(`${pageKey}.route duplicates ${page.route}`);
     allRoutes.add(page.route);
-    if (page.enabled) enabledRoutes.add(page.route);
+    const packageType = page.package ?? (page.route === 'pages/page-a/index' ? 'main' : 'subPackage');
+    if (packageType !== 'main' && packageType !== 'subPackage') errors.push(`${pageKey}.package must be main or subPackage`);
+    if (packageType === 'main' && page.subPackageRoot) errors.push(`${pageKey}.subPackageRoot is only valid for subPackage pages`);
+    if (page.subPackageRoot && !/^pages\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(page.subPackageRoot)) {
+      errors.push(`${pageKey}.subPackageRoot must match pages/<subpackage-root>`);
+    }
+    if (page.enabled) {
+      enabledRoutes.add(page.route);
+      if (page.route !== 'pages/page-a/index' && packageType !== 'subPackage') {
+        errors.push(`${pageKey}.package must be subPackage for non-home pages`);
+      }
+      if (page.route === 'pages/page-a/index' && packageType !== 'main') {
+        errors.push(`${pageKey}.package must be main for the home page`);
+      }
+    }
     if (page.enabled && !hasText(page.title)) errors.push(`${pageKey}.title is required for enabled page`);
 
     const seenModules = new Set<string>();
@@ -43,6 +57,9 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
     if (!target) errors.push(`tab ${tab.key} points to missing page ${tab.page}`);
     if (target && !target.enabled) errors.push(`tab ${tab.key} points to disabled page ${tab.page}`);
     if (target && !enabledRoutes.has(target.route)) errors.push(`tab ${tab.key} route ${target.route} is not enabled`);
+    if (target && (target.package ?? (target.route === 'pages/page-a/index' ? 'main' : 'subPackage')) === 'subPackage') {
+      errors.push(`tab ${tab.key} points to subPackage page ${tab.page}`);
+    }
     if (!hasText(tab.text)) errors.push(`tab ${tab.key} text is required`);
   }
 

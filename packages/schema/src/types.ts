@@ -13,6 +13,8 @@ export interface AppInfo {
   version?: string;
 }
 
+export type UniAppPackageType = 'main' | 'subPackage';
+
 export interface TenantTab {
   key: string;
   text: string;
@@ -35,6 +37,8 @@ export interface TenantPage {
   route: `pages/${string}/index`;
   title: string;
   enabled: boolean;
+  package?: UniAppPackageType;
+  subPackageRoot?: `pages/${string}`;
   layout?: 'stream' | 'standard';
   modules?: PageModuleConfig[];
 }
