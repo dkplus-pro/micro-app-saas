@@ -5,8 +5,7 @@ import { generateTenant } from '../packages/generator/src/generator.ts';
 import { getArg, requireArg } from './args.ts';
 
 const tenant = requireArg('tenant');
-const positionalCommand = process.argv.slice(2).find((arg) => arg === 'dev' || arg === 'build');
-const command = getArg('command', getArg('mode', positionalCommand ?? 'dev'));
+const command = getArg('command', process.argv.slice(2).find((arg) => arg === 'dev' || arg === 'build') ?? 'dev');
 const schemaDir = getArg('schema-dir');
 const dryRun = hasFlag('dry-run');
 const viteArgs = collectForwardedViteArgs(process.argv.slice(2));
@@ -66,7 +65,7 @@ function collectForwardedViteArgs(argv: string[]): string[] {
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === 'dev' || arg === 'build') continue;
-    if (arg === '--tenant' || arg === '--command' || arg === '--mode' || arg === '--schema-dir') {
+    if (arg === '--tenant' || arg === '--command' || arg === '--schema-dir') {
       index += 1;
       continue;
     }

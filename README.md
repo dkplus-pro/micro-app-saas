@@ -31,7 +31,7 @@ Generated tenant files under `apps/miniapp-template/src/generated/` are local bu
 They are ignored by git and should be regenerated for the tenant you are working on instead of committed.
 
 - `npm run dev:tenant -- --tenant=app1` generates App1 config, then starts Vite for `apps/miniapp-template`.
-- `npm run build:vite -- --tenant=app1` (aliases: `npm run build:vite:tenant -- --tenant=app1`, `npm run vite:build:tenant -- --tenant=app1`) generates App1 config, then runs `vite build`.
+- `npm run vite:build:tenant -- --tenant=app1` (alias: `npm run build:tenant:vite -- --tenant=app1`) generates App1 config, then runs `vite build`.
 - `npm run guard:no-tracked-artifacts` fails if generated tenant files, Vite output, `dist/`, `.runner-records/`, or `node_modules/` are tracked.
 
 ```bash
