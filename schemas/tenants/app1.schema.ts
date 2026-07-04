@@ -84,10 +84,6 @@ export default defineTenantSchema({
     }
   ],
   "features": {
-    "pageA": true,
-    "pageB": true,
-    "pageC": true,
-    "pageD": true,
     "moduleA": true,
     "moduleB": true,
     "moduleC": true,
