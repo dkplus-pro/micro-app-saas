@@ -5,11 +5,7 @@
     </view>
 
     <view v-if="pageModules.length" class="page-a__modules">
-      <ModuleA
-        v-for="module in pageModules"
-        :key="module.key"
-        v-bind="module.props"
-      />
+      <HomeModuleRenderer :modules="pageModules" />
     </view>
 
     <view v-else class="page-a__empty">
@@ -20,9 +16,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import ModuleA from '../../modules/module-a/index.vue';
 import { pagesConfig } from '../../generated/pages.config.ts';
 import { routeConfig } from '../../generated/route.config.ts';
+import HomeModuleRenderer from '../../generated/home-module-renderer.vue';
 
 type GeneratedModuleRef = {
   key: string;
@@ -40,12 +36,10 @@ const title = computed(() => pageAConfig.value?.style.navigationBarTitleText ?? 
 
 const pageModules = computed<PageAModule[]>(() => {
   const modules = (pageAConfig.value?.modules ?? []) as GeneratedModuleRef[];
-  return modules
-    .filter((moduleRef) => moduleRef.key === 'module-a')
-    .map((moduleRef) => ({
-      key: moduleRef.key,
-      props: resolveModuleProps(moduleRef)
-    }));
+  return modules.map((moduleRef) => ({
+    key: moduleRef.key,
+    props: resolveModuleProps(moduleRef)
+  }));
 });
 
 function resolveModuleProps(moduleRef: GeneratedModuleRef): Record<string, unknown> {

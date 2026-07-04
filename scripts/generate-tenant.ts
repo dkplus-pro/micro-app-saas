@@ -3,4 +3,10 @@ import { requireArg } from './args.ts';
 
 const tenant = requireArg('tenant');
 const result = await generateTenant({ tenant });
-console.log(JSON.stringify({ tenantId: result.tenantId, pageRoutes: result.pageRoutes, usedModules: result.usedModules }, null, 2));
+console.log(JSON.stringify({
+  tenantId: result.tenantId,
+  pageRoutes: result.pageRoutes,
+  usedModules: result.usedModules,
+  homeModules: result.homeModules,
+  subPackageModules: result.subPackageModules
+}, null, 2));

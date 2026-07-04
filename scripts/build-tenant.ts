@@ -28,9 +28,15 @@ try {
       pages: artifacts.pagesConfig,
       tabBar: artifacts.tabbarConfig,
       subPackages: artifacts.subPackagesConfig,
-      modules: artifacts.usedModules.map((key) => ({ key }))
+      modules: artifacts.usedModules.map((key) => ({ key })),
+      homeModules: artifacts.homeModules.map((key) => ({ key })),
+      subPackageModules: artifacts.subPackageModules.map((key) => ({ key }))
     });
-    await import('node:fs/promises').then(({ writeFile }) => writeFile(path.join(artifactDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`));
+    await import('node:fs/promises').then(async ({ writeFile }) => {
+      await writeFile(path.join(artifactDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`);
+      await writeFile(path.join(artifactDir, 'home-module-renderer.vue'), `${artifacts.homeModuleRendererSource}\n`);
+      await writeFile(path.join(artifactDir, 'subpackage-module-entry.ts'), `${artifacts.subPackageModuleEntrySource}\n`);
+    });
   } else {
     writeJson(path.join(artifactDir, 'build.generated.json'), {
       tenantId: options.tenantId,

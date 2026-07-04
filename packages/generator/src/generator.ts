@@ -24,6 +24,13 @@ interface UniSubPackageConfig {
   pages: UniSubPackagePage[];
 }
 
+const MODULE_ASSETS_SUBPACKAGE_ROOT = 'pages/module-assets';
+const MODULE_ASSETS_ENTRY_PATH = path.posix.join(MODULE_ASSETS_SUBPACKAGE_ROOT, 'module-entry.ts');
+const MODULE_ASSETS_PAGE: UniSubPackagePage = {
+  path: 'index',
+  style: { navigationBarTitleText: '模块分包' }
+};
+
 export interface GeneratedTenantArtifacts {
   tenantId: string;
   appConfig: unknown;
@@ -35,7 +42,11 @@ export interface GeneratedTenantArtifacts {
   uniPagesJson: unknown;
   uniManifestJson: unknown;
   moduleEntrySource: string;
+  homeModuleRendererSource: string;
+  subPackageModuleEntrySource: string;
   usedModules: ModuleKey[];
+  homeModules: ModuleKey[];
+  subPackageModules: ModuleKey[];
   pageRoutes: string[];
 }
 
@@ -59,8 +70,12 @@ export function collectEnabledPages(schema: TenantSchema): Array<[string, Tenant
 }
 
 export function collectUsedModules(schema: TenantSchema): ModuleKey[] {
+  return collectPageModules(collectEnabledPages(schema));
+}
+
+function collectPageModules(pages: Array<[string, TenantPage]>): ModuleKey[] {
   const modules: ModuleKey[] = [];
-  for (const [, page] of collectEnabledPages(schema)) {
+  for (const [, page] of pages) {
     for (const moduleRef of page.modules ?? []) {
       if (!modules.includes(moduleRef.key)) modules.push(moduleRef.key);
     }
@@ -71,6 +86,8 @@ export function collectUsedModules(schema: TenantSchema): ModuleKey[] {
 export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts {
   const enabledPages = collectEnabledPages(schema);
   const usedModules = collectUsedModules(schema);
+  const homeModules = collectPageModules(enabledPages.filter(([key]) => key === 'page-a'));
+  const subPackageModules = usedModules.filter((moduleKey) => !homeModules.includes(moduleKey));
   const tabPageKeys = new Set<string>(schema.tabs.map((tab) => tab.page));
   const pagesConfig = enabledPages.map(([key, page]) => {
     const packageType = getPagePackage(page, tabPageKeys.has(key));
@@ -106,7 +123,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   };
   const routeConfig = Object.fromEntries(enabledPages.map(([key, page]) => [key, page.route]));
   const runtimeConfig = { features: schema.features, runtime: schema.runtime ?? {} };
-  const subPackagesConfig = createSubPackagesConfig(pagesConfig);
+  const subPackagesConfig = withModuleAssetsSubPackage(createSubPackagesConfig(pagesConfig), subPackageModules);
   const uniPagesJson = removeUndefined({
     pages: pagesConfig
       .filter((page) => page.package === 'main')
@@ -142,15 +159,9 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
       usingComponents: true
     }
   };
-  const moduleEntrySource = [
-    ...usedModules.map((moduleKey) => `import ${moduleKey.replaceAll('-', '')} from '../modules/${moduleKey}/index.js';`),
-    '',
-    'export const moduleEntries = {',
-    ...usedModules.map((moduleKey) => `  '${moduleKey}': ${moduleKey.replaceAll('-', '')},`),
-    '} as const;',
-    '',
-    'export type GeneratedModuleKey = keyof typeof moduleEntries;'
-  ].join('\n');
+  const moduleEntrySource = moduleEntrySourceFor('moduleEntries', 'GeneratedModuleKey', homeModules);
+  const homeModuleRendererSource = homeModuleRendererSourceFor(homeModules);
+  const subPackageModuleEntrySource = moduleDescriptorEntrySourceFor('subPackageModuleEntries', 'GeneratedSubPackageModuleKey', subPackageModules);
   return {
     tenantId: schema.tenant.tenantId,
     appConfig,
@@ -162,7 +173,11 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     uniPagesJson,
     uniManifestJson,
     moduleEntrySource,
+    homeModuleRendererSource,
+    subPackageModuleEntrySource,
     usedModules,
+    homeModules,
+    subPackageModules,
     pageRoutes: enabledPages.map(([, page]) => page.route)
   };
 }
@@ -193,6 +208,15 @@ function createSubPackagesConfig(pages: GeneratedPageArtifact[]): UniSubPackageC
   return [...groups.entries()].map(([root, packagePages]) => ({ root, pages: packagePages }));
 }
 
+function withModuleAssetsSubPackage(
+  subPackages: UniSubPackageConfig[],
+  subPackageModules: readonly ModuleKey[]
+): UniSubPackageConfig[] {
+  if (subPackageModules.length === 0) return subPackages;
+  if (subPackages.some((subPackage) => subPackage.root === MODULE_ASSETS_SUBPACKAGE_ROOT)) return subPackages;
+  return [...subPackages, { root: MODULE_ASSETS_SUBPACKAGE_ROOT, pages: [MODULE_ASSETS_PAGE] }];
+}
+
 function removeUndefined<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
 }
@@ -205,6 +229,76 @@ function toVersionCode(version: string): string {
 
 function tsExport(name: string, value: unknown): string {
   return `export const ${name} = ${JSON.stringify(value, null, 2)} as const;\n`;
+}
+
+function moduleEntrySourceFor(exportName: string, typeName: string, modules: readonly ModuleKey[]): string {
+  return [
+    ...modules.map((moduleKey) => `import ${moduleKey.replaceAll('-', '')} from '../modules/${moduleKey}/index.js';`),
+    '',
+    `export const ${exportName} = {`,
+    ...modules.map((moduleKey) => `  '${moduleKey}': ${moduleKey.replaceAll('-', '')},`),
+    '} as const;',
+    '',
+    `export type ${typeName} = keyof typeof ${exportName};`
+  ].join('\n');
+}
+
+function homeModuleRendererSourceFor(modules: readonly ModuleKey[]): string {
+  return [
+    '<template>',
+    '  <view class="generated-home-modules">',
+    ...modules.flatMap((moduleKey) => {
+      const componentName = componentIdentifierFor(moduleKey);
+      return [
+        `    <${componentName}`,
+        `      v-for="(module, index) in modulesByKey['${moduleKey}'] ?? []"`,
+        `      :key="module.key + '-' + index"`,
+        '      v-bind="module.props"',
+        '    />'
+      ];
+    }),
+    '  </view>',
+    '</template>',
+    '',
+    '<script setup lang="ts">',
+    "import { computed } from 'vue';",
+    ...modules.map((moduleKey) => `import ${componentIdentifierFor(moduleKey)} from '../modules/${moduleKey}/index.vue';`),
+    '',
+    'type HomeModule = {',
+    '  key: string;',
+    '  props?: Record<string, unknown>;',
+    '};',
+    '',
+    'const props = defineProps<{',
+    '  modules: readonly HomeModule[];',
+    '}>();',
+    '',
+    'const modulesByKey = computed(() => {',
+    '  const grouped: Record<string, HomeModule[]> = {};',
+    '  for (const moduleRef of props.modules) {',
+    '    grouped[moduleRef.key] = [...(grouped[moduleRef.key] ?? []), moduleRef];',
+    '  }',
+    '  return grouped;',
+    '});',
+    '</script>'
+  ].join('\n');
+}
+
+function componentIdentifierFor(moduleKey: ModuleKey): string {
+  return moduleKey
+    .split('-')
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join('');
+}
+
+function moduleDescriptorEntrySourceFor(exportName: string, typeName: string, modules: readonly ModuleKey[]): string {
+  return [
+    `export const ${exportName} = {`,
+    ...modules.map((moduleKey) => `  '${moduleKey}': { key: '${moduleKey}', renderLabel: '${moduleKey}' },`),
+    '} as const;',
+    '',
+    `export type ${typeName} = keyof typeof ${exportName};`
+  ].join('\n');
 }
 
 export async function generateTenant(options: GenerateOptions): Promise<GeneratedTenantArtifacts> {
@@ -220,13 +314,24 @@ export async function generateTenant(options: GenerateOptions): Promise<Generate
   await writeFile(path.join(outputDir, 'route.config.ts'), tsExport('routeConfig', artifacts.routeConfig));
   await writeFile(path.join(outputDir, 'runtime.config.ts'), tsExport('runtimeConfig', artifacts.runtimeConfig));
   await writeFile(path.join(outputDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`);
-  await writeFile(path.join(outputDir, 'build-summary.json'), `${JSON.stringify({ tenantId: artifacts.tenantId, pageRoutes: artifacts.pageRoutes, usedModules: artifacts.usedModules }, null, 2)}\n`);
+  await writeFile(path.join(outputDir, 'home-module-renderer.vue'), `${artifacts.homeModuleRendererSource}\n`);
+  await writeFile(path.join(outputDir, 'subpackage-module-entry.ts'), `${artifacts.subPackageModuleEntrySource}\n`);
+  await writeFile(path.join(outputDir, 'build-summary.json'), `${JSON.stringify({
+    tenantId: artifacts.tenantId,
+    pageRoutes: artifacts.pageRoutes,
+    usedModules: artifacts.usedModules,
+    homeModules: artifacts.homeModules,
+    subPackageModules: artifacts.subPackageModules
+  }, null, 2)}\n`);
 
   if (options.writeUniAppConfig ?? !options.outputDir) {
     const uniAppSrcDir = path.resolve(options.uniAppSrcDir ?? 'apps/miniapp-template/src');
     await mkdir(uniAppSrcDir, { recursive: true });
     await writeFile(path.join(uniAppSrcDir, 'pages.json'), `${JSON.stringify(artifacts.uniPagesJson, null, 2)}\n`);
     await writeFile(path.join(uniAppSrcDir, 'manifest.json'), `${JSON.stringify(artifacts.uniManifestJson, null, 2)}\n`);
+    const moduleAssetsEntryPath = path.join(uniAppSrcDir, MODULE_ASSETS_ENTRY_PATH);
+    await mkdir(path.dirname(moduleAssetsEntryPath), { recursive: true });
+    await writeFile(moduleAssetsEntryPath, `${artifacts.subPackageModuleEntrySource}\n`);
   }
 
   return artifacts;

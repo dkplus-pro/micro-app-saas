@@ -14,5 +14,6 @@ apps/miniapp-template/src/generated/*
 !apps/miniapp-template/src/generated/.gitkeep
 apps/miniapp-template/src/pages.json
 apps/miniapp-template/src/manifest.json
+apps/miniapp-template/src/pages/module-assets/module-entry.ts
 apps/miniapp-template/dist/
 apps/miniapp-template/.vite/

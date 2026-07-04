@@ -7,7 +7,6 @@ export function usePageBController() {
   return {
     tenant: tenantConfig,
     runtime: runtimeConfig,
-    modules: moduleController.modules,
-    moduleEntries: moduleController.moduleEntries
+    modules: moduleController.modules
   };
 }

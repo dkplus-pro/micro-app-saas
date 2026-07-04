@@ -10,7 +10,10 @@ The template imports these generated TypeScript modules after generation:
 - `subpackages.config` exporting `subPackagesConfig`
 - `tabbar.config` exporting `tabbarConfig`
 - `runtime.config` exporting `runtimeConfig`
-- `module-entry` exporting tenant-scoped `moduleEntries`
+- `module-entry` exporting homepage/main-package `moduleEntries`
+- `home-module-renderer.vue` rendering homepage modules with tenant-specific static imports
+- `subpackage-module-entry` exporting `subPackageModuleEntries` for modules not referenced by Page A
+- `pages/module-assets/module-entry.ts` exporting the same non-home module registry from a technical subpackage root
 
 Run one of these before opening the app locally:
 
@@ -19,4 +22,4 @@ npm run dev -- --tenant=app1
 npm run build -- --tenant=app1
 ```
 
-`subpackages.config` must keep non-home pages out of the main package. `module-entry` must import only enabled modules for the active tenant so disabled modules have no static import edge in that tenant build.
+`subpackages.config` must keep non-home, non-tab pages out of the main package. `module-entry` and `home-module-renderer.vue` must import only modules referenced by Page A; modules used only outside Page A belong in `subpackage-module-entry` and the `pages/module-assets` technical subpackage so they do not create a static import edge from the homepage bundle.

@@ -55,6 +55,9 @@ test('README documents the simplified command surface', async () => {
   assert.doesNotMatch(readme, /npm run (?:dev|build):(?:vite|mp-weixin)/, 'README should not document legacy Vite/platform aliases');
   assert.match(generatedReadme, /npm run dev -- --tenant=app1/, 'generated README placeholder should document tenant dev command');
   assert.match(generatedReadme, /npm run build -- --tenant=app1/, 'generated README placeholder should document tenant build command');
+  assert.match(generatedReadme, /home-module-renderer/, 'generated README should document generated homepage renderer');
+  assert.match(generatedReadme, /subpackage-module-entry/, 'generated README should document split module entries');
+  assert.match(generatedReadme, /module-assets/, 'generated README should document technical module subpackage entry');
   assert.doesNotMatch(generatedReadme, /npm run (?:dev:tenant|vite:build:tenant)/, 'generated README placeholder should not document removed tenant aliases');
 });
 

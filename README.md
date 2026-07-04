@@ -38,6 +38,7 @@ apps/miniapp-template/dist/build/mp-weixin/
 apps/miniapp-template/src/generated/*
 apps/miniapp-template/src/pages.json
 apps/miniapp-template/src/manifest.json
+apps/miniapp-template/src/pages/module-assets/module-entry.ts
 apps/miniapp-template/dist/
 ```
 
@@ -91,6 +92,9 @@ npm run dev -- --tenant=app2
 
 - tab 页面必须在主包，因为微信小程序 tabBar 不能指向分包页面。
 - 非 tab 的启用页面默认进入分包；需要跳转到分包页时，目标页面仍必须 `enabled: true`。
+- `module-entry.ts` / `home-module-renderer.vue` 只生成首页 Page A 引用的模块，避免首页/主包静态加载其它模块。
+- 首页没有引用、但其它页面引用的模块会进入 `subpackage-module-entry.ts`，并同步生成到技术分包 `pages/module-assets/module-entry.ts`。
+- 当存在首页未引用模块时，生成器会自动追加隐藏技术分包 `pages/module-assets`；tab 页面仍保留在主包，模块入口则从分包侧承载。
 - `module-a` 在 Page A 上可通过 `props.targetPage` 指向页面 key，例如 `page-d`，生成后会解析为 `uni.navigateTo` 可用的真实路由。
 - 修改 schema 后先运行 `npm run validate:schema`，再运行对应租户的 `npm run build -- --tenant=<id>`。
 
@@ -130,7 +134,7 @@ Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并
 - `app2`：tab 为 A/B/D，对应页面 A/B/D；页面 A 不渲染 `module-a`
 - tab 页面保留在主包；非 tab 的启用页面进入分包
 - `pages.json` 只包含当前租户启用的主包页面、分包和 tabBar
-- `module-entry.ts` 只静态导入当前租户使用的模块
+- `module-entry.ts` / `home-module-renderer.vue` 只静态导入首页引用模块；`subpackage-module-entry.ts` / `pages/module-assets/module-entry.ts` 保存首页未引用模块并进入分包
 
 ## Runner dry-run
 

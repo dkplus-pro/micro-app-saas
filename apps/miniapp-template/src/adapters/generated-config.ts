@@ -1,5 +1,4 @@
 import type {
-  GeneratedModuleRegistry,
   GeneratedPageConfig,
   RuntimeConfig,
   TabBarItemConfig
@@ -9,7 +8,6 @@ import { pagesConfig } from '../generated/pages.config.ts';
 import { subPackagesConfig } from '../generated/subpackages.config.ts';
 import { tabbarConfig } from '../generated/tabbar.config.ts';
 import { runtimeConfig } from '../generated/runtime.config.ts';
-import { moduleEntries } from '../generated/module-entry.ts';
 
 type RawGeneratedPage = (typeof pagesConfig)[number];
 
@@ -45,8 +43,4 @@ export function getGeneratedSubPackages() {
 
 export function getGeneratedRuntimeConfig(): RuntimeConfig {
   return runtimeConfig;
-}
-
-export function getGeneratedModuleRegistry(): GeneratedModuleRegistry {
-  return moduleEntries;
 }
