@@ -1,25 +1,13 @@
 {
-  "tenant": {
-    "tenantId": "app1",
-    "tenantName": "App1 租户"
-  },
-  "app": {
-    "appKey": "app1",
-    "appid": "wx_app1",
-    "name": "App1 小程序",
-    "version": "1.0.0"
-  },
+  "tenant": { "tenantId": "app1", "tenantName": "App1 租户" },
+  "app": { "appKey": "app1", "appid": "wx_app1", "name": "App1 小程序", "version": "0.1.0" },
   "tabs": [
     { "key": "A", "text": "A", "page": "page-a" },
     { "key": "B", "text": "B", "page": "page-b" },
     { "key": "C", "text": "C", "page": "page-c" }
   ],
   "pages": {
-    "page-a": {
-      "route": "pages/page-a/index",
-      "title": "App1 首页",
-      "enabled": true
-    },
+    "page-a": { "route": "pages/page-a/index", "title": "App1 首页", "enabled": true },
     "page-b": {
       "route": "pages/page-b/index",
       "title": "App1 页面B",
@@ -32,11 +20,8 @@
         { "key": "module-d" }
       ]
     },
-    "page-c": {
-      "route": "pages/page-c/index",
-      "title": "App1 页面C",
-      "enabled": true
-    }
+    "page-c": { "route": "pages/page-c/index", "title": "App1 页面C", "enabled": true },
+    "page-d": { "route": "pages/page-d/index", "title": "App1 页面D", "enabled": false }
   },
   "features": {
     "pageA": true,
@@ -49,15 +34,6 @@
     "moduleD": true,
     "moduleE": false
   },
-  "theme": {
-    "primaryColor": "#1677ff"
-  },
-  "runtime": {
-    "banner": "App1 banner"
-  },
-  "release": {
-    "version": "1.0.0",
-    "dryRun": true,
-    "ciGroup": "demo"
-  }
+  "runtime": { "themeColor": "#1677ff", "apiBase": "https://api.example.com/app1" },
+  "release": { "uploadEnabled": false, "auditEnabled": false, "releaseEnabled": false }
 }

@@ -1,2 +1,2 @@
-export const PAGE_B_ROUTE = "pages/page-b/index";
-export const DEFAULT_MODULE_GAP = 12;
+export const PAGE_B_KEY = 'page-b';
+export const EMPTY_MODULE_TEXT = '暂无模块';

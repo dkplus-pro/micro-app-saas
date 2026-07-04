@@ -1,7 +1,6 @@
-import type { ModuleKey } from "../../../../../../packages/schema/src/index.ts";
+import type { ModuleKey } from '../../../../../../packages/schema/src/types.js';
 
 export interface PageBModuleViewModel {
   key: ModuleKey;
-  displayName: string;
   props: Record<string, unknown>;
 }

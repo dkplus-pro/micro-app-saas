@@ -1,3 +1,5 @@
-.runner-records/
-dist/
 node_modules/
+dist/
+coverage/
+.omx/
+apps/miniapp-template/dist/

@@ -1,19 +1,22 @@
-export function readArg(name: string, fallback?: string): string {
+export function getArg(name: string, fallback?: string): string | undefined {
   const prefix = `--${name}=`;
-  const value = process.argv.find((arg) => arg.startsWith(prefix))?.slice(prefix.length) ?? fallback;
-  if (!value) {
-    throw new Error(`Missing required --${name}=... argument`);
+  const exact = `--${name}`;
+  const argv = process.argv.slice(2);
+  for (let index = 0; index < argv.length; index += 1) {
+    const item = argv[index];
+    if (item.startsWith(prefix)) return item.slice(prefix.length);
+    if (item === exact) return argv[index + 1] ?? fallback;
   }
+  return fallback;
+}
+
+export function requireArg(name: string): string {
+  const value = getArg(name);
+  if (!value) throw new Error(`Missing required --${name}=<value>`);
   return value;
 }
 
-export function readCsvArg(name: string, fallback?: string): string[] {
-  return readArg(name, fallback)
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-export function repoRootFromCwd(): string {
-  return process.cwd();
+export function getTenantList(defaultList = ['app1', 'app2']): string[] {
+  const tenants = getArg('tenants') ?? getArg('tenant');
+  return tenants ? tenants.split(',').map((tenant) => tenant.trim()).filter(Boolean) : defaultList;
 }
