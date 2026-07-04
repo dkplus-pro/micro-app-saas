@@ -60,7 +60,7 @@ schemas/tenants/app1.schema.json
 schemas/tenants/app2.schema.json
 ```
 
-优先编辑 `.schema.ts` 文件，它们使用 `TenantSchema` 类型做编译期校验；然后运行：
+优先编辑 `.schema.ts` 文件，它们通过 `defineTenantSchema(...)` 使用 `TenantSchema` 类型做编译期校验；然后运行：
 
 ```bash
 npm run emit:schema-json

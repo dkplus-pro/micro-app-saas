@@ -1,5 +1,5 @@
 import type { TenantSchema } from './types.ts';
 
-export function defineTenantSchema<const T extends TenantSchema>(schema: T): T {
+export function defineTenantSchema<TSchema extends TenantSchema>(schema: TSchema): TSchema {
   return schema;
 }

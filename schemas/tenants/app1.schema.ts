@@ -1,6 +1,6 @@
-import type { TenantSchema } from '../../packages/schema/src/types.ts';
+import { defineTenantSchema } from '../../packages/schema/src/authoring.ts';
 
-const schema = {
+export default defineTenantSchema({
   "tenant": {
     "tenantId": "app1",
     "tenantName": "App1 租户"
@@ -106,6 +106,4 @@ const schema = {
     "auditEnabled": false,
     "releaseEnabled": false
   }
-} as const satisfies TenantSchema;
-
-export default schema;
+});
