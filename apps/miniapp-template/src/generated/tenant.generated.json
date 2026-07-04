@@ -1,9 +1,88 @@
 {
-  "tenant": { "tenantId": "app1", "tenantName": "App1 租户" },
-  "app": { "appKey": "app1", "appid": "wx_app1", "name": "App1 小程序", "version": "0.1.0" },
-  "pages": [],
-  "tabs": [],
-  "modules": ["module-a", "module-b", "module-c", "module-d"],
-  "features": {},
-  "runtime": {}
+  "tenant": {
+    "tenantId": "app1",
+    "tenantName": "App1 租户"
+  },
+  "app": {
+    "appKey": "app1",
+    "appid": "wx_app1",
+    "name": "App1 小程序",
+    "version": "0.1.0"
+  },
+  "pages": [
+    {
+      "key": "page-a",
+      "route": "pages/page-a/index",
+      "title": "App1 首页",
+      "enabled": true
+    },
+    {
+      "key": "page-b",
+      "route": "pages/page-b/index",
+      "title": "App1 页面B",
+      "enabled": true,
+      "layout": "stream",
+      "modules": [
+        {
+          "key": "module-a"
+        },
+        {
+          "key": "module-b"
+        },
+        {
+          "key": "module-c"
+        },
+        {
+          "key": "module-d"
+        }
+      ]
+    },
+    {
+      "key": "page-c",
+      "route": "pages/page-c/index",
+      "title": "App1 页面C",
+      "enabled": true
+    }
+  ],
+  "tabs": [
+    {
+      "key": "A",
+      "text": "A",
+      "page": "page-a",
+      "route": "pages/page-a/index"
+    },
+    {
+      "key": "B",
+      "text": "B",
+      "page": "page-b",
+      "route": "pages/page-b/index"
+    },
+    {
+      "key": "C",
+      "text": "C",
+      "page": "page-c",
+      "route": "pages/page-c/index"
+    }
+  ],
+  "modules": [
+    "module-a",
+    "module-b",
+    "module-c",
+    "module-d"
+  ],
+  "features": {
+    "pageA": true,
+    "pageB": true,
+    "pageC": true,
+    "pageD": false,
+    "moduleA": true,
+    "moduleB": true,
+    "moduleC": true,
+    "moduleD": true,
+    "moduleE": false
+  },
+  "runtime": {
+    "theme": {},
+    "apiBase": "https://api.example.test/app1"
+  }
 }

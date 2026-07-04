@@ -22,7 +22,7 @@ function walk(dir) {
     if (/^build-artifacts\/.*\.json$/.test(path)) continue;
     const text = readFileSync(path, 'utf8');
     if (/\t/.test(text)) failures.push(`${path}: tab character found`);
-    if (/\s+$/m.test(text)) failures.push(`${path}: trailing whitespace found`);
+    if (/[^\S\r\n]+$/m.test(text)) failures.push(`${path}: trailing whitespace found`);
   }
 }
 
