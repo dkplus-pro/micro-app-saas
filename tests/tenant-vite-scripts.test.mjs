@@ -23,7 +23,7 @@ test('tenant Vite docs describe local-only generated artifacts', async () => {
   const readme = await readFile('README.md', 'utf8');
 
   assert.match(readme, /npm run dev:tenant -- --tenant=app1/, 'README should document tenant Vite dev command');
-  assert.match(readme, /npm run build:vite:tenant -- --tenant=app1/, 'README should document tenant Vite build command');
+  assert.match(readme, /npm run build:vite -- --tenant=app1/, 'README should document tenant Vite build command');
   assert.match(readme, /src\/generated/i, 'README should mention generated tenant output directory');
   assert.match(readme, /not (?:commit|committed)|local-only/i, 'README should warn generated tenant outputs are local-only');
 });

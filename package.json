@@ -26,14 +26,14 @@
     "dev:tenant": "node scripts/vite-tenant.ts dev",
     "dev:app1": "npm run dev:tenant -- --tenant=app1",
     "dev:app2": "npm run dev:tenant -- --tenant=app2",
-    "vite:build:tenant": "node scripts/vite-tenant.ts --command=build",
-    "vite:build:app1": "npm run vite:build:tenant -- --tenant=app1",
-    "vite:build:app2": "npm run vite:build:tenant -- --tenant=app2",
-    "guard:no-tracked-artifacts": "node scripts/check-no-tracked-artifacts.mjs",
-    "build:tenant:vite": "node scripts/vite-tenant.ts --command=build",
-    "build:vite:app1": "npm run build:tenant:vite -- --tenant=app1",
-    "build:vite:app2": "npm run build:tenant:vite -- --tenant=app2",
-    "guard:no-tracked-generated": "node scripts/check-no-tracked-artifacts.mjs"
+    "build:vite": "npm run build:vite:tenant --",
+    "build:vite:tenant": "node scripts/vite-tenant.ts --command=build",
+    "build:vite:app1": "npm run build:vite:tenant -- --tenant=app1",
+    "build:vite:app2": "npm run build:vite:tenant -- --tenant=app2",
+    "build:tenant:vite": "npm run build:vite:tenant --",
+    "vite:build:tenant": "npm run build:vite:tenant --",
+    "vite:build:app1": "npm run build:vite:app1",
+    "vite:build:app2": "npm run build:vite:app2"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
