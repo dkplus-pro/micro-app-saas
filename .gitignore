@@ -13,3 +13,9 @@ apps/miniapp-template/src/generated/*
 !apps/miniapp-template/src/generated/.gitkeep
 apps/miniapp-template/dist/
 .runner-records/
+
+apps/miniapp-template/src/generated/*
+!apps/miniapp-template/src/generated/
+!apps/miniapp-template/src/generated/README.md
+apps/miniapp-template/dist/
+apps/miniapp-template/.vite/

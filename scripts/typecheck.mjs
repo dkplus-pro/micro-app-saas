@@ -13,6 +13,11 @@ const localTsc = process.platform === 'win32'
 const command = existsSync(localTsc) ? localTsc : 'npx';
 const args = existsSync(localTsc) ? ['--noEmit'] : ['--yes', '--package', 'typescript', '--', 'tsc', '--noEmit'];
 
+const generate = spawnSync(process.execPath, ['scripts/generate-tenant.ts', '--tenant', process.env.TYPECHECK_TENANT || 'app1'], { encoding: 'utf8' });
+process.stdout.write(generate.stdout || '');
+process.stderr.write(generate.stderr || '');
+if (generate.status !== 0) process.exit(generate.status ?? 1);
+
 const child = spawnSync(command, args, { encoding: 'utf8', shell: process.platform === 'win32' });
 process.stdout.write(child.stdout || '');
 process.stderr.write(child.stderr || '');

@@ -12,7 +12,7 @@ npm run dev:app1
 npm run build:vite:app1
 npm run build:app1
 npm run build:app2
-npm run vite:build:tenant -- --tenant=app1
+npm run build:vite:app1
 npm run dev:tenant -- --tenant=app1
 npm run batch:build -- --tenants=app1,app2
 npm run upload:tenant -- --tenant=app1 --dry-run
@@ -42,6 +42,18 @@ The generated directory keeps only `README.md` tracked as documentation; generat
 - `app2` generates pages A/B/D and modules `module-a,module-d,module-c`.
 - The generated `module-entry.ts` statically imports only modules used by the selected tenant.
 
+
 ## Generated tenant artifacts
 
-Generated files under `apps/miniapp-template/src/generated/` are local build artifacts. Only the explanatory README is tracked; generated TypeScript/JSON outputs are ignored and must be recreated with `npm run generate:tenant -- --tenant=<tenant>`, `npm run dev:tenant -- --tenant=<tenant>`, or `npm run build:vite:tenant -- --tenant=<tenant>`. The Vite tenant scripts generate the selected tenant first, then run `vite` or `vite build` from `apps/miniapp-template`.
+`apps/miniapp-template/src/generated/` is local generated output. Keep the explanatory
+`README.md` tracked, but do not commit generated TypeScript or JSON from that
+directory. Tenant-specific Vite commands regenerate the selected tenant before
+starting dev or building:
+
+```bash
+npm run dev:tenant -- --tenant=app1
+npm run build:tenant:vite -- --tenant=app1
+```
+
+The guard `npm run guard:no-tracked-generated` fails if generated tenant output is
+reintroduced to git tracking.
