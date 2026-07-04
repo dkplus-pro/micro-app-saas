@@ -1,1 +1,1 @@
-export * from './generateTenant.js';
+export * from './generator.js';
