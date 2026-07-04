@@ -14,6 +14,8 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   const errors: string[] = [];
   if (!isRecord(input)) return { valid: false, errors: ['schema must be an object'] };
 
+  const schema = input as TenantSchema;
+  const tabs = Array.isArray(schema.tabs) ? schema.tabs : [];
   const pages = tenantPagesToRecord(schema.pages);
   const pageEntries = pageEntriesForValidation(schema.pages, errors);
   const enabledRoutes = new Set<string>();
@@ -21,9 +23,12 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   const tabPageKeys = new Set<string>(tabs.filter(isRecord).map((tab) => String(tab.page)));
 
   for (const [pageKey, page] of pageEntries) {
-    if (!PAGE_ROUTE_PATTERN.test(page.route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
-    if (allRoutes.has(page.route)) errors.push(`${pageKey}.route duplicates ${page.route}`);
-    allRoutes.add(page.route);
+    const route = typeof page.route === 'string' ? page.route : '';
+    const packageValue = typeof page.package === 'string' ? page.package : undefined;
+    const subPackageRoot = typeof page.subPackageRoot === 'string' ? page.subPackageRoot : undefined;
+    if (!PAGE_ROUTE_PATTERN.test(route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
+    if (allRoutes.has(route)) errors.push(`${pageKey}.route duplicates ${route}`);
+    allRoutes.add(route);
     const isTabPage = tabPageKeys.has(pageKey);
     const packageType = getDefaultPackageType(route, isTabPage, packageValue);
     if (packageType !== 'main' && packageType !== 'subPackage') errors.push(`${pageKey}.package must be main or subPackage`);
@@ -45,11 +50,12 @@ export function validateTenantSchema(input: unknown): ValidationResult {
 
     const seenModules = new Set<string>();
     for (const moduleRef of page.modules ?? []) {
-      if (!MODULE_REGISTRY_SET.has(moduleRef.key)) errors.push(`${pageKey}.modules references unknown module ${moduleRef.key}`);
+      const moduleKey = moduleRef.key;
+      if (!MODULE_REGISTRY_SET.has(moduleKey)) errors.push(`${pageKey}.modules references unknown module ${moduleKey}`);
       if (seenModules.has(moduleRef.key)) errors.push(`${pageKey}.modules contains duplicate module ${moduleRef.key}`);
       seenModules.add(moduleRef.key);
-      const featureKey = featureKeyForModule(moduleRef.key as ModuleKey);
-      if (!isModuleCapabilityEnabled(schema, moduleRef.key as ModuleKey)) errors.push(`${pageKey}.modules references disabled capability ${featureKey}`);
+      const featureKey = featureKeyForModule(moduleKey as ModuleKey);
+      if (!isModuleCapabilityEnabled(schema, moduleKey as ModuleKey)) errors.push(`${pageKey}.modules references disabled capability ${featureKey}`);
     }
   }
 
