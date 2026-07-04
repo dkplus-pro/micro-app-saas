@@ -1,12 +1,34 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { assertValidTenantSchema } from '../../schema/src/validation.ts';
-import type { ModuleKey, TenantPage, TenantSchema } from '../../schema/src/types.ts';
+import type { ModuleKey, TenantPage, TenantSchema, UniAppPackageType } from '../../schema/src/types.ts';
+
+interface GeneratedPageArtifact {
+  key: string;
+  path: string;
+  style: { navigationBarTitleText: string };
+  package: UniAppPackageType;
+  subPackageRoot?: string;
+  subPackagePath?: string;
+  layout: 'stream' | 'standard';
+  modules: NonNullable<TenantPage['modules']>;
+}
+
+interface UniSubPackagePage {
+  path: string;
+  style: { navigationBarTitleText: string };
+}
+
+interface UniSubPackageConfig {
+  root: string;
+  pages: UniSubPackagePage[];
+}
 
 export interface GeneratedTenantArtifacts {
   tenantId: string;
   appConfig: unknown;
-  pagesConfig: unknown;
+  pagesConfig: GeneratedPageArtifact[];
+  subPackagesConfig: UniSubPackageConfig[];
   tabbarConfig: unknown;
   routeConfig: unknown;
   runtimeConfig: unknown;
@@ -49,13 +71,20 @@ export function collectUsedModules(schema: TenantSchema): ModuleKey[] {
 export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts {
   const enabledPages = collectEnabledPages(schema);
   const usedModules = collectUsedModules(schema);
-  const pagesConfig = enabledPages.map(([key, page]) => ({
-    key,
-    path: page.route,
-    style: { navigationBarTitleText: page.title },
-    layout: page.layout ?? 'standard',
-    modules: page.modules ?? []
-  }));
+  const pagesConfig = enabledPages.map(([key, page]) => {
+    const packageType = getPagePackage(page);
+    const subPackageRoot = packageType === 'subPackage' ? getSubPackageRoot(page) : undefined;
+    return removeUndefined({
+      key,
+      path: page.route,
+      style: { navigationBarTitleText: page.title },
+      package: packageType,
+      subPackageRoot,
+      subPackagePath: subPackageRoot ? relativeSubPackagePath(page.route, subPackageRoot) : undefined,
+      layout: page.layout ?? 'standard',
+      modules: page.modules ?? []
+    });
+  });
   const tabs = schema.tabs.map((tab) => {
     const page = schema.pages[tab.page];
     return {
@@ -76,8 +105,12 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   };
   const routeConfig = Object.fromEntries(enabledPages.map(([key, page]) => [key, page.route]));
   const runtimeConfig = { features: schema.features, runtime: schema.runtime ?? {} };
-  const uniPagesJson = {
-    pages: pagesConfig.map((page) => ({ path: page.path, style: page.style })),
+  const subPackagesConfig = createSubPackagesConfig(pagesConfig);
+  const uniPagesJson = removeUndefined({
+    pages: pagesConfig
+      .filter((page) => page.package === 'main')
+      .map((page) => ({ path: page.path, style: page.style })),
+    subPackages: subPackagesConfig.length > 0 ? subPackagesConfig : undefined,
     tabBar: {
       color: '#64748b',
       selectedColor: schema.runtime?.themeColor ?? '#1677ff',
@@ -90,7 +123,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
         selectedIconPath: tab.selectedIconPath
       }))
     }
-  };
+  });
   const uniManifestJson = {
     name: appConfig.name,
     appid: '',
@@ -121,6 +154,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     tenantId: schema.tenant.tenantId,
     appConfig,
     pagesConfig,
+    subPackagesConfig,
     tabbarConfig: { list: tabs },
     routeConfig,
     runtimeConfig,
@@ -130,6 +164,32 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     usedModules,
     pageRoutes: enabledPages.map(([, page]) => page.route)
   };
+}
+
+function getPagePackage(page: TenantPage): UniAppPackageType {
+  return page.package ?? (page.route === 'pages/page-a/index' ? 'main' : 'subPackage');
+}
+
+function getSubPackageRoot(page: TenantPage): string {
+  return page.subPackageRoot ?? path.posix.dirname(page.route);
+}
+
+function relativeSubPackagePath(route: string, root: string): string {
+  const prefix = `${root}/`;
+  if (!route.startsWith(prefix)) throw new Error(`route ${route} must be under subPackageRoot ${root}`);
+  return route.slice(prefix.length);
+}
+
+function createSubPackagesConfig(pages: GeneratedPageArtifact[]): UniSubPackageConfig[] {
+  const groups = new Map<string, UniSubPackagePage[]>();
+  for (const page of pages) {
+    if (page.package !== 'subPackage') continue;
+    if (!page.subPackageRoot || !page.subPackagePath) throw new Error(`subPackage page ${page.key} is missing package metadata`);
+    const group = groups.get(page.subPackageRoot) ?? [];
+    group.push({ path: page.subPackagePath, style: page.style });
+    groups.set(page.subPackageRoot, group);
+  }
+  return [...groups.entries()].map(([root, packagePages]) => ({ root, pages: packagePages }));
 }
 
 function removeUndefined<T extends Record<string, unknown>>(value: T): T {
@@ -154,6 +214,7 @@ export async function generateTenant(options: GenerateOptions): Promise<Generate
   await writeFile(path.join(outputDir, 'tenant.config.ts'), tsExport('tenantConfig', schema.tenant));
   await writeFile(path.join(outputDir, 'app.config.ts'), tsExport('appConfig', artifacts.appConfig));
   await writeFile(path.join(outputDir, 'pages.config.ts'), tsExport('pagesConfig', artifacts.pagesConfig));
+  await writeFile(path.join(outputDir, 'subpackages.config.ts'), tsExport('subPackagesConfig', artifacts.subPackagesConfig));
   await writeFile(path.join(outputDir, 'tabbar.config.ts'), tsExport('tabbarConfig', artifacts.tabbarConfig));
   await writeFile(path.join(outputDir, 'route.config.ts'), tsExport('routeConfig', artifacts.routeConfig));
   await writeFile(path.join(outputDir, 'runtime.config.ts'), tsExport('runtimeConfig', artifacts.runtimeConfig));
