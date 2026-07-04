@@ -94,7 +94,7 @@ export function makeOptions(argv: string[]): RunnerOptions {
     tenantId,
     rootDir,
     schemaDir: path.resolve(rootDir, String(args.schemaDir || 'schemas/tenants')),
-    outDir: path.resolve(rootDir, String(args.outDir || 'dist/tenants')),
+    outDir: path.resolve(rootDir, String(args.outDir || 'apps/miniapp-template/dist/tenants')),
     recordsDir: path.resolve(rootDir, String(args.recordsDir || '.runner-records')),
     version: String(args.version || process.env.RELEASE_VERSION || '0.0.0-local'),
     dryRun: args.dryRun !== false,
