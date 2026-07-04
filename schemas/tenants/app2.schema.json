@@ -14,6 +14,16 @@
       "key": "A",
       "text": "A",
       "page": "page-a"
+    },
+    {
+      "key": "B",
+      "text": "B",
+      "page": "page-b"
+    },
+    {
+      "key": "D",
+      "text": "D",
+      "page": "page-d"
     }
   ],
   "pages": {
@@ -40,7 +50,7 @@
           "key": "module-c"
         }
       ],
-      "package": "subPackage"
+      "package": "main"
     },
     "page-c": {
       "route": "pages/page-c/index",
@@ -52,7 +62,7 @@
       "route": "pages/page-d/index",
       "title": "App2 页面D",
       "enabled": true,
-      "package": "subPackage"
+      "package": "main"
     }
   },
   "features": {

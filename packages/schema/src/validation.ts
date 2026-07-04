@@ -17,12 +17,14 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
   const pages = schema.pages ?? {};
   const enabledRoutes = new Set<string>();
   const allRoutes = new Set<string>();
+  const tabPageKeys = new Set<string>((schema.tabs ?? []).map((tab) => tab.page));
 
   for (const [pageKey, page] of Object.entries(pages)) {
     if (!PAGE_ROUTE_PATTERN.test(page.route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
     if (allRoutes.has(page.route)) errors.push(`${pageKey}.route duplicates ${page.route}`);
     allRoutes.add(page.route);
-    const packageType = page.package ?? (page.route === 'pages/page-a/index' ? 'main' : 'subPackage');
+    const isTabPage = tabPageKeys.has(pageKey);
+    const packageType = getDefaultPackageType(page.route, isTabPage, page.package);
     if (packageType !== 'main' && packageType !== 'subPackage') errors.push(`${pageKey}.package must be main or subPackage`);
     if (packageType === 'main' && page.subPackageRoot) errors.push(`${pageKey}.subPackageRoot is only valid for subPackage pages`);
     if (page.subPackageRoot && !/^pages\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(page.subPackageRoot)) {
@@ -30,11 +32,11 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
     }
     if (page.enabled) {
       enabledRoutes.add(page.route);
-      if (page.route !== 'pages/page-a/index' && packageType !== 'subPackage') {
-        errors.push(`${pageKey}.package must be subPackage for non-home pages`);
+      if (page.route !== 'pages/page-a/index' && !isTabPage && packageType !== 'subPackage') {
+        errors.push(`${pageKey}.package must be subPackage for non-tab pages`);
       }
-      if (page.route === 'pages/page-a/index' && packageType !== 'main') {
-        errors.push(`${pageKey}.package must be main for the home page`);
+      if ((page.route === 'pages/page-a/index' || isTabPage) && packageType !== 'main') {
+        errors.push(`${pageKey}.package must be main for home/tab pages`);
       }
     }
     if (page.enabled && !hasText(page.title)) errors.push(`${pageKey}.title is required for enabled page`);
@@ -57,7 +59,7 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
     if (!target) errors.push(`tab ${tab.key} points to missing page ${tab.page}`);
     if (target && !target.enabled) errors.push(`tab ${tab.key} points to disabled page ${tab.page}`);
     if (target && !enabledRoutes.has(target.route)) errors.push(`tab ${tab.key} route ${target.route} is not enabled`);
-    if (target && (target.package ?? (target.route === 'pages/page-a/index' ? 'main' : 'subPackage')) === 'subPackage') {
+    if (target && getDefaultPackageType(target.route, true, target.package) === 'subPackage') {
       errors.push(`tab ${tab.key} points to subPackage page ${tab.page}`);
     }
     if (!hasText(tab.text)) errors.push(`tab ${tab.key} text is required`);
@@ -69,4 +71,8 @@ export function validateTenantSchema(schema: TenantSchema): ValidationResult {
 export function assertValidTenantSchema(schema: TenantSchema): void {
   const result = validateTenantSchema(schema);
   if (!result.valid) throw new Error(`Invalid tenant schema ${schema.tenant?.tenantId ?? '<unknown>'}:\n- ${result.errors.join('\n- ')}`);
+}
+
+function getDefaultPackageType(route: string, isTabPage: boolean, explicitPackage?: string): string {
+  return explicitPackage ?? (route === 'pages/page-a/index' || isTabPage ? 'main' : 'subPackage');
 }

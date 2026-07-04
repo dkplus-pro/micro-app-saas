@@ -17,7 +17,7 @@ describe('tenant generator compile-time pruning', () => {
     const { config, moduleEntry } = await generateToTemp('app1');
 
     expect(config.pages.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-c', 'page-d']);
-    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a']);
+    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a', 'page-b', 'page-c']);
     expect(config.pages.find((page) => page.key === 'page-a')?.title).toBe('App1 首页');
     expect(config.pages.find((page) => page.key === 'page-a')?.modules?.map((module) => module.key)).toEqual(['module-a']);
     expect(config.pages.find((page) => page.key === 'page-b')?.modules?.map((module) => module.key)).toEqual([
@@ -36,7 +36,7 @@ describe('tenant generator compile-time pruning', () => {
     const { config, moduleEntry } = await generateToTemp('app2');
 
     expect(config.pages.map((page) => page.key)).toEqual(['page-a', 'page-b', 'page-d']);
-    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a']);
+    expect(config.tabs.map((tab) => tab.page)).toEqual(['page-a', 'page-b', 'page-d']);
     expect(config.pages.find((page) => page.key === 'page-a')?.title).toBe('App2 首页');
     expect(config.pages.find((page) => page.key === 'page-a')?.modules).toEqual([]);
     expect(config.pages.find((page) => page.key === 'page-b')?.modules?.map((module) => module.key)).toEqual([

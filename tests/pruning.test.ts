@@ -27,8 +27,9 @@ test('app1 generation enables page-a module and subpackages while pruning module
   assert.match(JSON.stringify(artifacts.pagesConfig), /App1 首页/);
   assert.deepEqual(artifacts.pagesConfig.find((page) => page.key === 'page-a')?.modules?.map((module) => module.key), ['module-a']);
   assert.match(JSON.stringify(artifacts.pagesConfig), /pages\/page-d\/index/);
-  assert.deepEqual((artifacts.uniPagesJson as { pages: Array<{ path: string }> }).pages.map((page) => page.path), ['pages/page-a/index']);
-  assert.deepEqual(artifacts.subPackagesConfig.map((subPackage) => subPackage.root), ['pages/page-b', 'pages/page-c', 'pages/page-d']);
+  assert.deepEqual((artifacts.uniPagesJson as { pages: Array<{ path: string }> }).pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index']);
+  assert.deepEqual((artifacts.uniPagesJson as { tabBar: { list: Array<{ text: string }> } }).tabBar.list.map((tab) => tab.text), ['A', 'B', 'C']);
+  assert.deepEqual(artifacts.subPackagesConfig.map((subPackage) => subPackage.root), ['pages/page-d']);
   assert.match(moduleEntry, /module-a/);
   assert.match(moduleEntry, /module-b/);
   assert.match(moduleEntry, /module-c/);
@@ -42,8 +43,9 @@ test('app2 generation prunes page-c, module-b, and module-e while preserving mod
   assert.deepEqual(artifacts.pageRoutes, ['pages/page-a/index', 'pages/page-b/index', 'pages/page-d/index']);
   assert.deepEqual(artifacts.usedModules, ['module-a', 'module-d', 'module-c']);
   assert.deepEqual(artifacts.pagesConfig.find((page) => page.key === 'page-a')?.modules, []);
-  assert.deepEqual((artifacts.uniPagesJson as { pages: Array<{ path: string }> }).pages.map((page) => page.path), ['pages/page-a/index']);
-  assert.deepEqual(artifacts.subPackagesConfig.map((subPackage) => subPackage.root), ['pages/page-b', 'pages/page-d']);
+  assert.deepEqual((artifacts.uniPagesJson as { pages: Array<{ path: string }> }).pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-d/index']);
+  assert.deepEqual((artifacts.uniPagesJson as { tabBar: { list: Array<{ text: string }> } }).tabBar.list.map((tab) => tab.text), ['A', 'B', 'D']);
+  assert.deepEqual(artifacts.subPackagesConfig.map((subPackage) => subPackage.root), []);
   assert.match(JSON.stringify(artifacts.pagesConfig), /App2 首页/);
   assert.doesNotMatch(JSON.stringify(artifacts.pagesConfig), /pages\/page-c\/index/);
   assert.match(moduleEntry, /module-a/);

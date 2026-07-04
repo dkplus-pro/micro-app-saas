@@ -71,8 +71,9 @@ export function collectUsedModules(schema: TenantSchema): ModuleKey[] {
 export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts {
   const enabledPages = collectEnabledPages(schema);
   const usedModules = collectUsedModules(schema);
+  const tabPageKeys = new Set<string>(schema.tabs.map((tab) => tab.page));
   const pagesConfig = enabledPages.map(([key, page]) => {
-    const packageType = getPagePackage(page);
+    const packageType = getPagePackage(page, tabPageKeys.has(key));
     const subPackageRoot = packageType === 'subPackage' ? getSubPackageRoot(page) : undefined;
     return removeUndefined({
       key,
@@ -166,8 +167,8 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   };
 }
 
-function getPagePackage(page: TenantPage): UniAppPackageType {
-  return page.package ?? (page.route === 'pages/page-a/index' ? 'main' : 'subPackage');
+function getPagePackage(page: TenantPage, isTabPage: boolean): UniAppPackageType {
+  return page.package ?? (page.route === 'pages/page-a/index' || isTabPage ? 'main' : 'subPackage');
 }
 
 function getSubPackageRoot(page: TenantPage): string {

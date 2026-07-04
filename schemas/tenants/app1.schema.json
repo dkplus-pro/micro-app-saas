@@ -14,6 +14,16 @@
       "key": "A",
       "text": "A",
       "page": "page-a"
+    },
+    {
+      "key": "B",
+      "text": "B",
+      "page": "page-b"
+    },
+    {
+      "key": "C",
+      "text": "C",
+      "page": "page-c"
     }
   ],
   "pages": {
@@ -52,13 +62,13 @@
           "key": "module-d"
         }
       ],
-      "package": "subPackage"
+      "package": "main"
     },
     "page-c": {
       "route": "pages/page-c/index",
       "title": "App1 页面C",
       "enabled": true,
-      "package": "subPackage"
+      "package": "main"
     },
     "page-d": {
       "route": "pages/page-d/index",
