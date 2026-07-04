@@ -83,12 +83,14 @@ export default defineTenantSchema({
       "package": "subPackage"
     }
   ],
-  "features": {
-    "moduleA": true,
-    "moduleB": true,
-    "moduleC": true,
-    "moduleD": true,
-    "moduleE": false
+  "capabilities": {
+    "modules": {
+      "module-a": true,
+      "module-b": true,
+      "module-c": true,
+      "module-d": true,
+      "module-e": false
+    }
   },
   "runtime": {
     "themeColor": "#1677ff",

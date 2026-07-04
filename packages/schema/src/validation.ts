@@ -1,5 +1,5 @@
 import { normalizeTenantPages, tenantPagesToRecord, isModuleCapabilityEnabled } from './normalize.ts';
-import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
+import { MODULE_REGISTRY, MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
 import type { ModuleKey, TenantPage, TenantSchema, ValidationResult } from './types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -21,6 +21,8 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   const enabledRoutes = new Set<string>();
   const allRoutes = new Set<string>();
   const tabPageKeys = new Set<string>(tabs.filter(isRecord).map((tab) => String(tab.page)));
+
+  validateLegacyFeatures(schema.features, errors);
 
   for (const [pageKey, page] of pageEntries) {
     const route = typeof page.route === 'string' ? page.route : '';
@@ -134,4 +136,19 @@ function pageEntriesForValidation(pages: TenantSchema['pages'], errors: string[]
     seen.add(pageKey);
   }
   return entries;
+}
+
+const LEGACY_MODULE_FEATURE_KEYS = new Set<string>(MODULE_REGISTRY.map((moduleKey) => featureKeyForModule(moduleKey)));
+const LEGACY_PAGE_FEATURE_KEYS = new Set(['pageA', 'pageB', 'pageC', 'pageD']);
+
+function validateLegacyFeatures(features: TenantSchema['features'], errors: string[]): void {
+  if (!features) return;
+  for (const key of Object.keys(features)) {
+    if (LEGACY_MODULE_FEATURE_KEYS.has(key)) continue;
+    if (LEGACY_PAGE_FEATURE_KEYS.has(key)) {
+      errors.push(`features.${key} is no longer supported; use pages[].enabled for page inclusion`);
+      continue;
+    }
+    errors.push(`features.${key} is not supported; legacy features only accepts module flags`);
+  }
 }
