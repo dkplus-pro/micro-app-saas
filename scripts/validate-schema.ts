@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { validateTenantSchema } from '../packages/schema/src/validation.ts';
-import type { TenantSchema } from '../packages/schema/src/types.js';
+import type { TenantSchema } from '../packages/schema/src/types.ts';
 import { getTenantList } from './args.ts';
 
 async function main(): Promise<void> {
