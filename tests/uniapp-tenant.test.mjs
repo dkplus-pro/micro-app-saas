@@ -6,10 +6,10 @@ import { spawnSync } from 'node:child_process';
 
 const repoRoot = path.resolve('.');
 
-test('tenant uni-app build wrapper generates code before mini-program build command', () => {
+test('main build script generates code before mini-program build command', () => {
   rmSync(path.join(repoRoot, 'apps/miniapp-template/dist/build/mp-weixin'), { recursive: true, force: true });
 
-  const child = spawnSync('npm', ['run', 'build:mp-weixin', '--', '--tenant=app1', '--dry-run'], {
+  const child = spawnSync('npm', ['run', 'build', '--', '--tenant=app1', '--dry-run'], {
     cwd: repoRoot,
     encoding: 'utf8'
   });
