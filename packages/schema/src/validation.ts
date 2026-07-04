@@ -1,112 +1,55 @@
-import { MAX_TAB_BAR_ITEMS, MIN_TAB_BAR_ITEMS, MODULE_REGISTRY, PAGE_REGISTRY } from "./registry.ts";
-import type { ModuleKey, PageKey, TenantModuleRef, TenantSchema } from "./types.ts";
+import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.js';
+import type { ModuleKey, TenantSchema, ValidationResult } from './types.js';
 
-export class SchemaValidationError extends Error {
-  readonly errors: string[];
-
-  constructor(errors: string[]) {
-    super(`Tenant schema validation failed:\n${errors.map((error) => `- ${error}`).join("\n")}`);
-    this.name = "SchemaValidationError";
-    this.errors = errors;
-  }
+function hasText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
 }
 
-const ROUTE_RE = /^pages\/[a-z0-9-]+\/index$/;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function pushMissing(errors: string[], path: string, value: unknown): void {
-  if (typeof value !== "string" || value.trim() === "") {
-    errors.push(`${path} is required`);
-  }
-}
-
-function validateModuleRefs(errors: string[], pageKey: PageKey, modules: TenantModuleRef[] | undefined, features: Record<string, boolean>): void {
-  if (!modules) return;
-  const seen = new Set<string>();
-  for (const moduleRef of modules) {
-    const moduleKey = moduleRef.key;
-    if (!(moduleKey in MODULE_REGISTRY)) {
-      errors.push(`pages.${pageKey}.modules references unknown module ${moduleKey}`);
-    }
-    if (seen.has(moduleKey)) {
-      errors.push(`pages.${pageKey}.modules contains duplicate module ${moduleKey}`);
-    }
-    seen.add(moduleKey);
-    const featureKey = moduleKey.replace(/^module-/, "module").replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
-    if (features[featureKey] === false) {
-      errors.push(`pages.${pageKey}.modules references disabled feature ${featureKey}`);
-    }
-  }
-}
-
-export function assertTenantSchema(value: unknown): asserts value is TenantSchema {
+export function validateTenantSchema(schema: TenantSchema): ValidationResult {
   const errors: string[] = [];
-  if (!isRecord(value)) {
-    throw new SchemaValidationError(["schema root must be an object"]);
-  }
+  if (!schema || typeof schema !== 'object') errors.push('schema must be an object');
+  if (!hasText(schema.tenant?.tenantId)) errors.push('tenant.tenantId is required');
+  if (!hasText(schema.tenant?.tenantName)) errors.push('tenant.tenantName is required');
+  if (!hasText(schema.app?.appKey)) errors.push('app.appKey is required');
+  if (!hasText(schema.app?.appid)) errors.push('app.appid is required');
+  if (!hasText(schema.app?.name)) errors.push('app.name is required');
 
-  const schema = value as unknown as TenantSchema;
-  pushMissing(errors, "tenant.tenantId", schema.tenant?.tenantId);
-  pushMissing(errors, "tenant.tenantName", schema.tenant?.tenantName);
-  pushMissing(errors, "app.appKey", schema.app?.appKey);
-  pushMissing(errors, "app.appid", schema.app?.appid);
-  pushMissing(errors, "app.name", schema.app?.name);
+  const pages = schema.pages ?? {};
+  const enabledRoutes = new Set<string>();
+  const allRoutes = new Set<string>();
 
-  if (!Array.isArray(schema.tabs)) {
-    errors.push("tabs must be an array");
-  } else if (schema.tabs.length < MIN_TAB_BAR_ITEMS || schema.tabs.length > MAX_TAB_BAR_ITEMS) {
-    errors.push(`tabs length must be between ${MIN_TAB_BAR_ITEMS} and ${MAX_TAB_BAR_ITEMS}`);
-  }
+  for (const [pageKey, page] of Object.entries(pages)) {
+    if (!PAGE_ROUTE_PATTERN.test(page.route)) errors.push(`${pageKey}.route must match pages/<page>/index`);
+    if (allRoutes.has(page.route)) errors.push(`${pageKey}.route duplicates ${page.route}`);
+    allRoutes.add(page.route);
+    if (page.enabled) enabledRoutes.add(page.route);
+    if (page.enabled && !hasText(page.title)) errors.push(`${pageKey}.title is required for enabled page`);
 
-  if (!isRecord(schema.pages)) {
-    errors.push("pages must be an object");
-  }
-
-  const features = schema.features ?? {};
-  const seenRoutes = new Set<string>();
-  const pages = isRecord(schema.pages) ? schema.pages : {};
-  for (const [pageKey, page] of Object.entries(pages) as [PageKey, TenantSchema["pages"][PageKey]][]) {
-    if (!(pageKey in PAGE_REGISTRY)) {
-      errors.push(`pages contains unknown page ${pageKey}`);
-    }
-    if (!page.enabled) {
-      errors.push(`pages.${pageKey}.enabled must be true for listed build-time pages`);
-    }
-    pushMissing(errors, `pages.${pageKey}.title`, page.title);
-    if (!ROUTE_RE.test(page.route)) {
-      errors.push(`pages.${pageKey}.route must match ${ROUTE_RE}`);
-    }
-    if (seenRoutes.has(page.route)) {
-      errors.push(`route ${page.route} is duplicated`);
-    }
-    seenRoutes.add(page.route);
-    validateModuleRefs(errors, pageKey, page.modules, features);
-  }
-
-  if (Array.isArray(schema.tabs)) {
-    const seenTabs = new Set<string>();
-    for (const [index, tab] of schema.tabs.entries()) {
-      pushMissing(errors, `tabs[${index}].key`, tab.key);
-      pushMissing(errors, `tabs[${index}].text`, tab.text);
-      if (!pages[tab.page]) {
-        errors.push(`tabs[${index}].page references missing page ${tab.page}`);
-      }
-      if (seenTabs.has(tab.page)) {
-        errors.push(`tabs contains duplicate page ${tab.page}`);
-      }
-      seenTabs.add(tab.page);
+    const seenModules = new Set<string>();
+    for (const moduleRef of page.modules ?? []) {
+      if (!MODULE_REGISTRY_SET.has(moduleRef.key)) errors.push(`${pageKey}.modules references unknown module ${moduleRef.key}`);
+      if (seenModules.has(moduleRef.key)) errors.push(`${pageKey}.modules contains duplicate module ${moduleRef.key}`);
+      seenModules.add(moduleRef.key);
+      const featureKey = featureKeyForModule(moduleRef.key as ModuleKey);
+      if (schema.features?.[featureKey] === false) errors.push(`${pageKey}.modules references disabled feature ${featureKey}`);
     }
   }
 
-  if (errors.length > 0) {
-    throw new SchemaValidationError(errors);
+  if (!Array.isArray(schema.tabs) || schema.tabs.length < 1 || schema.tabs.length > 5) {
+    errors.push('tabs must contain 1 to 5 items');
   }
+  for (const tab of schema.tabs ?? []) {
+    const target = pages[tab.page];
+    if (!target) errors.push(`tab ${tab.key} points to missing page ${tab.page}`);
+    if (target && !target.enabled) errors.push(`tab ${tab.key} points to disabled page ${tab.page}`);
+    if (target && !enabledRoutes.has(target.route)) errors.push(`tab ${tab.key} route ${target.route} is not enabled`);
+    if (!hasText(tab.text)) errors.push(`tab ${tab.key} text is required`);
+  }
+
+  return { valid: errors.length === 0, errors };
 }
 
-export function validateTenantSchema(schema: unknown): TenantSchema {
-  assertTenantSchema(schema);
-  return schema;
+export function assertValidTenantSchema(schema: TenantSchema): void {
+  const result = validateTenantSchema(schema);
+  if (!result.valid) throw new Error(`Invalid tenant schema ${schema.tenant?.tenantId ?? '<unknown>'}:\n- ${result.errors.join('\n- ')}`);
 }
