@@ -1,0 +1,12 @@
+[
+  {
+    "tenantId": "app1",
+    "buildStatus": "success",
+    "finishedAt": "2026-07-04T06:39:43.518Z"
+  },
+  {
+    "tenantId": "app2",
+    "buildStatus": "success",
+    "finishedAt": "2026-07-04T06:39:43.527Z"
+  }
+]
