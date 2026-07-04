@@ -12,6 +12,8 @@ npm run dev:app1
 npm run build:vite:app1
 npm run build:app1
 npm run build:app2
+npm run vite:build:tenant -- --tenant=app1
+npm run dev:tenant -- --tenant=app1
 npm run batch:build -- --tenants=app1,app2
 npm run upload:tenant -- --tenant=app1 --dry-run
 npm run release:tenant -- --tenant=app1 --dry-run
@@ -23,20 +25,16 @@ npm test
 Upload and release scripts are intentionally dry-run only; they never call external mini-program services.
 
 
-## Local tenant Vite development
+## Local tenant dev/build
 
-Generated tenant files under `apps/miniapp-template/src/generated/` are local build artifacts. They are regenerated for the selected tenant and must stay local-only and not committed; keep generated TypeScript/JSON, Vite output, `dist/`, `node_modules/`, and `.runner-records/` out of git.
+Generated tenant files under `apps/miniapp-template/src/generated/` are local build artifacts.
+They are ignored by git and should be regenerated for the tenant you are working on instead of committed.
 
-Use the tenant Vite commands when developing or smoke-testing a tenant locally. Each command generates the selected tenant first, then runs Vite from `apps/miniapp-template`:
+- `npm run dev:tenant -- --tenant=app1` generates App1 config, then starts Vite for `apps/miniapp-template`.
+- `npm run vite:build:tenant -- --tenant=app1` generates App1 config, then runs `vite build`.
+- `npm run guard:no-tracked-artifacts` fails if generated tenant files, Vite output, `dist/`, `.runner-records/`, or `node_modules/` are tracked.
 
-```bash
-npm run dev:tenant -- --tenant=app1
-npm run dev:app1
-npm run build:vite -- --tenant=app1
-npm run build:vite:app1
-```
-
-Switching tenants requires rerunning the tenant command so `src/generated/` reflects the new tenant before Vite starts.
+The generated directory keeps only `README.md` tracked as documentation; generated TypeScript and JSON files must stay untracked.
 
 ## Compile-time pruning contract
 

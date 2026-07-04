@@ -1,23 +1,21 @@
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rm, stat } from 'node:fs/promises';
+import { existsSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import test from 'node:test';
 
-const repoRoot = process.cwd();
-const appRoot = path.join(repoRoot, 'apps', 'miniapp-template');
+const repoRoot = path.resolve('.');
 
-test('Vite tenant build generates app1 locally before building', async () => {
-  await rm(path.join(appRoot, 'src', 'generated', 'tenant.config.ts'), { force: true });
-  await rm(path.join(appRoot, 'dist', 'vite'), { recursive: true, force: true });
+test('tenant Vite build generates tenant code first and writes ignored Vite output', () => {
+  rmSync(path.join(repoRoot, 'apps/miniapp-template/dist/vite'), { recursive: true, force: true });
 
-  const child = spawnSync(process.execPath, ['scripts/vite-tenant.ts', 'build', '--tenant=app1'], {
+  const child = spawnSync('npm', ['run', 'vite:build:tenant', '--', '--tenant=app1'], {
     cwd: repoRoot,
     encoding: 'utf8'
   });
 
   assert.equal(child.status, 0, `vite tenant build failed\nSTDOUT:${child.stdout}\nSTDERR:${child.stderr}`);
-  assert.match(child.stdout, /PASS generated tenant app1/);
-  await stat(path.join(appRoot, 'src', 'generated', 'tenant.config.ts'));
-  await stat(path.join(appRoot, 'dist', 'vite', 'index.html'));
+  assert.match(child.stdout, /generated apps\/miniapp-template\/src\/generated for app1/);
+  assert.equal(existsSync(path.join(repoRoot, 'apps/miniapp-template/src/generated/tenant.config.ts')), true);
+  assert.equal(existsSync(path.join(repoRoot, 'apps/miniapp-template/dist/vite/index.html')), true);
 });

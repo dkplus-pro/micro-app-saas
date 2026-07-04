@@ -1,47 +1,63 @@
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { generateTenant } from '../packages/generator/src/generator.ts';
-import { parseArgs, requireTenant } from './runner-utils.ts';
+import { getArg, requireArg } from './args.ts';
 
-const rawArgs = process.argv.slice(2);
-const separatorIndex = rawArgs.indexOf('--');
-const scriptArgs = separatorIndex >= 0 ? rawArgs.slice(0, separatorIndex) : rawArgs;
-const vitePassthroughArgs = separatorIndex >= 0 ? rawArgs.slice(separatorIndex + 1) : [];
-const args = parseArgs(scriptArgs);
-const tenant = requireTenant(args);
-const mode = String(args.mode || args._ || 'dev');
-if (mode !== 'dev' && mode !== 'build') {
-  throw new Error(`Invalid mode "${mode}". Use --mode=dev or --mode=build.`);
+const tenant = requireArg('tenant');
+const command = getArg('command', 'dev');
+const schemaDir = getArg('schema-dir');
+const viteArgs = collectForwardedViteArgs(process.argv.slice(2));
+
+if (command !== 'dev' && command !== 'build') {
+  throw new Error(`Unsupported --command=${command}. Use --command=dev or --command=build.`);
 }
 
-const rootDir = path.resolve(String(args.rootDir || process.cwd()));
-const appDir = path.join(rootDir, 'apps/miniapp-template');
-const generatedDir = path.join(appDir, 'src/generated');
-const schemaDir = path.resolve(rootDir, String(args.schemaDir || 'schemas/tenants'));
+await generateTenant({ tenant, schemaDir });
+console.log(`[vite-tenant] generated apps/miniapp-template/src/generated for ${tenant}`);
 
-await generateTenant({ tenant, schemaDir, outputDir: generatedDir });
+const viteBin = process.platform === 'win32'
+  ? path.resolve('node_modules/.bin/vite.cmd')
+  : path.resolve('node_modules/.bin/vite');
+const executable = existsSync(viteBin) ? viteBin : 'npx';
+const executableArgs = existsSync(viteBin)
+  ? viteCommandArgs(command, viteArgs)
+  : ['--yes', '--package', 'vite', '--', 'vite', ...viteCommandArgs(command, viteArgs)];
 
-const viteBin = path.join(rootDir, 'node_modules/vite/bin/vite.js');
-const viteArgs = mode === 'build' ? ['build', ...vitePassthroughArgs] : [...vitePassthroughArgs];
-const command = [process.execPath, path.relative(rootDir, viteBin), ...viteArgs];
-
-if (args.dryRun) {
-  console.log(JSON.stringify({
-    tenant,
-    mode,
-    generatedDir: path.relative(rootDir, generatedDir),
-    cwd: path.relative(rootDir, appDir),
-    command,
-  }, null, 2));
-  process.exit(0);
-}
-
-const child = spawnSync(process.execPath, [viteBin, ...viteArgs], {
-  cwd: appDir,
+const child = spawn(executable, executableArgs, {
+  cwd: process.cwd(),
   stdio: 'inherit',
-  env: { ...process.env, TENANT_ID: tenant },
+  shell: process.platform === 'win32',
+  env: { ...process.env, TENANT_ID: tenant }
 });
 
-if (child.error) throw child.error;
-process.exit(child.status ?? 1);
+child.on('exit', (code, signal) => {
+  if (signal) {
+    process.kill(process.pid, signal);
+    return;
+  }
+  process.exit(code ?? 1);
+});
+
+function viteCommandArgs(selectedCommand: string, forwarded: string[]): string[] {
+  const base = ['--config', 'apps/miniapp-template/vite.config.ts'];
+  return selectedCommand === 'build'
+    ? ['build', ...base, ...forwarded]
+    : [...base, ...forwarded];
+}
+
+function collectForwardedViteArgs(argv: string[]): string[] {
+  const separator = argv.indexOf('--');
+  if (separator >= 0) return argv.slice(separator + 1);
+  const forwarded: string[] = [];
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (arg === '--tenant' || arg === '--command' || arg === '--schema-dir') {
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith('--tenant=') || arg.startsWith('--command=') || arg.startsWith('--schema-dir=')) continue;
+    forwarded.push(arg);
+  }
+  return forwarded;
+}
