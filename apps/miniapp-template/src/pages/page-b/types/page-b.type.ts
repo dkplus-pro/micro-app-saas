@@ -1,11 +1,7 @@
-import type { GeneratedModuleConfig } from '../../../types/generated-contract';
+import type { ModuleKey } from "../../../../../packages/schema/src/index.ts";
 
-export interface PageBModuleViewModel extends GeneratedModuleConfig {
-  component: unknown;
-  order: number;
-}
-
-export interface PageBViewModel {
-  title: string;
-  modules: PageBModuleViewModel[];
+export interface PageBModuleViewModel {
+  key: ModuleKey;
+  displayName: string;
+  props: Record<string, unknown>;
 }

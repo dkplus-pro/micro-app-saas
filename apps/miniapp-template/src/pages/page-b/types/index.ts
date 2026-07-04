@@ -1,1 +1,1 @@
-export type { PageBModuleViewModel, PageBViewModel } from './page-b.type';
+export * from "./page-b.type.ts";

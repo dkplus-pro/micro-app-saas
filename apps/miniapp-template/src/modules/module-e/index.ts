@@ -1,7 +1,6 @@
-import type { ModuleAdapter } from '../types.js';
+export const moduleKey = "module-e";
+export const displayName = "Module E";
 
-export const moduleEAdapter: ModuleAdapter = {
-  key: 'module-e',
-  title: 'Module E',
-  render: () => 'Module E rendered'
-};
+export function render(): string {
+  return displayName;
+}

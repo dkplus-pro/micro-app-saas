@@ -1,4 +1,2 @@
-export { usePageBController } from './usePageBController';
-export { usePageBModulesController } from './usePageBModulesController';
-export { usePageBRuntimeController } from './usePageBRuntimeController';
-export { usePageBTrackController } from './usePageBTrackController';
+export * from "./usePageBController.ts";
+export * from "./usePageBModulesController.ts";

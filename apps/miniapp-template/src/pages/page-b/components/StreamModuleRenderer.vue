@@ -1,39 +1,13 @@
 <template>
-  <view class="stream-modules">
-    <template v-if="modules.length">
-      <view
-        v-for="module in modules"
-        :key="module.key"
-        class="stream-modules__item"
-      >
-        <component
-          :is="module.component"
-          v-bind="module.props || {}"
-        />
-      </view>
-    </template>
-    <EmptyState v-else />
+  <view class="stream-layout">
+    <view v-for="moduleRef in modules" :key="moduleRef.key" class="stream-layout__item">
+      <text>{{ moduleRef.displayName }}</text>
+    </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import EmptyState from './EmptyState.vue';
-import type { PageBModuleViewModel } from '../types';
+import { usePageBModulesController } from '../hooks/usePageBModulesController';
 
-defineProps<{
-  modules: PageBModuleViewModel[];
-}>();
+const { modules } = usePageBModulesController();
 </script>
-
-<style scoped>
-.stream-modules {
-  display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-}
-
-.stream-modules__item {
-  overflow: hidden;
-  border-radius: 16rpx;
-}
-</style>
