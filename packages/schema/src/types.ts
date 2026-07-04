@@ -45,6 +45,18 @@ export interface TenantPage {
 
 export interface PageSchema extends TenantPage {}
 
+export interface TenantPageDefinition extends TenantPage {
+  key: PageKey;
+}
+
+export type TenantPageMap = Partial<Record<PageKey, TenantPage>>;
+export type TenantPages = TenantPageMap | TenantPageDefinition[];
+
+export interface TenantCapabilities {
+  modules?: Partial<Record<ModuleKey, boolean>>;
+  [key: string]: unknown;
+}
+
 export interface TenantRuntimeConfig {
   themeColor?: string;
   logo?: string;
@@ -77,8 +89,10 @@ export interface TenantSchema {
   tenant: TenantInfo;
   app: AppInfo;
   tabs: TenantTab[];
-  pages: Partial<Record<PageKey, TenantPage>>;
-  features: Record<string, boolean>;
+  pages: TenantPages;
+  capabilities?: TenantCapabilities;
+  /** @deprecated Use capabilities.modules for runtime/business switches; page composition lives in pages. */
+  features?: Record<string, boolean>;
   theme?: Record<string, unknown>;
   runtime?: TenantRuntimeConfig;
   release?: TenantReleaseConfig;
