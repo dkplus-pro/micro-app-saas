@@ -1,6 +1,6 @@
-import { generateTenant } from "../packages/generator/src/generateTenant.ts";
-import { readArg, repoRootFromCwd } from "./args.ts";
+import { generateTenant } from '../packages/generator/src/generateTenant.js';
+import { readArg } from './args.js';
 
-const tenant = readArg("tenant");
-const result = await generateTenant({ repoRoot: repoRootFromCwd(), tenantId: tenant });
-console.log(JSON.stringify({ ok: true, tenant, generatedDir: result.generatedDir, distDir: result.distDir }, null, 2));
+const tenant = readArg('tenant', 'app1');
+const generated = await generateTenant({ tenant });
+console.log(`PASS generate:tenant tenant=${tenant} pages=${generated.pages.map((page) => page.key).join(',')} modules=${generated.modules.join(',')}`);

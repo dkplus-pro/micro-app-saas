@@ -1,23 +1,17 @@
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { globSync } from 'node:fs';
 
-const files = ['scripts', 'tests'].flatMap((root) => walk(root)).filter((file) => /\.(ts|mjs)$/.test(file));
-const problems = [];
+const files = globSync('**/*.{ts,js,json,vue,md}', {
+  exclude: ['node_modules/**', '.git/**', 'build-artifacts/*.json']
+});
+const failures = [];
 for (const file of files) {
   const text = readFileSync(file, 'utf8');
-  if (text.includes('\t')) problems.push(`${file}: contains tab indentation`);
-  if (/console\.log\([^`'"{]/.test(text)) problems.push(`${file}: use structured/string console output`);
-  if (text.includes('TODO')) problems.push(`${file}: contains TODO`);
+  if (/\t/.test(text)) failures.push(`${file}: tab character found`);
+  if (/\s+$/m.test(text)) failures.push(`${file}: trailing whitespace found`);
 }
-if (problems.length > 0) {
-  console.error(problems.join('\n'));
+if (failures.length > 0) {
+  console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log(`[lint] PASS ${files.length} files`);
-
-function walk(dir) {
-  return readdirSync(dir).flatMap((entry) => {
-    const full = path.join(dir, entry);
-    return statSync(full).isDirectory() ? walk(full) : [full];
-  });
-}
+console.log(`PASS lint checked=${files.length}`);

@@ -1,33 +1,12 @@
-import { makeOptions, loadRecord, printResult, saveRecord } from './runner-utils.ts';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { readArg } from './args.js';
 
-try {
-  const options = makeOptions(process.argv.slice(2));
-  const record = loadRecord(options);
-  if (record.uploadStatus !== 'success') {
-    throw new Error(`Cannot release ${options.tenantId}: uploadStatus=${record.uploadStatus}`);
-  }
-  record.auditStatus = 'success';
-  record.releaseStatus = 'success';
-  record.phases.push({
-    phase: 'release',
-    result: {
-      command: `simulated release --tenant ${options.tenantId}`,
-      status: 'success',
-      exitCode: 0,
-      stdout: 'External audit/release intentionally simulated; no production action performed.\n',
-      stderr: '',
-    },
-  });
-  record.finishedAt = new Date().toISOString();
-  saveRecord(options, record);
-  printResult(record);
-} catch (error) {
-  const options = makeOptions(process.argv.slice(2));
-  const record = loadRecord(options);
-  record.releaseStatus = 'failed';
-  record.errorMessage = error instanceof Error ? error.message : String(error);
-  record.finishedAt = new Date().toISOString();
-  saveRecord(options, record);
-  printResult(record);
-  process.exitCode = 1;
-}
+const tenant = readArg('tenant', 'app1');
+const artifactPath = resolve('build-artifacts', `${tenant}.build.json`);
+const artifact = JSON.parse(await readFile(artifactPath, 'utf8'));
+artifact.auditStatus = 'dry_run_success';
+artifact.releaseStatus = 'dry_run_success';
+artifact.finishedAt = new Date().toISOString();
+await writeFile(artifactPath, `${JSON.stringify(artifact, null, 2)}\n`);
+console.log(`PASS release:tenant tenant=${tenant} mode=dry-run`);

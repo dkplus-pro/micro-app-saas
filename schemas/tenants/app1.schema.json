@@ -7,7 +7,7 @@
     "appKey": "app1",
     "appid": "wx_app1",
     "name": "App1 小程序",
-    "version": "1.0.0"
+    "version": "0.1.0"
   },
   "tabs": [
     { "key": "A", "text": "A", "page": "page-a" },
@@ -36,6 +36,11 @@
       "route": "pages/page-c/index",
       "title": "App1 页面C",
       "enabled": true
+    },
+    "page-d": {
+      "route": "pages/page-d/index",
+      "title": "App1 页面D",
+      "enabled": false
     }
   },
   "features": {
@@ -49,15 +54,7 @@
     "moduleD": true,
     "moduleE": false
   },
-  "theme": {
-    "primaryColor": "#1677ff"
-  },
   "runtime": {
-    "banner": "App1 banner"
-  },
-  "release": {
-    "version": "1.0.0",
-    "dryRun": true,
-    "ciGroup": "demo"
+    "apiBase": "https://api.example.test/app1"
   }
 }

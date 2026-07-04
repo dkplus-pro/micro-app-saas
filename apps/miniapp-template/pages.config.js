@@ -1,26 +1,19 @@
-const { loadGeneratedConfig } = require('./manifest.config.js');
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
-function createPagesConfig(
-  pagesConfig = loadGeneratedConfig('pages.config', 'pagesConfig'),
-  tabbarConfig = loadGeneratedConfig('tabbar.config', 'tabbarConfig')
-) {
-  return {
-    pages: pagesConfig.map((page) => ({
-      path: page.route,
-      style: {
-        navigationBarTitleText: page.title
-      }
-    })),
-    tabBar: {
-      list: tabbarConfig.map((tab) => ({
-        text: tab.text,
-        pagePath: tab.pagePath,
-        iconPath: tab.iconPath,
-        selectedIconPath: tab.selectedIconPath
-      }))
+const generated = JSON.parse(readFileSync(resolve('apps/miniapp-template/src/generated/tenant.generated.json'), 'utf8'));
+
+export default {
+  pages: generated.pages.map((page) => ({
+    path: page.route,
+    style: {
+      navigationBarTitleText: page.title
     }
-  };
-}
-
-module.exports = createPagesConfig();
-module.exports.createPagesConfig = createPagesConfig;
+  })),
+  tabBar: {
+    list: generated.tabs.map((tab) => ({
+      text: tab.text,
+      pagePath: tab.route
+    }))
+  }
+};
