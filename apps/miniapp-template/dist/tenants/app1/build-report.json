@@ -1,0 +1,11 @@
+{
+  "tenantId": "app1",
+  "appKey": "app1",
+  "version": "1.0.0",
+  "buildStatus": "success",
+  "uploadStatus": "not_started",
+  "auditStatus": "not_started",
+  "releaseStatus": "not_started",
+  "dryRun": true,
+  "generatedAt": "2026-07-04T06:38:34.291Z"
+}

@@ -2,9 +2,12 @@ import { MAX_TAB_BAR_ITEMS, MIN_TAB_BAR_ITEMS, MODULE_REGISTRY, PAGE_REGISTRY } 
 import type { ModuleKey, PageKey, TenantModuleRef, TenantSchema } from "./types.ts";
 
 export class SchemaValidationError extends Error {
-  constructor(public readonly errors: string[]) {
+  readonly errors: string[];
+
+  constructor(errors: string[]) {
     super(`Tenant schema validation failed:\n${errors.map((error) => `- ${error}`).join("\n")}`);
     this.name = "SchemaValidationError";
+    this.errors = errors;
   }
 }
 

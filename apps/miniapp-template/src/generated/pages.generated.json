@@ -1,0 +1,38 @@
+{
+  "pages": [
+    {
+      "path": "pages/page-a/index",
+      "style": {
+        "navigationBarTitleText": "App1 首页"
+      }
+    },
+    {
+      "path": "pages/page-b/index",
+      "style": {
+        "navigationBarTitleText": "App1 页面B"
+      }
+    },
+    {
+      "path": "pages/page-c/index",
+      "style": {
+        "navigationBarTitleText": "App1 页面C"
+      }
+    }
+  ],
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/page-a/index",
+        "text": "A"
+      },
+      {
+        "pagePath": "pages/page-b/index",
+        "text": "B"
+      },
+      {
+        "pagePath": "pages/page-c/index",
+        "text": "C"
+      }
+    ]
+  }
+}
