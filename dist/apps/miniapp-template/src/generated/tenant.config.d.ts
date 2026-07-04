@@ -1,4 +1,4 @@
 export declare const tenantConfig: {
-    readonly tenantId: "local";
-    readonly tenantName: "Local Tenant";
+    readonly tenantId: "app2";
+    readonly tenantName: "App2 租户";
 };

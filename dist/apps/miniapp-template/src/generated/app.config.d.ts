@@ -1,8 +1,8 @@
 export declare const appConfig: {
-    readonly tenantId: "local";
-    readonly tenantName: "Local Tenant";
-    readonly appKey: "local";
-    readonly appid: "wx_local";
-    readonly name: "Local 小程序";
-    readonly version: "0.0.0";
+    readonly tenantId: "app2";
+    readonly tenantName: "App2 租户";
+    readonly appKey: "app2";
+    readonly appid: "wx_app2";
+    readonly name: "App2 小程序";
+    readonly version: "0.1.0";
 };

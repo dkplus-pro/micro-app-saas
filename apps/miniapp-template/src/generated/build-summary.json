@@ -1,0 +1,13 @@
+{
+  "tenantId": "app2",
+  "pageRoutes": [
+    "pages/page-a/index",
+    "pages/page-b/index",
+    "pages/page-d/index"
+  ],
+  "usedModules": [
+    "module-a",
+    "module-d",
+    "module-c"
+  ]
+}
