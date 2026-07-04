@@ -32,5 +32,5 @@ test('legacy module feature flags remain a runtime JSON compatibility gate', asy
 
   const validation = validateTenantSchema(schema);
   assert.equal(validation.valid, false);
-  assert.match(validation.errors.join('\n'), /page-a\.modules references disabled feature moduleA/);
+  assert.match(validation.errors.join('\n'), /page-a\.modules references disabled capability moduleA/);
 });

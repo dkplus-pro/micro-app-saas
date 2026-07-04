@@ -8,6 +8,11 @@ async function readTenantSchema(tenant) {
   return JSON.parse(await readFile(`schemas/tenants/${tenant}.schema.json`, 'utf8'));
 }
 
+function pageByKey(schema, key) {
+  if (Array.isArray(schema.pages)) return schema.pages.find((page) => page.key === key);
+  return schema.pages[key];
+}
+
 test('runtime and backend validators accept bundled JSON tenant schemas', async () => {
   for (const tenant of ['app1', 'app2']) {
     const schema = await readTenantSchema(tenant);
@@ -19,7 +24,7 @@ test('runtime and backend validators accept bundled JSON tenant schemas', async 
 
 test('runtime and backend validators reject unsupported modules consistently', async () => {
   const schema = await readTenantSchema('app1');
-  schema.pages['page-b'].modules.push({ key: 'module-x' });
+  pageByKey(schema, 'page-b').modules.push({ key: 'module-x' });
 
   const result = validateTenantSchema(schema);
   assert.equal(result.valid, false);
