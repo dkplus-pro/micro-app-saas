@@ -11,9 +11,9 @@ export const tabbarConfig = {
       "pagePath": "pages/page-b/index"
     },
     {
-      "key": "C",
-      "text": "C",
-      "pagePath": "pages/page-c/index"
+      "key": "D",
+      "text": "D",
+      "pagePath": "pages/page-d/index"
     }
   ]
 } as const;

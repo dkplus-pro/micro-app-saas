@@ -3,7 +3,7 @@ export const pagesConfig = [
     "key": "page-a",
     "path": "pages/page-a/index",
     "style": {
-      "navigationBarTitleText": "App1 首页"
+      "navigationBarTitleText": "App2 首页"
     },
     "layout": "standard",
     "modules": []
@@ -12,7 +12,7 @@ export const pagesConfig = [
     "key": "page-b",
     "path": "pages/page-b/index",
     "style": {
-      "navigationBarTitleText": "App1 页面B"
+      "navigationBarTitleText": "App2 页面B"
     },
     "layout": "stream",
     "modules": [
@@ -20,21 +20,18 @@ export const pagesConfig = [
         "key": "module-a"
       },
       {
-        "key": "module-b"
+        "key": "module-d"
       },
       {
         "key": "module-c"
-      },
-      {
-        "key": "module-d"
       }
     ]
   },
   {
-    "key": "page-c",
-    "path": "pages/page-c/index",
+    "key": "page-d",
+    "path": "pages/page-d/index",
     "style": {
-      "navigationBarTitleText": "App1 页面C"
+      "navigationBarTitleText": "App2 页面D"
     },
     "layout": "standard",
     "modules": []

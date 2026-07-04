@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { assertValidTenantSchema } from '../../schema/src/validation.js';
-import type { ModuleKey, TenantPage, TenantSchema } from '../../schema/src/types.js';
+import { assertValidTenantSchema } from '../../schema/src/validation.ts';
+import type { ModuleKey, TenantPage, TenantSchema } from '../../schema/src/types.ts';
 
 export interface GeneratedTenantArtifacts {
   tenantId: string;

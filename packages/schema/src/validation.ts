@@ -1,4 +1,4 @@
-import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.js';
+import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
 import type { ModuleKey, TenantSchema, ValidationResult } from './types.ts';
 
 function hasText(value: unknown): value is string {

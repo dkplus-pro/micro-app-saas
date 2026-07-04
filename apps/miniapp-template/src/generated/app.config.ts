@@ -1,8 +1,8 @@
 export const appConfig = {
-  "tenantId": "app1",
-  "tenantName": "App1 租户",
-  "appKey": "app1",
-  "appid": "wx_app1",
-  "name": "App1 小程序",
+  "tenantId": "app2",
+  "tenantName": "App2 租户",
+  "appKey": "app2",
+  "appid": "wx_app2",
+  "name": "App2 小程序",
   "version": "0.1.0"
 } as const;
