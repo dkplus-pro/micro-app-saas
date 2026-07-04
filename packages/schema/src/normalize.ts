@@ -1,5 +1,5 @@
 import { featureKeyForModule } from './registry.ts';
-import type { ModuleKey, PageKey, TenantCapabilities, TenantPage, TenantPages, TenantSchema } from './types.ts';
+import type { ModuleFeatureKey, ModuleKey, PageKey, TenantCapabilities, TenantPage, TenantPages, TenantSchema } from './types.ts';
 
 export type TenantPageEntry = [PageKey, TenantPage];
 
@@ -33,7 +33,8 @@ function legacyModuleCapabilities(features: TenantSchema['features']): Partial<R
   const moduleKeys: ModuleKey[] = ['module-a', 'module-b', 'module-c', 'module-d', 'module-e'];
   return Object.fromEntries(
     moduleKeys
-      .filter((moduleKey) => features[featureKeyForModule(moduleKey)] !== undefined)
-      .map((moduleKey) => [moduleKey, features[featureKeyForModule(moduleKey)]])
+      .map((moduleKey) => [moduleKey, featureKeyForModule(moduleKey) as ModuleFeatureKey] as const)
+      .filter(([, featureKey]) => features[featureKey] !== undefined)
+      .map(([moduleKey, featureKey]) => [moduleKey, features[featureKey]])
   ) as Partial<Record<ModuleKey, boolean>>;
 }
