@@ -1,22 +1,35 @@
-import { readdir, readFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
-const roots = ['packages', 'scripts', 'tests', 'apps/miniapp-template/src'];
-const issues = [];
-async function walk(dir) {
-  for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) await walk(full);
-    else if (/\.(ts|js|mjs|json)$/.test(entry.name)) {
-      const text = await readFile(full, 'utf8');
-      if (text.includes('\t')) issues.push(`${full}: tab character`);
-      if (!text.endsWith('\n')) issues.push(`${full}: missing trailing newline`);
+const extensions = new Set(['.ts', '.js', '.json', '.vue', '.md', '.yaml']);
+const ignoredDirs = new Set(['.git', 'node_modules', 'dist', 'coverage']);
+const failures = [];
+
+function extname(path) {
+  const index = path.lastIndexOf('.');
+  return index >= 0 ? path.slice(index) : '';
+}
+
+function walk(dir) {
+  for (const entry of readdirSync(dir)) {
+    if (ignoredDirs.has(entry)) continue;
+    const path = join(dir, entry);
+    const stat = statSync(path);
+    if (stat.isDirectory()) {
+      walk(path);
+      continue;
     }
+    if (!extensions.has(extname(path))) continue;
+    if (/^build-artifacts\/.*\.json$/.test(path)) continue;
+    const text = readFileSync(path, 'utf8');
+    if (/\t/.test(text)) failures.push(`${path}: tab character found`);
+    if (/\s+$/m.test(text)) failures.push(`${path}: trailing whitespace found`);
   }
 }
-for (const root of roots) await walk(path.join(process.cwd(), root));
-if (issues.length) {
-  console.error(issues.join('\n'));
+
+walk('.');
+if (failures.length > 0) {
+  console.error(failures.join('\n'));
   process.exit(1);
 }
-console.log(`PASS lint ${roots.join(', ')}`);
+console.log('PASS lint');
