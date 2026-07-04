@@ -44,6 +44,7 @@ test('npm scripts expose a small uni-app mini-program command set', () => {
 
 test('README documents the simplified command surface', async () => {
   const readme = await readFile('README.md', 'utf8');
+  const generatedReadme = await readFile('apps/miniapp-template/src/generated/README.md', 'utf8');
 
   assert.match(readme, /npm run dev -- --tenant=app1/, 'README should document tenant dev command');
   assert.match(readme, /npm run build -- --tenant=app1/, 'README should document tenant build command');
@@ -52,6 +53,9 @@ test('README documents the simplified command surface', async () => {
   assert.match(readme, /src\/pages\.json/i, 'README should mention generated pages.json');
   assert.match(readme, /不要提交|not (?:commit|committed)|local-only/i, 'README should warn generated tenant outputs are local-only');
   assert.doesNotMatch(readme, /npm run (?:dev|build):(?:vite|mp-weixin)/, 'README should not document legacy Vite/platform aliases');
+  assert.match(generatedReadme, /npm run dev -- --tenant=app1/, 'generated README placeholder should document tenant dev command');
+  assert.match(generatedReadme, /npm run build -- --tenant=app1/, 'generated README placeholder should document tenant build command');
+  assert.doesNotMatch(generatedReadme, /npm run (?:dev:tenant|vite:build:tenant)/, 'generated README placeholder should not document removed tenant aliases');
 });
 
 test('miniapp template package declares uni-app platform dependencies for DCloud CLI plugin discovery', () => {
