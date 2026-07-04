@@ -1,24 +1,62 @@
 <template>
   <view class="page page-a">
-    <view class="page-a__title">Page A</view>
-    <view v-if="modules.length === 0" class="page-a__empty">暂无可展示模块</view>
-    <view
-      v-for="module in modules"
-      :key="module.key"
-      class="stream-module page-a__module"
-      :class="{ 'page-a__module--clickable': Boolean(module.navigationUrl) }"
-      @click="navigateModule(module)"
-    >
-      <text class="page-a__module-title">{{ module.displayName }}</text>
-      <text v-if="module.navigationUrl" class="page-a__module-action">点击进入页面 D</text>
+    <view class="page-a__header">
+      <text class="page-a__title">{{ title }}</text>
+    </view>
+
+    <view v-if="pageModules.length" class="page-a__modules">
+      <ModuleA
+        v-for="module in pageModules"
+        :key="module.key"
+        v-bind="module.props"
+      />
+    </view>
+
+    <view v-else class="page-a__empty">
+      <text>暂无租户模块</text>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { usePageAController } from './hooks';
+import { computed } from 'vue';
+import ModuleA from '../../modules/module-a/index.vue';
+import { pagesConfig } from '../../generated/pages.config.ts';
+import { routeConfig } from '../../generated/route.config.ts';
 
-const { modules, navigateModule } = usePageAController();
+type GeneratedModuleRef = {
+  key: string;
+  props?: Record<string, unknown>;
+};
+
+type PageAModule = {
+  key: string;
+  props: Record<string, unknown>;
+};
+
+const generatedRoutes = routeConfig as Record<string, string>;
+const pageAConfig = computed(() => pagesConfig.find((page) => page.key === 'page-a'));
+const title = computed(() => pageAConfig.value?.style.navigationBarTitleText ?? 'Page A');
+
+const pageModules = computed<PageAModule[]>(() => {
+  const modules = (pageAConfig.value?.modules ?? []) as GeneratedModuleRef[];
+  return modules
+    .filter((moduleRef) => moduleRef.key === 'module-a')
+    .map((moduleRef) => ({
+      key: moduleRef.key,
+      props: resolveModuleProps(moduleRef)
+    }));
+});
+
+function resolveModuleProps(moduleRef: GeneratedModuleRef): Record<string, unknown> {
+  const props = { ...(moduleRef.props ?? {}) };
+  const targetPage = typeof props.targetPage === 'string' ? props.targetPage : undefined;
+  if (targetPage && generatedRoutes[targetPage]) {
+    props.targetRoute = generatedRoutes[targetPage];
+  }
+  delete props.targetPage;
+  return props;
+}
 </script>
 
 <style scoped>
