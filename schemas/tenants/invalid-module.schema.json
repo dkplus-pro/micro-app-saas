@@ -1,0 +1,41 @@
+{
+  "tenant": {
+    "tenantId": "invalid-module",
+    "tenantName": "Bad Tenant"
+  },
+  "app": {
+    "appKey": "invalid-module",
+    "appid": "wx_bad",
+    "name": "Bad 小程序"
+  },
+  "tabs": [
+    {
+      "key": "A",
+      "text": "A",
+      "page": "page-a"
+    },
+    {
+      "key": "B",
+      "text": "B",
+      "page": "page-b"
+    }
+  ],
+  "pages": {
+    "page-a": {
+      "route": "pages/page-a/index",
+      "title": "Bad A",
+      "enabled": true
+    },
+    "page-b": {
+      "route": "pages/page-b/index",
+      "title": "Bad B",
+      "enabled": true,
+      "layout": "stream",
+      "modules": [
+        {
+          "key": "module-x"
+        }
+      ]
+    }
+  }
+}
