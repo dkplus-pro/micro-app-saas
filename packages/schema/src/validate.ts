@@ -126,3 +126,15 @@ function pageEntriesForValidation(pages: TenantSchema['pages'], issues: string[]
   }
   return entries;
 }
+
+
+function pageEntriesForValidation(pages: TenantSchema['pages'], issues: string[]): Array<[PageKey, TenantPage]> {
+  if (!isObject(pages) && !Array.isArray(pages)) return [];
+  const entries = normalizeTenantPages(pages);
+  const seen = new Set<string>();
+  for (const [pageKey] of entries) {
+    if (seen.has(pageKey)) issues.push(`pages contains duplicate page key ${pageKey}`);
+    seen.add(pageKey);
+  }
+  return entries;
+}
