@@ -34,7 +34,14 @@ They are ignored by git and should be regenerated for the tenant you are working
 - `npm run vite:build:tenant -- --tenant=app1` generates App1 config, then runs `vite build`.
 - `npm run guard:no-tracked-artifacts` fails if generated tenant files, Vite output, `dist/`, `.runner-records/`, or `node_modules/` are tracked.
 
-The generated directory keeps only `README.md` tracked as documentation; generated TypeScript and JSON files must stay untracked.
+```bash
+npm run dev:tenant -- --tenant=app1
+npm run dev:app1
+npm run build:vite:tenant -- --tenant=app1
+npm run build:vite:app1
+```
+
+Switching tenants requires rerunning the tenant command so `src/generated/` reflects the new tenant before Vite starts.
 
 ## Compile-time pruning contract
 
