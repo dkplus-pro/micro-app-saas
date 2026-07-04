@@ -76,6 +76,15 @@ npm run dev -- --tenant=app2
 | `runtime` | 运行时配置，例如主题色 `themeColor`、接口地址 `apiBase`、租户资源 `assets` |
 | `release` | 上传、审核、发布等流水线开关；当前 runner 默认 dry-run |
 
+### Schema contract migration notes
+
+当前内置 JSON schema 仍兼容既有 `pages` 对象写法和 `features` 开关，以便后续由后台产出 JSON 后继续走同一套运行时校验。新的 schema 设计方向是把“结构组合”和“业务能力开关”分开：
+
+- 首选页面结构会迁移到 `pages` 数组，每一项显式声明 `key`，例如 `{ "key": "page-a", "route": "pages/page-a/index", ... }`。生成器/校验层应先归一化为按 `key` 索引的内部结构，再保持现有 pages、tabBar、subPackages 输出行为。
+- 页面是否进入包、tabBar 指向哪里、模块挂在哪个页面，由 `pages`、`tabs` 和页面 `modules` 决定；不要用页面级 feature 开关推断结构。
+- 业务/运行时能力开关建议迁移到 `capabilities`；旧的 `features` 仍作为 JSON 兼容输入保留，特别是 `moduleA` / `moduleB` 这类模块开关为 `false` 时，校验仍会拒绝引用该模块的页面。
+- TS-first authoring 可以生成同形 JSON 给构建和后台校验复用；提交源 schema / 测试 / 文档即可，不提交生成出的本地产物。
+
 `pages` 中每个页面的关键字段：
 
 | 字段 | 含义 |
