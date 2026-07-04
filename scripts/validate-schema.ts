@@ -1,8 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { validateTenantSchema } from '../packages/schema/src/validation.js';
+import { validateTenantSchema } from '../packages/schema/src/validation.ts';
 import type { TenantSchema } from '../packages/schema/src/types.js';
-import { getTenantList } from './args.js';
+import { getTenantList } from './args.ts';
 
 async function main(): Promise<void> {
   const schemaDir = path.join(process.cwd(), 'schemas/tenants');

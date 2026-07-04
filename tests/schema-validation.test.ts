@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
-import { SchemaValidationError, validateTenantSchema } from '../packages/schema/src/validate.js';
+import { SchemaValidationError, validateTenantSchema } from '../packages/schema/src/validate.ts';
 
 describe('tenant schema validation', () => {
   it('accepts bundled App1 and App2 schemas', async () => {

@@ -2,7 +2,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { generateTenant } from '../packages/generator/src/generateTenant.js';
+import { generateTenant } from '../packages/generator/src/generateTenant.ts';
 
 async function generateToTemp(tenant: string) {
   const dir = await mkdtemp(join(tmpdir(), `tenant-${tenant}-`));

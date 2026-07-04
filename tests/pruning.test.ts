@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
-import { createArtifacts, generateTenant, loadTenantSchema } from '../packages/generator/src/generator.js';
-import { validateTenantSchema } from '../packages/schema/src/validation.js';
+import { createArtifacts, generateTenant, loadTenantSchema } from '../packages/generator/src/generator.ts';
+import { validateTenantSchema } from '../packages/schema/src/validation.ts';
 
 async function buildSummary(tenant: string) {
   const artifacts = await generateTenant({ tenant });

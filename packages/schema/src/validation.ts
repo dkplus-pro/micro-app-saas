@@ -1,5 +1,5 @@
 import { MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.js';
-import type { ModuleKey, TenantSchema, ValidationResult } from './types.js';
+import type { ModuleKey, TenantSchema, ValidationResult } from './types.ts';
 
 function hasText(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;

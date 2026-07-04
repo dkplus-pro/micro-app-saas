@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { generateTenant } from '../packages/generator/src/generator.js';
-import { requireArg } from './args.js';
+import { generateTenant } from '../packages/generator/src/generator.ts';
+import { requireArg } from './args.ts';
 
 const tenant = requireArg('tenant');
 const result = await generateTenant({ tenant });

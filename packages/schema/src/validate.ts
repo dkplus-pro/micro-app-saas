@@ -1,5 +1,5 @@
-import { isSupportedModule, isSupportedPage } from './module-registry.js';
-import type { PageKey, TenantSchema } from './types.js';
+import { isSupportedModule, isSupportedPage } from './module-registry.ts';
+import type { PageKey, TenantSchema } from './types.ts';
 
 export class SchemaValidationError extends Error {
   constructor(public readonly issues: string[]) {
