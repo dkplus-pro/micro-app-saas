@@ -51,9 +51,9 @@ Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并
 
 ## 租户裁剪规则
 
-- `app1`：页面 A/B/C，模块 `module-a,module-b,module-c,module-d`
-- `app2`：页面 A/B/D，模块 `module-a,module-d,module-c`
-- `pages.json` 只包含当前租户启用的页面和 tabBar
+- `app1`：主包只放页面 A；分包包含页面 B/C/D；页面 A 额外渲染 `module-a`，点击进入页面 D
+- `app2`：主包只放页面 A；分包包含页面 B/D；页面 A 不渲染 `module-a`
+- `pages.json` 只包含当前租户启用的主包页面、分包和 tabBar
 - `module-entry.ts` 只静态导入当前租户使用的模块
 
 ## Runner dry-run

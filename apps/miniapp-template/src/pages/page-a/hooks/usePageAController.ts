@@ -3,7 +3,7 @@ import type { PageAModuleViewModel } from '../types/page-a.type.ts';
 import { pagesConfig } from '../../../generated/pages.config.ts';
 import { routeConfig } from '../../../generated/route.config.ts';
 import { PAGE_A_KEY } from '../consts/module.const.ts';
-import { toPageAModules } from '../utils/module-visible.util.js';
+import { toPageAModules } from '../utils/module-visible.util.ts';
 
 interface GeneratedPageConfig {
   key: string;

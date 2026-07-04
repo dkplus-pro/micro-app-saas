@@ -15,7 +15,11 @@ const props = defineProps<{
 
 function handleTap(): void {
   if (!props.targetRoute) return;
-  uni.navigateTo({ url: `/${props.targetRoute}` });
+  uni.navigateTo({ url: normalizeRoute(props.targetRoute) });
+}
+
+function normalizeRoute(route: string): string {
+  return route.startsWith('/') ? route : `/${route}`;
 }
 </script>
 

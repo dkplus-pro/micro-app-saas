@@ -74,24 +74,4 @@ function resolveModuleProps(moduleRef: GeneratedModuleRef): Record<string, unkno
   color: #6b7280;
   text-align: center;
 }
-
-.page-a__module--clickable {
-  cursor: pointer;
-}
-
-.page-a__module-title,
-.page-a__module-action {
-  display: block;
-}
-
-.page-a__module-title {
-  font-size: 30rpx;
-  font-weight: 600;
-}
-
-.page-a__module-action {
-  margin-top: 8rpx;
-  color: #1677ff;
-  font-size: 24rpx;
-}
 </style>
