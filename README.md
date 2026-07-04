@@ -45,6 +45,10 @@ apps/miniapp-template/dist/
 npm run guard:artifacts
 ```
 
+## Page A 模块导航
+
+Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并按顺序渲染。`module-a` 只在生成的 `route.config.ts` 注册了 Page D 路由时才触发 `uni.navigateTo`，避免跳转到未进入当前租户包的页面。
+
 ## 租户裁剪规则
 
 - `app1`：页面 A/B/C，模块 `module-a,module-b,module-c,module-d`
