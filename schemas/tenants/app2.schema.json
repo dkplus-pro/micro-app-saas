@@ -26,15 +26,17 @@
       "page": "page-d"
     }
   ],
-  "pages": {
-    "page-a": {
+  "pages": [
+    {
+      "key": "page-a",
       "route": "pages/page-a/index",
       "title": "App2 首页",
       "enabled": true,
       "package": "main",
       "modules": []
     },
-    "page-b": {
+    {
+      "key": "page-b",
       "route": "pages/page-b/index",
       "title": "App2 页面B",
       "enabled": true,
@@ -52,19 +54,21 @@
       ],
       "package": "main"
     },
-    "page-c": {
+    {
+      "key": "page-c",
       "route": "pages/page-c/index",
       "title": "App2 页面C",
       "enabled": false,
       "package": "subPackage"
     },
-    "page-d": {
+    {
+      "key": "page-d",
       "route": "pages/page-d/index",
       "title": "App2 页面D",
       "enabled": true,
       "package": "main"
     }
-  },
+  ],
   "features": {
     "pageA": true,
     "pageB": true,
