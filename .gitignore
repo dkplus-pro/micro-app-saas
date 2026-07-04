@@ -3,3 +3,5 @@ dist/
 coverage/
 .omx/
 apps/miniapp-template/dist/
+
+.runner-records/

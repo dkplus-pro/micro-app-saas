@@ -7,13 +7,22 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
     "rootDir": ".",
     "outDir": "dist",
     "declaration": true,
     "sourceMap": false,
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "rewriteRelativeImportExtensions": true
   },
-  "include": ["packages/**/*.ts", "scripts/**/*.ts", "apps/miniapp-template/src/**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+  "include": [
+    "packages/**/*.ts",
+    "scripts/**/*.ts",
+    "apps/miniapp-template/src/**/*.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
 }

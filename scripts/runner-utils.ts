@@ -1,7 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 export type RunnerStatus = 'success' | 'failed' | 'skipped';
 export type ReleasePhase = 'build' | 'upload' | 'release';
@@ -47,8 +46,7 @@ export interface ReleaseRecord {
   phases: Array<{ phase: ReleasePhase | 'validate' | 'generate'; result: CommandResult }>;
 }
 
-const CURRENT_FILE = fileURLToPath(import.meta.url);
-export const DEFAULT_ROOT = path.resolve(path.dirname(CURRENT_FILE), '..');
+export const DEFAULT_ROOT = process.cwd();
 
 export function parseArgs(argv: string[]): Record<string, string | boolean> {
   const args: Record<string, string | boolean> = {};

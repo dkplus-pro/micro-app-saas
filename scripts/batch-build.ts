@@ -4,7 +4,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_ROOT, parseArgs } from './runner-utils.ts';
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const currentScript = fileURLToPath(import.meta.url);
+const scriptDir = path.dirname(currentScript);
+const buildTenantScript = path.join(scriptDir, path.extname(currentScript) === '.js' ? 'build-tenant.js' : 'build-tenant.ts');
 const args = parseArgs(process.argv.slice(2));
 const rootDir = path.resolve(String(args.rootDir || DEFAULT_ROOT));
 const schemaDir = path.resolve(rootDir, String(args.schemaDir || 'schemas/tenants'));
@@ -20,7 +22,7 @@ if (tenants.length === 0) {
 }
 
 const results = tenants.map((tenantId) => {
-  const child = spawnSync(process.execPath, [path.join(scriptDir, 'build-tenant.ts'), '--tenant', tenantId, '--root-dir', rootDir], {
+  const child = spawnSync(process.execPath, [buildTenantScript, '--tenant', tenantId, '--root-dir', rootDir], {
     cwd: rootDir,
     encoding: 'utf8'
   });
