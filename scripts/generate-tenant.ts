@@ -1,6 +1,6 @@
-import { generateTenant } from '../packages/generator/src/generateTenant.js';
-import { readArg } from './args.js';
+import { generateTenant } from '../packages/generator/src/generator.js';
+import { requireArg } from './args.js';
 
-const tenant = readArg('tenant', 'app1');
-const generated = await generateTenant({ tenant });
-console.log(`PASS generate:tenant tenant=${tenant} pages=${generated.pages.map((page) => page.key).join(',')} modules=${generated.modules.join(',')}`);
+const tenant = requireArg('tenant');
+const result = await generateTenant({ tenant });
+console.log(JSON.stringify({ tenantId: result.tenantId, pageRoutes: result.pageRoutes, usedModules: result.usedModules }, null, 2));

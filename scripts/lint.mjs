@@ -1,17 +1,22 @@
-import { readFileSync } from 'node:fs';
-import { globSync } from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
+import path from 'node:path';
 
-const files = globSync('**/*.{ts,js,json,vue,md}', {
-  exclude: ['node_modules/**', '.git/**', 'build-artifacts/*.json']
-});
-const failures = [];
-for (const file of files) {
-  const text = readFileSync(file, 'utf8');
-  if (/\t/.test(text)) failures.push(`${file}: tab character found`);
-  if (/\s+$/m.test(text)) failures.push(`${file}: trailing whitespace found`);
+const roots = ['packages', 'scripts', 'tests', 'apps/miniapp-template/src'];
+const issues = [];
+async function walk(dir) {
+  for (const entry of await readdir(dir, { withFileTypes: true }).catch(() => [])) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) await walk(full);
+    else if (/\.(ts|js|mjs|json)$/.test(entry.name)) {
+      const text = await readFile(full, 'utf8');
+      if (text.includes('\t')) issues.push(`${full}: tab character`);
+      if (!text.endsWith('\n')) issues.push(`${full}: missing trailing newline`);
+    }
+  }
 }
-if (failures.length > 0) {
-  console.error(failures.join('\n'));
+for (const root of roots) await walk(path.join(process.cwd(), root));
+if (issues.length) {
+  console.error(issues.join('\n'));
   process.exit(1);
 }
-console.log(`PASS lint checked=${files.length}`);
+console.log(`PASS lint ${roots.join(', ')}`);

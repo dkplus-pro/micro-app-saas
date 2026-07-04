@@ -1,12 +1,3 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
-import { readArg } from './args.js';
-
-const tenant = readArg('tenant', 'app1');
-const artifactPath = resolve('build-artifacts', `${tenant}.build.json`);
-const artifact = JSON.parse(await readFile(artifactPath, 'utf8'));
-artifact.uploadStatus = 'dry_run_success';
-artifact.previewQrCode = `dry-run://${tenant}/preview`;
-artifact.uploadedAt = new Date().toISOString();
-await writeFile(artifactPath, `${JSON.stringify(artifact, null, 2)}\n`);
-console.log(`PASS upload:tenant tenant=${tenant} mode=dry-run`);
+import { requireArg } from './args.js';
+const tenant = requireArg('tenant');
+console.log(`DRY-RUN upload tenant ${tenant}: no external mini-program upload performed`);

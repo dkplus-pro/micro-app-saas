@@ -1,14 +1,22 @@
-export function readArg(name: string, fallback?: string): string {
+export function getArg(name: string, fallback?: string): string | undefined {
   const prefix = `--${name}=`;
-  const direct = process.argv.find((arg) => arg.startsWith(prefix));
-  if (direct) return direct.slice(prefix.length);
-  const index = process.argv.indexOf(`--${name}`);
-  if (index >= 0 && process.argv[index + 1]) return process.argv[index + 1];
-  if (fallback !== undefined) return fallback;
-  throw new Error(`Missing required --${name}`);
+  const exact = `--${name}`;
+  const argv = process.argv.slice(2);
+  for (let index = 0; index < argv.length; index += 1) {
+    const item = argv[index];
+    if (item.startsWith(prefix)) return item.slice(prefix.length);
+    if (item === exact) return argv[index + 1] ?? fallback;
+  }
+  return fallback;
 }
 
-export function readListArg(name: string, fallback: string[] = []): string[] {
-  const value = readArg(name, fallback.join(','));
-  return value.split(',').map((item) => item.trim()).filter(Boolean);
+export function requireArg(name: string): string {
+  const value = getArg(name);
+  if (!value) throw new Error(`Missing required --${name}=<value>`);
+  return value;
+}
+
+export function getTenantList(defaultList = ['app1', 'app2']): string[] {
+  const tenants = getArg('tenants') ?? getArg('tenant');
+  return tenants ? tenants.split(',').map((tenant) => tenant.trim()).filter(Boolean) : defaultList;
 }
