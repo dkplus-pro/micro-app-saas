@@ -21,7 +21,9 @@ if (forbidden.length > 0) {
 const ignoredCandidates = [
   `${generatedRoot}/tenant.config.ts`,
   `${generatedRoot}/build-summary.json`,
-  'apps/miniapp-template/dist/index.html',
+  'apps/miniapp-template/src/pages.json',
+  'apps/miniapp-template/src/manifest.json',
+  'apps/miniapp-template/dist/build/mp-weixin/app.js',
   'apps/miniapp-template/.vite/deps/_metadata.json',
   '.runner-records/app1.release-record.json',
   'dist/scripts/generate-tenant.js',

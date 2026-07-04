@@ -7,7 +7,9 @@ test('artifact guard rejects tracked generated tenant files and local outputs', 
     'apps/miniapp-template/src/generated/tenant.config.ts',
     'apps/miniapp-template/src/generated/build-summary.json',
     'apps/miniapp-template/src/generated/README.md',
-    'apps/miniapp-template/dist/vite/index.html',
+    'apps/miniapp-template/src/pages.json',
+    'apps/miniapp-template/src/manifest.json',
+    'apps/miniapp-template/dist/build/mp-weixin/app.js',
     '.runner-records/app1.release-record.json',
     'node_modules/vite/package.json',
     'src/source-file.ts'
@@ -16,7 +18,9 @@ test('artifact guard rejects tracked generated tenant files and local outputs', 
   assert.deepEqual(offenders, [
     'apps/miniapp-template/src/generated/tenant.config.ts',
     'apps/miniapp-template/src/generated/build-summary.json',
-    'apps/miniapp-template/dist/vite/index.html',
+    'apps/miniapp-template/src/pages.json',
+    'apps/miniapp-template/src/manifest.json',
+    'apps/miniapp-template/dist/build/mp-weixin/app.js',
     '.runner-records/app1.release-record.json',
     'node_modules/vite/package.json'
   ]);

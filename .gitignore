@@ -5,17 +5,14 @@ coverage/
 
 # Local runner and build outputs
 .runner-records/
+build-artifacts/
 
-# Tenant-local generated files and Vite output must never be committed.
+# Tenant-local generated files and uni-app/Vite output must never be committed.
 apps/miniapp-template/src/generated/*
 !apps/miniapp-template/src/generated/
 !apps/miniapp-template/src/generated/README.md
 !apps/miniapp-template/src/generated/.gitkeep
-apps/miniapp-template/dist/
-.runner-records/
-
-apps/miniapp-template/src/generated/*
-!apps/miniapp-template/src/generated/
-!apps/miniapp-template/src/generated/README.md
+apps/miniapp-template/src/pages.json
+apps/miniapp-template/src/manifest.json
 apps/miniapp-template/dist/
 apps/miniapp-template/.vite/

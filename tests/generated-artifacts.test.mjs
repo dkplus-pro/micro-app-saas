@@ -6,6 +6,8 @@ import path from 'node:path';
 
 const repoRoot = path.resolve('.');
 const generatedRoot = 'apps/miniapp-template/src/generated';
+const generatedPagesJson = 'apps/miniapp-template/src/pages.json';
+const generatedManifestJson = 'apps/miniapp-template/src/manifest.json';
 const allowedTracked = new Set([`${generatedRoot}/README.md`, `${generatedRoot}/.gitkeep`]);
 
 function run(command, args) {
@@ -15,7 +17,7 @@ function run(command, args) {
 }
 
 test('generated tenant artifacts are ignored and not tracked', () => {
-  const tracked = run('git', ['ls-files', `${generatedRoot}/*`]).stdout
+  const tracked = run('git', ['ls-files', `${generatedRoot}/*`, generatedPagesJson, generatedManifestJson]).stdout
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
@@ -23,24 +25,30 @@ test('generated tenant artifacts are ignored and not tracked', () => {
 
   assert.deepEqual(tracked, []);
 
-  const ignored = run('git', ['check-ignore', `${generatedRoot}/tenant.config.ts`, `${generatedRoot}/build-summary.json`]).stdout
+  const ignored = run('git', ['check-ignore', `${generatedRoot}/tenant.config.ts`, `${generatedRoot}/build-summary.json`, generatedPagesJson, generatedManifestJson]).stdout
     .split('\n')
     .filter(Boolean)
     .sort();
 
   assert.deepEqual(ignored, [
+    generatedManifestJson,
+    generatedPagesJson,
     `${generatedRoot}/build-summary.json`,
     `${generatedRoot}/tenant.config.ts`,
-  ]);
+  ].sort());
 });
 
-test('Vite tenant wrapper generates before running the Vite command', () => {
-  const child = run(process.execPath, ['scripts/vite-tenant.ts', '--tenant=app1', '--mode=build', '--dry-run']);
+test('uni-app tenant wrapper generates tenant code and mini-program config before command', () => {
+  const child = run(process.execPath, ['scripts/uniapp-tenant.ts', '--tenant=app1', '--command=build', '--platform=mp-weixin', '--dry-run']);
   const plan = JSON.parse(child.stdout);
 
   assert.equal(plan.tenant, 'app1');
-  assert.equal(plan.mode, 'build');
+  assert.equal(plan.command, 'build');
+  assert.equal(plan.platform, 'mp-weixin');
   assert.equal(plan.generatedDir, generatedRoot);
-  assert.deepEqual(plan.command.slice(-2), ['node_modules/vite/bin/vite.js', 'build']);
+  assert.deepEqual(plan.generatedUniAppFiles, [generatedPagesJson, generatedManifestJson]);
+  assert.deepEqual(plan.commandLine, ['node_modules/.bin/uni', 'build', '-p', 'mp-weixin']);
   assert.equal(existsSync(path.join(repoRoot, generatedRoot, 'tenant.config.ts')), true);
+  assert.equal(existsSync(path.join(repoRoot, generatedPagesJson)), true);
+  assert.equal(existsSync(path.join(repoRoot, generatedManifestJson)), true);
 });
