@@ -13,16 +13,16 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   const errors: string[] = [];
   if (!isRecord(input)) return { valid: false, errors: ['schema must be an object'] };
 
-  const schema = input as TenantSchema;
-  const tenant = isRecord(schema.tenant) ? schema.tenant : {};
-  const app = isRecord(schema.app) ? schema.app : {};
+  const schema = input;
+  const tenant: Record<string, unknown> = isRecord(schema.tenant) ? schema.tenant : {};
+  const app: Record<string, unknown> = isRecord(schema.app) ? schema.app : {};
   if (!hasText(tenant.tenantId)) errors.push('tenant.tenantId is required');
   if (!hasText(tenant.tenantName)) errors.push('tenant.tenantName is required');
   if (!hasText(app.appKey)) errors.push('app.appKey is required');
   if (!hasText(app.appid)) errors.push('app.appid is required');
   if (!hasText(app.name)) errors.push('app.name is required');
 
-  const pages = isRecord(schema.pages) ? schema.pages : {};
+  const pages: Record<string, unknown> = isRecord(schema.pages) ? schema.pages : {};
   if (!isRecord(schema.pages)) errors.push('pages must be an object');
   const tabs = Array.isArray(schema.tabs) ? schema.tabs : [];
   const features = isRecord(schema.features) ? schema.features : {};

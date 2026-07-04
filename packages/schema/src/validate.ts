@@ -2,9 +2,12 @@ import { validateTenantSchema as validateTenantSchemaResult } from './validation
 import type { TenantSchema } from './types.ts';
 
 export class SchemaValidationError extends Error {
-  constructor(public readonly issues: string[]) {
+  readonly issues: string[];
+
+  constructor(issues: string[]) {
     super(`Tenant schema validation failed:\n${issues.map((issue) => `- ${issue}`).join('\n')}`);
     this.name = 'SchemaValidationError';
+    this.issues = issues;
   }
 }
 
