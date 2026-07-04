@@ -1,2 +1,2 @@
-export * from './usePageBController.js';
-export * from './usePageBModulesController.js';
+export * from "./usePageBController.ts";
+export * from "./usePageBModulesController.ts";

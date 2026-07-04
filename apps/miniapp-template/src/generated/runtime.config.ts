@@ -1,17 +1,6 @@
 export const runtimeConfig = {
-  "features": {
-    "pageA": true,
-    "pageB": true,
-    "pageC": false,
-    "pageD": true,
-    "moduleA": true,
-    "moduleB": false,
-    "moduleC": true,
-    "moduleD": true,
-    "moduleE": false
+  "theme": {
+    "primaryColor": "#1677ff"
   },
-  "runtime": {
-    "themeColor": "#52c41a",
-    "apiBase": "https://api.example.com/app2"
-  }
+  "banner": "App1 banner"
 } as const;

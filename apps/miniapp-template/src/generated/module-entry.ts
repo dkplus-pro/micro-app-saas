@@ -1,11 +1,13 @@
-import modulea from '../modules/module-a/index.js';
-import moduled from '../modules/module-d/index.js';
-import modulec from '../modules/module-c/index.js';
+import * as module0 from "../modules/module-a/index.ts";
+import * as module1 from "../modules/module-b/index.ts";
+import * as module2 from "../modules/module-c/index.ts";
+import * as module3 from "../modules/module-d/index.ts";
 
-export const moduleEntries = {
-  'module-a': modulea,
-  'module-d': moduled,
-  'module-c': modulec,
-} as const;
+export const tenantModules = [
+  { key: "module-a", displayName: "Module A", props: {}, module: module0 },
+  { key: "module-b", displayName: "Module B", props: {}, module: module1 },
+  { key: "module-c", displayName: "Module C", props: {}, module: module2 },
+  { key: "module-d", displayName: "Module D", props: {}, module: module3 }
+] as const;
 
-export type GeneratedModuleKey = keyof typeof moduleEntries;
+export type TenantModuleKey = typeof tenantModules[number]["key"];

@@ -1,11 +1,3 @@
-// UniApp adapters read generated tenant config at build time.
-import { appConfig } from './src/generated/app.config.js';
+import manifest from './src/generated/manifest.generated.json' with { type: 'json' };
 
-export default {
-  name: appConfig.name,
-  appid: appConfig.appid,
-  versionName: appConfig.version,
-  'mp-weixin': {
-    appid: appConfig.appid
-  }
-};
+export default manifest;

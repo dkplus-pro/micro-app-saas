@@ -1,3 +1,5 @@
 <template>
-  <view class="page page-d">Page D</view>
+  <view class="page page-d">
+    <text>Page D</text>
+  </view>
 </template>

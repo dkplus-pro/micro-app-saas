@@ -1,4 +1,4 @@
 export const tenantConfig = {
-  "tenantId": "app2",
-  "tenantName": "App2 租户"
+  "tenantId": "app1",
+  "tenantName": "App1 租户"
 } as const;
