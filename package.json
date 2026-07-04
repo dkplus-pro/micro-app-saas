@@ -1,18 +1,24 @@
 {
-  "name": "micro-app-saas",
+  "name": "schema-uniapp-saas-factory",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "runner:build": "node scripts/build-tenant.ts",
-    "runner:batch": "node scripts/batch-build.ts",
-    "runner:upload": "node scripts/upload-tenant.ts",
-    "runner:release": "node scripts/release-tenant.ts",
-    "typecheck": "node scripts/typecheck.mjs",
     "lint": "node scripts/lint.mjs",
-    "test": "node --test tests/*.test.mjs"
+    "typecheck": "tsc --noEmit",
+    "validate:schema": "node scripts/validate-schema.ts",
+    "generate:tenant": "node scripts/generate-tenant.ts",
+    "build:mp": "node scripts/build-tenant.ts",
+    "build:tenant": "node scripts/build-tenant.ts",
+    "build:all": "node scripts/batch-build.ts --tenants=app1,app2",
+    "upload:tenant": "node scripts/upload-tenant.ts",
+    "release:tenant": "node scripts/release-tenant.ts",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build:all"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
-    "@types/node": "^20.14.10"
-  }
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@10.10.0"
 }

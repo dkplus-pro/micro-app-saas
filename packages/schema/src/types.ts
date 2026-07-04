@@ -1,8 +1,6 @@
 export type TenantId = string;
-
-export type ModuleKey = 'module-a' | 'module-b' | 'module-c' | 'module-d' | 'module-e';
-
-export type PageKey = 'page-a' | 'page-b' | 'page-c' | 'page-d';
+export type PageKey = `page-${string}`;
+export type ModuleKey = `module-${string}`;
 
 export interface TenantInfo {
   tenantId: TenantId;
@@ -16,46 +14,77 @@ export interface AppInfo {
   version?: string;
 }
 
-export interface TabSchema {
+export interface TenantTab {
   key: string;
   text: string;
   page: PageKey;
+  iconPath?: string;
+  selectedIconPath?: string;
 }
 
-export interface PageModuleSchema {
+export interface TenantModuleRef {
   key: ModuleKey;
   props?: Record<string, unknown>;
 }
 
-export interface PageSchema {
-  route: `pages/${string}/index`;
+export interface TenantPage {
+  route: string;
   title: string;
   enabled: boolean;
-  layout?: 'stream' | 'standard';
-  modules?: PageModuleSchema[];
+  layout?: "standard" | "stream";
+  modules?: TenantModuleRef[];
+}
+
+export interface TenantReleaseConfig {
+  version?: string;
+  dryRun?: boolean;
+  ciGroup?: string;
 }
 
 export interface TenantSchema {
   tenant: TenantInfo;
   app: AppInfo;
-  tabs: TabSchema[];
-  pages: Partial<Record<PageKey, PageSchema>>;
-  features: Record<string, boolean>;
+  tabs: TenantTab[];
+  pages: Record<PageKey, TenantPage>;
+  features?: Record<string, boolean>;
   theme?: Record<string, unknown>;
   runtime?: Record<string, unknown>;
-  release?: Record<string, unknown>;
+  build?: Record<string, unknown>;
+  release?: TenantReleaseConfig;
 }
 
-export interface EnabledPage extends PageSchema {
-  key: PageKey;
+export interface GeneratedPageConfig {
+  path: string;
+  style: {
+    navigationBarTitleText: string;
+  };
 }
 
-export interface GeneratedTenantConfig {
+export interface GeneratedTabItem {
+  pagePath: string;
+  text: string;
+  iconPath?: string;
+  selectedIconPath?: string;
+}
+
+export interface GeneratedModuleEntry {
+  key: ModuleKey;
+  importPath: string;
+  displayName: string;
+  props: Record<string, unknown>;
+}
+
+export interface NormalizedTenantBuild {
   tenant: TenantInfo;
-  app: Required<Pick<AppInfo, 'appKey' | 'appid' | 'name'>> & { version: string };
-  pages: EnabledPage[];
-  tabs: Array<TabSchema & { route: string }>;
-  modules: ModuleKey[];
+  app: Required<Pick<AppInfo, "appKey" | "appid" | "name">> & { version: string };
+  pages: GeneratedPageConfig[];
+  tabBar: {
+    list: GeneratedTabItem[];
+  };
+  routes: Record<PageKey, string>;
+  pageModules: Record<PageKey, TenantModuleRef[]>;
+  modules: GeneratedModuleEntry[];
   features: Record<string, boolean>;
   runtime: Record<string, unknown>;
+  release: Required<TenantReleaseConfig>;
 }

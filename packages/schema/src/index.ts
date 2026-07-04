@@ -1,3 +1,3 @@
-export * from './types.js';
-export * from './module-registry.js';
-export * from './validate.js';
+export * from "./registry.ts";
+export * from "./types.ts";
+export * from "./validation.ts";

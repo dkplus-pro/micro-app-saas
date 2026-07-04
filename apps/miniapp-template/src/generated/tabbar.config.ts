@@ -1,19 +1,16 @@
-export const tabbarConfig = {
+export const tabBarConfig = {
   "list": [
     {
-      "key": "A",
-      "text": "A",
-      "pagePath": "pages/page-a/index"
+      "pagePath": "pages/page-a/index",
+      "text": "A"
     },
     {
-      "key": "B",
-      "text": "B",
-      "pagePath": "pages/page-b/index"
+      "pagePath": "pages/page-b/index",
+      "text": "B"
     },
     {
-      "key": "D",
-      "text": "D",
-      "pagePath": "pages/page-d/index"
+      "pagePath": "pages/page-c/index",
+      "text": "C"
     }
   ]
 } as const;

@@ -1,31 +1,31 @@
 {
   "tenant": {
-    "tenantId": "app2",
-    "tenantName": "App2 租户"
+    "tenantId": "app1",
+    "tenantName": "App1 租户"
   },
   "app": {
-    "appKey": "app2",
-    "appid": "wx_app2",
-    "name": "App2 小程序",
+    "appKey": "app1",
+    "appid": "wx_app1",
+    "name": "App1 小程序",
     "version": "1.0.0"
   },
   "pages": [
     {
       "path": "pages/page-a/index",
       "style": {
-        "navigationBarTitleText": "App2 首页"
+        "navigationBarTitleText": "App1 首页"
       }
     },
     {
       "path": "pages/page-b/index",
       "style": {
-        "navigationBarTitleText": "App2 页面B"
+        "navigationBarTitleText": "App1 页面B"
       }
     },
     {
-      "path": "pages/page-d/index",
+      "path": "pages/page-c/index",
       "style": {
-        "navigationBarTitleText": "App2 页面D"
+        "navigationBarTitleText": "App1 页面C"
       }
     }
   ],
@@ -40,15 +40,15 @@
         "text": "B"
       },
       {
-        "pagePath": "pages/page-d/index",
-        "text": "D"
+        "pagePath": "pages/page-c/index",
+        "text": "C"
       }
     ]
   },
   "routes": {
     "page-a": "pages/page-a/index",
     "page-b": "pages/page-b/index",
-    "page-d": "pages/page-d/index"
+    "page-c": "pages/page-c/index"
   },
   "pageModules": {
     "page-a": [],
@@ -57,13 +57,16 @@
         "key": "module-a"
       },
       {
-        "key": "module-d"
+        "key": "module-b"
       },
       {
         "key": "module-c"
+      },
+      {
+        "key": "module-d"
       }
     ],
-    "page-d": []
+    "page-c": []
   },
   "modules": [
     {
@@ -73,9 +76,9 @@
       "props": {}
     },
     {
-      "key": "module-d",
-      "importPath": "../modules/module-d/index.ts",
-      "displayName": "Module D",
+      "key": "module-b",
+      "importPath": "../modules/module-b/index.ts",
+      "displayName": "Module B",
       "props": {}
     },
     {
@@ -83,24 +86,30 @@
       "importPath": "../modules/module-c/index.ts",
       "displayName": "Module C",
       "props": {}
+    },
+    {
+      "key": "module-d",
+      "importPath": "../modules/module-d/index.ts",
+      "displayName": "Module D",
+      "props": {}
     }
   ],
   "features": {
     "pageA": true,
     "pageB": true,
-    "pageC": false,
-    "pageD": true,
+    "pageC": true,
+    "pageD": false,
     "moduleA": true,
-    "moduleB": false,
+    "moduleB": true,
     "moduleC": true,
     "moduleD": true,
     "moduleE": false
   },
   "runtime": {
     "theme": {
-      "primaryColor": "#13c2c2"
+      "primaryColor": "#1677ff"
     },
-    "banner": "App2 banner"
+    "banner": "App1 banner"
   },
   "release": {
     "version": "1.0.0",

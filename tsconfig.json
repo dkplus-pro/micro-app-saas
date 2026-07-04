@@ -8,8 +8,11 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["node", "vitest/globals"]
+    "types": ["node"],
+    "rootDir": "."
   },
-  "include": ["apps/**/*.ts", "packages/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts"]
+  "include": ["packages/**/*.ts", "scripts/**/*.ts", "apps/miniapp-template/**/*.ts"],
+  "exclude": ["node_modules", "apps/miniapp-template/dist"]
 }

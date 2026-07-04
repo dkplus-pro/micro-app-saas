@@ -1,26 +1,15 @@
-import { readdir, readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { validateTenantSchema } from '../packages/schema/src/validation.js';
-import type { TenantSchema } from '../packages/schema/src/types.js';
-import { getTenantList } from './args.js';
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { validateTenantSchema } from "../packages/schema/src/index.ts";
+import { readArg, repoRootFromCwd } from "./args.ts";
 
-async function main(): Promise<void> {
-  const schemaDir = path.join(process.cwd(), 'schemas/tenants');
-  const requested = getTenantList([]);
-  const files = requested.length > 0 ? requested.map((tenant) => `${tenant}.schema.json`) : (await readdir(schemaDir)).filter((file) => file.endsWith('.schema.json'));
-  let failed = false;
-  for (const file of files) {
-    const fullPath = path.join(schemaDir, file);
-    const schema = JSON.parse(await readFile(fullPath, 'utf8')) as TenantSchema;
-    const result = validateTenantSchema(schema);
-    if (result.valid) {
-      console.log(`PASS schema ${schema.tenant.tenantId}`);
-    } else {
-      failed = true;
-      console.error(`FAIL schema ${file}\n- ${result.errors.join('\n- ')}`);
-    }
-  }
-  if (failed) process.exitCode = 1;
+const repoRoot = repoRootFromCwd();
+const tenant = process.argv.some((arg) => arg.startsWith("--tenant=")) ? readArg("tenant") : undefined;
+const schemaDir = path.join(repoRoot, "schemas", "tenants");
+const schemaFiles = tenant ? [`${tenant}.schema.json`] : (await readdir(schemaDir)).filter((file) => file.endsWith(".schema.json"));
+
+for (const schemaFile of schemaFiles) {
+  const schemaPath = path.join(schemaDir, schemaFile);
+  validateTenantSchema(JSON.parse(await readFile(schemaPath, "utf8")));
+  console.log(`PASS schema ${schemaFile}`);
 }
-
-await main();

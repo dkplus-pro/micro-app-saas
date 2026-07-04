@@ -3,19 +3,19 @@
     {
       "path": "pages/page-a/index",
       "style": {
-        "navigationBarTitleText": "App2 首页"
+        "navigationBarTitleText": "App1 首页"
       }
     },
     {
       "path": "pages/page-b/index",
       "style": {
-        "navigationBarTitleText": "App2 页面B"
+        "navigationBarTitleText": "App1 页面B"
       }
     },
     {
-      "path": "pages/page-d/index",
+      "path": "pages/page-c/index",
       "style": {
-        "navigationBarTitleText": "App2 页面D"
+        "navigationBarTitleText": "App1 页面C"
       }
     }
   ],
@@ -30,8 +30,8 @@
         "text": "B"
       },
       {
-        "pagePath": "pages/page-d/index",
-        "text": "D"
+        "pagePath": "pages/page-c/index",
+        "text": "C"
       }
     ]
   }

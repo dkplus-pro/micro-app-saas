@@ -3,22 +3,33 @@ import path from "node:path";
 import { MODULE_REGISTRY, validateTenantSchema } from "../../schema/src/index.ts";
 import type { GeneratedModuleEntry, ModuleKey, NormalizedTenantBuild, PageKey, TenantModuleRef, TenantSchema } from "../../schema/src/index.ts";
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-
-export interface GenerateTenantOptions {
-  tenant: string;
-  schemaPath?: string;
-  outputDir?: string;
+export interface GenerateOptions {
+  repoRoot: string;
+  tenantId: string;
+  writeTemplateGenerated?: boolean;
+  writeDist?: boolean;
 }
 
-function uniqueModules(schema: TenantSchema): ModuleKey[] {
-  const keys: ModuleKey[] = [];
+export interface GenerateResult {
+  schemaPath: string;
+  generatedDir: string;
+  distDir: string;
+  build: NormalizedTenantBuild;
+}
+
+function stableJson(value: unknown): string {
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function normalizeModuleEntries(schema: TenantSchema): GeneratedModuleEntry[] {
+  const orderedKeys: ModuleKey[] = [];
+  const propsByKey = new Map<ModuleKey, Record<string, unknown>>();
   for (const page of Object.values(schema.pages)) {
-    if (!page?.enabled) continue;
-    for (const moduleConfig of page.modules ?? []) {
-      if (!keys.includes(moduleConfig.key)) {
-        keys.push(moduleConfig.key);
+    for (const moduleRef of page.modules ?? []) {
+      if (!orderedKeys.includes(moduleRef.key)) {
+        orderedKeys.push(moduleRef.key);
       }
+      propsByKey.set(moduleRef.key, moduleRef.props ?? {});
     }
   }
   return orderedKeys.map((key) => ({
@@ -39,15 +50,13 @@ export function normalizeTenantBuild(schema: TenantSchema): NormalizedTenantBuil
   }));
   const modules = normalizeModuleEntries(schema);
 
-function buildConfig(schema: TenantSchema): GeneratedTenantConfig {
-  const pages = toEnabledPages(schema);
   return {
     tenant: schema.tenant,
     app: {
       appKey: schema.app.appKey,
       appid: schema.app.appid,
       name: schema.app.name,
-      version: schema.app.version ?? '0.0.0-local'
+      version: schema.app.version ?? schema.release?.version ?? "0.1.0"
     },
     pages,
     tabBar: {
@@ -65,48 +74,74 @@ function buildConfig(schema: TenantSchema): GeneratedTenantConfig {
     runtime: {
       theme: schema.theme ?? {},
       ...(schema.runtime ?? {})
+    },
+    release: {
+      version: schema.release?.version ?? schema.app.version ?? "0.1.0",
+      dryRun: schema.release?.dryRun ?? true,
+      ciGroup: schema.release?.ciGroup ?? "default"
     }
   };
 }
 
-function asTs(value: unknown): string {
-  return JSON.stringify(value, null, 2);
+function asTsConst(name: string, value: unknown): string {
+  return `export const ${name} = ${JSON.stringify(value, null, 2)} as const;\n`;
 }
 
-function moduleImportName(moduleKey: ModuleKey): string {
-  return moduleKey.replace(/-([a-z])/g, (_, char: string) => char.toUpperCase());
+function moduleEntrySource(build: NormalizedTenantBuild): string {
+  const imports = build.modules
+    .map((moduleEntry, index) => `import * as module${index} from "${moduleEntry.importPath}";`)
+    .join("\n");
+  const entries = build.modules
+    .map((moduleEntry, index) => `  { key: ${JSON.stringify(moduleEntry.key)}, displayName: ${JSON.stringify(moduleEntry.displayName)}, props: ${JSON.stringify(moduleEntry.props)}, module: module${index} }`)
+    .join(",\n");
+  return `${imports}\n\nexport const tenantModules = [\n${entries}\n] as const;\n\nexport type TenantModuleKey = typeof tenantModules[number]["key"];\n`;
 }
 
-function moduleEntrySource(modules: ModuleKey[]): string {
-  const imports = modules
-    .map((key) => `import { ${moduleImportName(key)}Adapter } from '../modules/${key}/index.js';`)
-    .join('\n');
-  const registryEntries = modules.map((key) => `  '${key}': ${moduleImportName(key)}Adapter`).join(',\n');
-  const ordered = modules.map((key) => `  '${key}'`).join(',\n');
-  return `${imports}\n\nimport type { ModuleKey } from '../../../../packages/schema/src/types.js';\nimport type { ModuleAdapter } from '../modules/types.js';\n\nexport const enabledModuleKeys = [\n${ordered}\n] as const satisfies readonly ModuleKey[];\n\nexport const moduleRegistry = {\n${registryEntries}\n} satisfies Partial<Record<ModuleKey, ModuleAdapter>>;\n`;
+async function writeGeneratedFiles(dir: string, build: NormalizedTenantBuild): Promise<void> {
+  await mkdir(dir, { recursive: true });
+  await Promise.all([
+    writeFile(path.join(dir, "tenant.config.ts"), asTsConst("tenantConfig", build.tenant)),
+    writeFile(path.join(dir, "app.config.ts"), asTsConst("appConfig", build.app)),
+    writeFile(path.join(dir, "pages.config.ts"), asTsConst("pagesConfig", build.pages)),
+    writeFile(path.join(dir, "tabbar.config.ts"), asTsConst("tabBarConfig", build.tabBar)),
+    writeFile(path.join(dir, "route.config.ts"), asTsConst("routeConfig", build.routes)),
+    writeFile(path.join(dir, "runtime.config.ts"), asTsConst("runtimeConfig", build.runtime)),
+    writeFile(path.join(dir, "module-entry.ts"), moduleEntrySource(build)),
+    writeFile(path.join(dir, "build.generated.json"), stableJson(build)),
+    writeFile(path.join(dir, "manifest.generated.json"), stableJson({
+      name: build.app.name,
+      appid: build.app.appid,
+      versionName: build.app.version,
+      "mp-weixin": { appid: build.app.appid, setting: { urlCheck: false } }
+    })),
+    writeFile(path.join(dir, "pages.generated.json"), stableJson({ pages: build.pages, tabBar: build.tabBar }))
+  ]);
 }
 
-async function writeGenerated(outputDir: string, config: GeneratedTenantConfig): Promise<void> {
-  await mkdir(outputDir, { recursive: true });
-  await writeFile(resolve(outputDir, 'tenant.config.ts'), `export const tenantConfig = ${asTs(config.tenant)} as const;\n`);
-  await writeFile(resolve(outputDir, 'app.config.ts'), `export const appConfig = ${asTs(config.app)} as const;\n`);
-  await writeFile(resolve(outputDir, 'pages.config.ts'), `export const pagesConfig = ${asTs(config.pages)} as const;\n`);
-  await writeFile(resolve(outputDir, 'tabbar.config.ts'), `export const tabbarConfig = ${asTs(config.tabs)} as const;\n`);
-  await writeFile(resolve(outputDir, 'route.config.ts'), `export const routeConfig = ${asTs(config.pages.map(({ key, route, title }) => ({ key, route, title })))} as const;\n`);
-  await writeFile(resolve(outputDir, 'runtime.config.ts'), `export const runtimeConfig = ${asTs(config.runtime)} as const;\nexport const featureConfig = ${asTs(config.features)} as const;\n`);
-  await writeFile(resolve(outputDir, 'module-entry.ts'), moduleEntrySource(config.modules));
-  await writeFile(resolve(outputDir, 'tenant.generated.json'), `${JSON.stringify(config, null, 2)}\n`);
-}
+export async function generateTenant(options: GenerateOptions): Promise<GenerateResult> {
+  const schemaPath = path.join(options.repoRoot, "schemas", "tenants", `${options.tenantId}.schema.json`);
+  const schema = validateTenantSchema(JSON.parse(await readFile(schemaPath, "utf8")));
+  const build = normalizeTenantBuild(schema);
+  const generatedDir = path.join(options.repoRoot, "apps", "miniapp-template", "src", "generated");
+  const distDir = path.join(options.repoRoot, "apps", "miniapp-template", "dist", "tenants", options.tenantId);
 
-export async function generateTenant(options: GenerateTenantOptions): Promise<GeneratedTenantConfig> {
-  const schemaPath = options.schemaPath ?? resolve(repoRoot, 'schemas/tenants', `${options.tenant}.schema.json`);
-  const outputDir = options.outputDir ?? resolve(repoRoot, 'apps/miniapp-template/src/generated');
-  const raw = JSON.parse(await readFile(schemaPath, 'utf8')) as unknown;
-  const schema = validateTenantSchema(raw);
-  if (schema.tenant.tenantId !== options.tenant) {
-    throw new Error(`schema tenantId ${schema.tenant.tenantId} does not match requested tenant ${options.tenant}`);
+  if (options.writeTemplateGenerated ?? true) {
+    await writeGeneratedFiles(generatedDir, build);
   }
-  const config = buildConfig(schema);
-  await writeGenerated(outputDir, config);
-  return config;
+  if (options.writeDist ?? true) {
+    await writeGeneratedFiles(distDir, build);
+    await writeFile(path.join(distDir, "build-report.json"), stableJson({
+      tenantId: build.tenant.tenantId,
+      appKey: build.app.appKey,
+      version: build.release.version,
+      buildStatus: "success",
+      uploadStatus: "not_started",
+      auditStatus: "not_started",
+      releaseStatus: "not_started",
+      dryRun: true,
+      generatedAt: new Date().toISOString()
+    }));
+  }
+
+  return { schemaPath, generatedDir, distDir, build };
 }
