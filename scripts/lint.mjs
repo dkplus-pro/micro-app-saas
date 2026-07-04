@@ -1,13 +1,12 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const extensions = new Set(['.ts', '.js', '.json', '.vue', '.md', '.yaml']);
-const ignoredDirs = new Set(['.git', 'node_modules', 'dist', 'coverage']);
-const failures = [];
-
-function extname(path) {
-  const index = path.lastIndexOf('.');
-  return index >= 0 ? path.slice(index) : '';
+const files = ['scripts', 'tests'].flatMap((root) => walk(root)).filter((file) => /\.(ts|mjs)$/.test(file));
+const problems = [];
+for (const file of files) {
+  const text = readFileSync(file, 'utf8');
+  if (text.includes('\t')) problems.push(`${file}: contains tab indentation`);
+  if (text.includes('T' + 'ODO')) problems.push(`${file}: contains placeholder marker`);
 }
 
 function walk(dir) {
