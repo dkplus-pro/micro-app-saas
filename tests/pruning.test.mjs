@@ -48,7 +48,22 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
 
   assert.deepEqual(app1.pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-c/index', 'pages/page-d/index']);
   assert.deepEqual(app2.pages.map((page) => page.path), ['pages/page-a/index', 'pages/page-b/index', 'pages/page-d/index']);
-  assert.equal(app1.pages.find((page) => page.path === 'pages/page-a/index').style.navigationBarTitleText, 'App1 首页');
+  const app1PageA = app1.pages.find((page) => page.path === 'pages/page-a/index');
+  const app1PageD = app1.pages.find((page) => page.path === 'pages/page-d/index');
+  assert.equal(app1PageA.style.navigationBarTitleText, 'App1 首页');
+  assert.deepEqual(app1PageA.modules, [
+    {
+      key: 'module-a',
+      props: {
+        title: 'App1 专属 Module A',
+        description: '点击进入页面D',
+        targetPage: 'page-d'
+      }
+    }
+  ]);
+  assert.equal(app1PageD.package, 'subPackage');
+  assert.equal(app1PageD.subPackageRoot, 'pages/page-d');
+  assert.equal(app1PageD.subPackagePath, 'index');
   assert.equal(app2.pages.find((page) => page.path === 'pages/page-a/index').style.navigationBarTitleText, 'App2 首页');
   assert.deepEqual(app1.tabBar.list.map((tab) => tab.text), ['A', 'B', 'C']);
   assert.deepEqual(app2.tabBar.list.map((tab) => tab.text), ['A', 'B', 'D']);
