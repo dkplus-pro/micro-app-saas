@@ -1,9 +1,9 @@
 {
-  "name": "App1 小程序",
-  "appid": "wx_app1",
+  "name": "App2 小程序",
+  "appid": "wx_app2",
   "versionName": "1.0.0",
   "mp-weixin": {
-    "appid": "wx_app1",
+    "appid": "wx_app2",
     "setting": {
       "urlCheck": false
     }

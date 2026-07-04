@@ -9,8 +9,8 @@ export const tabBarConfig = {
       "text": "B"
     },
     {
-      "pagePath": "pages/page-c/index",
-      "text": "C"
+      "pagePath": "pages/page-d/index",
+      "text": "D"
     }
   ]
 } as const;

@@ -1,6 +1,6 @@
 export const runtimeConfig = {
   "theme": {
-    "primaryColor": "#1677ff"
+    "primaryColor": "#13c2c2"
   },
-  "banner": "App1 banner"
+  "banner": "App2 banner"
 } as const;

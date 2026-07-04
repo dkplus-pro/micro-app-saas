@@ -2,19 +2,19 @@ export const pagesConfig = [
   {
     "path": "pages/page-a/index",
     "style": {
-      "navigationBarTitleText": "App1 首页"
+      "navigationBarTitleText": "App2 首页"
     }
   },
   {
     "path": "pages/page-b/index",
     "style": {
-      "navigationBarTitleText": "App1 页面B"
+      "navigationBarTitleText": "App2 页面B"
     }
   },
   {
-    "path": "pages/page-c/index",
+    "path": "pages/page-d/index",
     "style": {
-      "navigationBarTitleText": "App1 页面C"
+      "navigationBarTitleText": "App2 页面D"
     }
   }
 ] as const;

@@ -1,6 +1,3 @@
 node_modules/
-dist/
-coverage/
-.omx/
-build-artifacts/*.json
-!build-artifacts/.gitkeep
+apps/miniapp-template/dist/
+.DS_Store
