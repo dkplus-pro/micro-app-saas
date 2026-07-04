@@ -1,22 +1,7 @@
-const fs = require('node:fs');
-const path = require('node:path');
+import { pagesConfig } from './src/generated/pages.config.js';
+import { tabbarConfig } from './src/generated/tabbar.config.js';
 
-function resolveTemplateRoot() {
-  const candidates = [
-    typeof __dirname === 'string' ? __dirname : '',
-    process.cwd(),
-    path.join(process.cwd(), 'apps/miniapp-template')
-  ];
-
-  for (const candidate of candidates) {
-    if (candidate && fs.existsSync(path.join(candidate, 'manifest.config.js'))) {
-      return candidate;
-    }
-  }
-
-  return typeof __dirname === 'string' ? __dirname : process.cwd();
-}
-
-const { loadGeneratedConfig } = require(path.join(resolveTemplateRoot(), 'manifest.config.js'));
-
-export default pages;
+export default {
+  pages: pagesConfig.map((page) => ({ path: page.path, style: page.style })),
+  tabBar: tabbarConfig
+};

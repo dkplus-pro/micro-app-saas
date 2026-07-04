@@ -1,6 +1,1 @@
-export const appConfig = {
-  "appKey": "app1",
-  "appid": "wx_app1",
-  "name": "App1 小程序",
-  "version": "1.0.0"
-} as const;
+export const appConfig = { tenantId: 'local', tenantName: 'Local Tenant', appKey: 'local', appid: 'wx_local', name: 'Local 小程序', version: '0.0.0' } as const;

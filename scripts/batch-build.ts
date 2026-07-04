@@ -1,26 +1,29 @@
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
-import { generateTenant } from "../packages/generator/src/generateTenant.ts";
-import { readCsvArg, repoRootFromCwd } from "./args.ts";
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { generateTenant } from '../packages/generator/src/generator.js';
+import { getTenantList } from './args.js';
 
-const repoRoot = repoRootFromCwd();
-const tenants = readCsvArg("tenants", "app1,app2");
-const succeeded: string[] = [];
-const failed: { tenant: string; error: string }[] = [];
+interface BuildRecord {
+  tenantId: string;
+  buildStatus: 'success' | 'failed';
+  errorMessage?: string;
+  finishedAt: string;
+}
 
-for (const tenant of tenants) {
+const records: BuildRecord[] = [];
+for (const tenant of getTenantList()) {
   try {
-    const result = await generateTenant({ repoRoot, tenantId: tenant });
-    succeeded.push(tenant);
-    console.log(`PASS build tenant ${tenant} -> ${result.distDir}`);
+    const result = await generateTenant({ tenant });
+    const outDir = path.join(process.cwd(), 'apps/miniapp-template/dist/builds', tenant);
+    await mkdir(outDir, { recursive: true });
+    await writeFile(path.join(outDir, 'build-summary.json'), `${JSON.stringify({ tenantId: result.tenantId, pageRoutes: result.pageRoutes, usedModules: result.usedModules }, null, 2)}\n`);
+    records.push({ tenantId: tenant, buildStatus: 'success', finishedAt: new Date().toISOString() });
+    console.log(`PASS batch build ${tenant}`);
   } catch (error) {
-    failed.push({ tenant, error: error instanceof Error ? error.message : String(error) });
-    console.error(`FAIL build tenant ${tenant}: ${failed.at(-1)?.error}`);
+    records.push({ tenantId: tenant, buildStatus: 'failed', errorMessage: error instanceof Error ? error.message : String(error), finishedAt: new Date().toISOString() });
+    console.error(`FAIL batch build ${tenant}`);
   }
 }
-
-const report = { succeeded, failed, finishedAt: new Date().toISOString() };
-await writeFile(path.join(repoRoot, "apps", "miniapp-template", "dist", "batch-report.json"), `${JSON.stringify(report, null, 2)}\n`);
-if (failed.length > 0) {
-  process.exitCode = 1;
-}
+await mkdir(path.join(process.cwd(), 'apps/miniapp-template/dist'), { recursive: true });
+await writeFile(path.join(process.cwd(), 'apps/miniapp-template/dist/release-records.json'), `${JSON.stringify(records, null, 2)}\n`);
+if (records.some((record) => record.buildStatus === 'failed')) process.exitCode = 1;

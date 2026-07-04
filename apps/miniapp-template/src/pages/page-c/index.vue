@@ -1,5 +1,3 @@
 <template>
-  <view class="page page-c">
-    <text>Page C</text>
-  </view>
+  <view class="page page-c">Page C</view>
 </template>
