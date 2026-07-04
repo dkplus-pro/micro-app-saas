@@ -57,7 +57,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     return {
       key: tab.key,
       text: tab.text,
-      pagePath: page.route,
+      pagePath: page?.route ?? (() => { throw new Error(`tab ${tab.key} references missing page ${tab.page}`); })(),
       iconPath: tab.iconPath,
       selectedIconPath: tab.selectedIconPath
     };

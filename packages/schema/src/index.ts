@@ -1,5 +1,5 @@
 export * from './types.ts';
 export * from './module-registry.ts';
 export * from './registry.ts';
-export * from './validate.ts';
-export * from './validation.ts';
+export { validateTenantSchema, assertValidTenantSchema } from './validation.ts';
+export { validateTenantSchema as validateTenantSchemaStrict } from './validate.ts';

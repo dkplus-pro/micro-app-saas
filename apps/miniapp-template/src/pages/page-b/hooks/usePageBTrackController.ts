@@ -1,4 +1,4 @@
-import type { PageBModuleViewModel } from '../types';
+import type { PageBModuleViewModel } from '../types/index.ts';
 
 export function usePageBTrackController() {
   function trackModuleExpose(module: PageBModuleViewModel) {
