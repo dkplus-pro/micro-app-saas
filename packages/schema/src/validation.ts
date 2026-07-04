@@ -28,7 +28,7 @@ function validateModuleRefs(errors: string[], pageKey: PageKey, modules: TenantM
   const seen = new Set<string>();
   for (const moduleRef of modules) {
     const moduleKey = moduleRef.key;
-    if (!MODULE_REGISTRY[moduleKey]) {
+    if (!(moduleKey in MODULE_REGISTRY)) {
       errors.push(`pages.${pageKey}.modules references unknown module ${moduleKey}`);
     }
     if (seen.has(moduleKey)) {
@@ -48,7 +48,7 @@ export function assertTenantSchema(value: unknown): asserts value is TenantSchem
     throw new SchemaValidationError(["schema root must be an object"]);
   }
 
-  const schema = value as TenantSchema;
+  const schema = value as unknown as TenantSchema;
   pushMissing(errors, "tenant.tenantId", schema.tenant?.tenantId);
   pushMissing(errors, "tenant.tenantName", schema.tenant?.tenantName);
   pushMissing(errors, "app.appKey", schema.app?.appKey);
@@ -69,7 +69,7 @@ export function assertTenantSchema(value: unknown): asserts value is TenantSchem
   const seenRoutes = new Set<string>();
   const pages = isRecord(schema.pages) ? schema.pages : {};
   for (const [pageKey, page] of Object.entries(pages) as [PageKey, TenantSchema["pages"][PageKey]][]) {
-    if (!PAGE_REGISTRY[pageKey]) {
+    if (!(pageKey in PAGE_REGISTRY)) {
       errors.push(`pages contains unknown page ${pageKey}`);
     }
     if (!page.enabled) {

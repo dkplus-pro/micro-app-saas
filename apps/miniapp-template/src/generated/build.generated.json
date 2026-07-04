@@ -71,25 +71,25 @@
   "modules": [
     {
       "key": "module-a",
-      "importPath": "../modules/module-a/index",
+      "importPath": "../modules/module-a/index.ts",
       "displayName": "Module A",
       "props": {}
     },
     {
       "key": "module-b",
-      "importPath": "../modules/module-b/index",
+      "importPath": "../modules/module-b/index.ts",
       "displayName": "Module B",
       "props": {}
     },
     {
       "key": "module-c",
-      "importPath": "../modules/module-c/index",
+      "importPath": "../modules/module-c/index.ts",
       "displayName": "Module C",
       "props": {}
     },
     {
       "key": "module-d",
-      "importPath": "../modules/module-d/index",
+      "importPath": "../modules/module-d/index.ts",
       "displayName": "Module D",
       "props": {}
     }

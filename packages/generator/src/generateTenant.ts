@@ -1,8 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { validateTenantSchema } from '../../schema/src/validate.js';
-import type { EnabledPage, GeneratedTenantConfig, ModuleKey, PageKey, TenantSchema } from '../../schema/src/types.js';
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { MODULE_REGISTRY, validateTenantSchema } from "../../schema/src/index.ts";
+import type { GeneratedModuleEntry, ModuleKey, NormalizedTenantBuild, PageKey, TenantModuleRef, TenantSchema } from "../../schema/src/index.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 
@@ -22,14 +21,23 @@ function uniqueModules(schema: TenantSchema): ModuleKey[] {
       }
     }
   }
-  return keys;
+  return orderedKeys.map((key) => ({
+    key,
+    importPath: MODULE_REGISTRY[key as keyof typeof MODULE_REGISTRY].importPath,
+    displayName: MODULE_REGISTRY[key as keyof typeof MODULE_REGISTRY].displayName,
+    props: propsByKey.get(key) ?? {}
+  }));
 }
 
-function toEnabledPages(schema: TenantSchema): EnabledPage[] {
-  return Object.entries(schema.pages)
-    .filter((entry): entry is [PageKey, NonNullable<TenantSchema['pages'][PageKey]>] => Boolean(entry[1]?.enabled))
-    .map(([key, page]) => ({ key, ...page }));
-}
+export function normalizeTenantBuild(schema: TenantSchema): NormalizedTenantBuild {
+  const enabledPages = Object.entries(schema.pages).filter(([, page]) => page.enabled) as [PageKey, TenantSchema["pages"][PageKey]][];
+  const routes = Object.fromEntries(enabledPages.map(([key, page]) => [key, page.route])) as Record<PageKey, string>;
+  const pageModules = Object.fromEntries(enabledPages.map(([key, page]) => [key, page.modules ?? [] as TenantModuleRef[]])) as Record<PageKey, TenantModuleRef[]>;
+  const pages = enabledPages.map(([, page]) => ({
+    path: page.route,
+    style: { navigationBarTitleText: page.title }
+  }));
+  const modules = normalizeModuleEntries(schema);
 
 function buildConfig(schema: TenantSchema): GeneratedTenantConfig {
   const pages = toEnabledPages(schema);
@@ -42,9 +50,18 @@ function buildConfig(schema: TenantSchema): GeneratedTenantConfig {
       version: schema.app.version ?? '0.0.0-local'
     },
     pages,
-    tabs: schema.tabs.map((tab) => ({ ...tab, route: schema.pages[tab.page]?.route ?? '' })),
-    modules: uniqueModules(schema),
-    features: schema.features,
+    tabBar: {
+      list: schema.tabs.map((tab) => ({
+        pagePath: schema.pages[tab.page].route,
+        text: tab.text,
+        iconPath: tab.iconPath,
+        selectedIconPath: tab.selectedIconPath
+      }))
+    },
+    routes,
+    pageModules,
+    modules,
+    features: schema.features ?? {},
     runtime: {
       theme: schema.theme ?? {},
       ...(schema.runtime ?? {})

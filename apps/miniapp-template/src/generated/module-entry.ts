@@ -1,7 +1,7 @@
-import * as module0 from "../modules/module-a/index";
-import * as module1 from "../modules/module-b/index";
-import * as module2 from "../modules/module-c/index";
-import * as module3 from "../modules/module-d/index";
+import * as module0 from "../modules/module-a/index.ts";
+import * as module1 from "../modules/module-b/index.ts";
+import * as module2 from "../modules/module-c/index.ts";
+import * as module3 from "../modules/module-d/index.ts";
 
 export const tenantModules = [
   { key: "module-a", displayName: "Module A", props: {}, module: module0 },
