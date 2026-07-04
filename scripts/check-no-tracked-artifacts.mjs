@@ -14,6 +14,7 @@ export function findDisallowedTrackedArtifacts(paths) {
     if (file === 'apps/miniapp-template/src/pages.json' || file === 'apps/miniapp-template/src/manifest.json') return true;
     if (file === 'apps/miniapp-template/src/pages/module-assets/module-entry.ts') return true;
     if (file.startsWith('apps/miniapp-template/src/generated/')) return !ALLOWED_GENERATED_FILES.has(file);
+    if (/^schemas\/tenants\/invalid-.+\.schema\.json$/.test(file)) return true;
     return false;
   });
 }

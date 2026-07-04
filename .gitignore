@@ -17,3 +17,7 @@ apps/miniapp-template/src/manifest.json
 apps/miniapp-template/src/pages/module-assets/module-entry.ts
 apps/miniapp-template/dist/
 apps/miniapp-template/.vite/
+
+# Test-only invalid tenant schemas are written by regression tests and must not
+# be treated as publishable tenant schemas.
+schemas/tenants/invalid-*.schema.json
