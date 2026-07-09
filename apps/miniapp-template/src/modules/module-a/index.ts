@@ -1,3 +1,1 @@
-import ModuleA from './index.vue';
-
-export default ModuleA;
+export { default } from '../../biz/modules/module-a/index.js';

@@ -1,4 +1,3 @@
-import { createApp } from 'vue';
-import App from './App.vue';
+import { createWebApp } from './app-shell/web-main.ts';
 
-createApp(App).mount('#app');
+createWebApp('#app');

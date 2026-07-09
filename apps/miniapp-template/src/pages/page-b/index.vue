@@ -1,13 +1,5 @@
-<template>
-  <view class="page page-b">
-    <view v-for="module in modules" :key="module.key" class="stream-module">
-      {{ module.key }}
-    </view>
-  </view>
-</template>
+<script lang="ts">
+import BizPage from '../../biz/pages/page-b/index.vue';
 
-<script setup lang="ts">
-import { usePageBController } from './hooks';
-
-const { modules } = usePageBController();
+export default BizPage;
 </script>

@@ -1,9 +1,5 @@
-<template>
-  <view class="page-header">
-    <text>{{ title }}</text>
-  </view>
-</template>
+<script lang="ts">
+import BizComponent from '../../../biz/pages/page-b/components/PageHeader.vue';
 
-<script setup lang="ts">
-defineProps<{ title: string }>();
+export default BizComponent;
 </script>

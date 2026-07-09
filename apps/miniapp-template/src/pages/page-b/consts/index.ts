@@ -1,1 +1,1 @@
-export * from "./module.const.ts";
+export * from '../../../biz/pages/page-b/consts/index.ts';

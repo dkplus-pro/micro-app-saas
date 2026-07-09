@@ -1,1 +1,1 @@
-export * from './usePageAController.ts';
+export * from '../../../biz/pages/page-a/hooks/index.ts';

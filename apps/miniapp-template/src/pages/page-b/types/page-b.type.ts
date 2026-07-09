@@ -1,7 +1,1 @@
-import type { ModuleKey } from '../../../../../../packages/schema/src/types.ts';
-
-export interface PageBModuleViewModel {
-  key: ModuleKey;
-  props: Record<string, unknown>;
-  order: number;
-}
+export * from '../../../biz/pages/page-b/types/page-b.type.ts';
