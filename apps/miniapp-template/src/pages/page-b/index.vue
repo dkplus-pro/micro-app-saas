@@ -1,5 +1,7 @@
-<script lang="ts">
-import BizPage from '../../biz/pages/page-b/index.vue';
+<template>
+  <BizPage />
+</template>
 
-export default BizPage;
+<script setup lang="ts">
+import BizPage from '../../biz/pages/page-b/index.vue';
 </script>
