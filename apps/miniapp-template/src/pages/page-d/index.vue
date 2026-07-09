@@ -1,3 +1,5 @@
-<template>
-  <view class="page page-d">Page D</view>
-</template>
+<script lang="ts">
+import BizPage from '../../biz/pages/page-d/index.vue';
+
+export default BizPage;
+</script>
