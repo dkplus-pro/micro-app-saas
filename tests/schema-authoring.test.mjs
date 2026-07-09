@@ -66,7 +66,9 @@ test('JSON tenant schema migrates to runnable TS source', async () => {
   const child = run(['--from-json', '--tenant=app1', '--out-dir', outDir]);
 
   assert.match(child.stdout, /WROTE schema source/);
-  assert.match(await readFile(path.join(outDir, 'app1.schema.ts'), 'utf8'), /defineTenantSchema/);
+  const emittedSource = await readFile(path.join(outDir, 'app1.schema.ts'), 'utf8');
+  assert.match(emittedSource, /defineTenantSchema/);
+  assert.match(emittedSource, /from 'file:\/\/\/.*packages\/schema\/src\/authoring\.ts'/);
 
   run(['--tenant=app1', '--source-dir', outDir, '--out-dir', roundTripJsonDir]);
   assert.equal(
