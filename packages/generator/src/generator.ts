@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { normalizeTenantCapabilities, normalizeTenantPages, tenantPagesToRecord } from '../../schema/src/normalize.ts';
+import { resolveTenantRegistry, type ResolvedTenantModule } from '../../schema/src/resolve.ts';
 import { assertValidTenantSchema } from '../../schema/src/validation.ts';
 import type { ModuleKey, TenantImageAsset, TenantPage, TenantSchema, UniAppPackageType } from '../../schema/src/types.ts';
 
@@ -86,10 +87,14 @@ function collectPageModules(pages: Array<[string, TenantPage]>): ModuleKey[] {
 }
 
 export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts {
-  const enabledPages = collectEnabledPages(schema);
-  const usedModules = collectUsedModules(schema);
+  const resolvedRegistry = resolveTenantRegistry(schema);
+  const resolvedModulesByKey = new Map(resolvedRegistry.modules.map((moduleEntry) => [moduleEntry.key, moduleEntry]));
+  const enabledPages = resolvedRegistry.enabledPages.map((page) => [page.key, page] as [string, TenantPage]);
+  const usedModules = resolvedRegistry.modules.map((moduleEntry) => moduleEntry.key);
   const homeModules = collectPageModules(enabledPages.filter(([key]) => key === 'page-a'));
   const subPackageModules = usedModules.filter((moduleKey) => !homeModules.includes(moduleKey));
+  const homeModuleEntries = homeModules.map((moduleKey) => requireResolvedModule(moduleKey, resolvedModulesByKey));
+  const subPackageModuleEntries = subPackageModules.map((moduleKey) => requireResolvedModule(moduleKey, resolvedModulesByKey));
   const tabPageKeys = new Set<string>(schema.tabs.map((tab) => tab.page));
   const pagesByKey = tenantPagesToRecord(schema.pages);
   const pagesConfig = enabledPages.map(([key, page]) => {
@@ -166,10 +171,10 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
       usingComponents: true
     }
   };
-  const moduleEntrySource = moduleEntrySourceFor('moduleEntries', 'GeneratedModuleKey', homeModules);
-  const homeModuleRendererSource = homeModuleRendererSourceFor(homeModules);
+  const moduleEntrySource = moduleEntrySourceFor('moduleEntries', 'GeneratedModuleKey', homeModuleEntries);
+  const homeModuleRendererSource = homeModuleRendererSourceFor(homeModuleEntries);
   const pageAAssetsSource = pageAAssetsSourceFor(schema.runtime?.assets?.pageAImage);
-  const subPackageModuleEntrySource = moduleDescriptorEntrySourceFor('subPackageModuleEntries', 'GeneratedSubPackageModuleKey', subPackageModules);
+  const subPackageModuleEntrySource = moduleDescriptorEntrySourceFor('subPackageModuleEntries', 'GeneratedSubPackageModuleKey', subPackageModuleEntries);
   return {
     tenantId: schema.tenant.tenantId,
     appConfig,
@@ -240,27 +245,39 @@ function tsExport(name: string, value: unknown): string {
   return `export const ${name} = ${JSON.stringify(value, null, 2)} as const;\n`;
 }
 
-function moduleEntrySourceFor(exportName: string, typeName: string, modules: readonly ModuleKey[]): string {
+function requireResolvedModule(
+  moduleKey: ModuleKey,
+  resolvedModulesByKey: ReadonlyMap<ModuleKey, ResolvedTenantModule>
+): ResolvedTenantModule {
+  const moduleEntry = resolvedModulesByKey.get(moduleKey);
+  if (!moduleEntry) throw new Error(`Missing resolved registry entry for module ${moduleKey}`);
+  return moduleEntry;
+}
+
+function moduleEntrySourceFor(exportName: string, typeName: string, modules: readonly ResolvedTenantModule[]): string {
   return [
-    ...modules.map((moduleKey) => `import ${moduleKey.replaceAll('-', '')} from '../modules/${moduleKey}/index.js';`),
+    ...modules.map((moduleEntry) => {
+      const registry = moduleEntry.registry;
+      return `import ${moduleIdentifierFor(moduleEntry.key)} from '${registry.entryImportPath}';`;
+    }),
     '',
     `export const ${exportName} = {`,
-    ...modules.map((moduleKey) => `  '${moduleKey}': ${moduleKey.replaceAll('-', '')},`),
+    ...modules.map((moduleEntry) => `  '${moduleEntry.key}': ${moduleIdentifierFor(moduleEntry.key)},`),
     '} as const;',
     '',
     `export type ${typeName} = keyof typeof ${exportName};`
   ].join('\n');
 }
 
-function homeModuleRendererSourceFor(modules: readonly ModuleKey[]): string {
+function homeModuleRendererSourceFor(modules: readonly ResolvedTenantModule[]): string {
   return [
     '<template>',
     '  <view class="generated-home-modules">',
-    ...modules.flatMap((moduleKey) => {
-      const componentName = componentIdentifierFor(moduleKey);
+    ...modules.flatMap((moduleEntry) => {
+      const componentName = componentIdentifierFor(moduleEntry.key);
       return [
         `    <${componentName}`,
-        `      v-for="(module, index) in modulesByKey['${moduleKey}'] ?? []"`,
+        `      v-for="(module, index) in modulesByKey['${moduleEntry.key}'] ?? []"`,
         `      :key="module.key + '-' + index"`,
         '      v-bind="module.props"',
         '    />'
@@ -271,7 +288,7 @@ function homeModuleRendererSourceFor(modules: readonly ModuleKey[]): string {
     '',
     '<script setup lang="ts">',
     "import { computed } from 'vue';",
-    ...modules.map((moduleKey) => `import ${componentIdentifierFor(moduleKey)} from '../modules/${moduleKey}/index.vue';`),
+    ...modules.map((moduleEntry) => `import ${componentIdentifierFor(moduleEntry.key)} from '${moduleEntry.registry.componentImportPath}';`),
     '',
     'type HomeModule = {',
     '  key: string;',
@@ -293,6 +310,10 @@ function homeModuleRendererSourceFor(modules: readonly ModuleKey[]): string {
   ].join('\n');
 }
 
+function moduleIdentifierFor(moduleKey: ModuleKey): string {
+  return moduleKey.replaceAll('-', '');
+}
+
 function componentIdentifierFor(moduleKey: ModuleKey): string {
   return moduleKey
     .split('-')
@@ -300,10 +321,10 @@ function componentIdentifierFor(moduleKey: ModuleKey): string {
     .join('');
 }
 
-function moduleDescriptorEntrySourceFor(exportName: string, typeName: string, modules: readonly ModuleKey[]): string {
+function moduleDescriptorEntrySourceFor(exportName: string, typeName: string, modules: readonly ResolvedTenantModule[]): string {
   return [
     `export const ${exportName} = {`,
-    ...modules.map((moduleKey) => `  '${moduleKey}': { key: '${moduleKey}', renderLabel: '${moduleKey}' },`),
+    ...modules.map((moduleEntry) => `  '${moduleEntry.key}': { key: '${moduleEntry.key}', renderLabel: '${moduleEntry.registry.renderLabel}' },`),
     '} as const;',
     '',
     `export type ${typeName} = keyof typeof ${exportName};`
