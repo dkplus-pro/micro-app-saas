@@ -1,5 +1,13 @@
-<script lang="ts">
-import BizModule from '../../biz/modules/module-e/index.vue';
+<template>
+  <BizModule v-bind="$attrs" />
+</template>
 
-export default BizModule;
+<script lang="ts">
+export default {
+  inheritAttrs: false
+};
+</script>
+
+<script setup lang="ts">
+import BizModule from '../../biz/modules/module-e/index.vue';
 </script>
