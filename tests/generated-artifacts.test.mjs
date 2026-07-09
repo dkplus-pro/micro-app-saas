@@ -8,6 +8,7 @@ const repoRoot = path.resolve('.');
 const generatedRoot = 'apps/miniapp-template/src/generated';
 const generatedPagesJson = 'apps/miniapp-template/src/pages.json';
 const generatedManifestJson = 'apps/miniapp-template/src/manifest.json';
+const generatedModuleAssetsEntry = 'apps/miniapp-template/src/pages/module-assets/module-entry.ts';
 const allowedTracked = new Set([`${generatedRoot}/README.md`, `${generatedRoot}/.gitkeep`]);
 
 function run(command, args) {
@@ -17,7 +18,7 @@ function run(command, args) {
 }
 
 test('generated tenant artifacts are ignored and not tracked', () => {
-  const tracked = run('git', ['ls-files', `${generatedRoot}/*`, generatedPagesJson, generatedManifestJson]).stdout
+  const tracked = run('git', ['ls-files', `${generatedRoot}/*`, generatedPagesJson, generatedManifestJson, generatedModuleAssetsEntry]).stdout
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
@@ -25,13 +26,14 @@ test('generated tenant artifacts are ignored and not tracked', () => {
 
   assert.deepEqual(tracked, []);
 
-  const ignored = run('git', ['check-ignore', `${generatedRoot}/tenant.config.ts`, `${generatedRoot}/build-summary.json`, generatedPagesJson, generatedManifestJson]).stdout
+  const ignored = run('git', ['check-ignore', `${generatedRoot}/tenant.config.ts`, `${generatedRoot}/build-summary.json`, generatedPagesJson, generatedManifestJson, generatedModuleAssetsEntry]).stdout
     .split('\n')
     .filter(Boolean)
     .sort();
 
   assert.deepEqual(ignored, [
     generatedManifestJson,
+    generatedModuleAssetsEntry,
     generatedPagesJson,
     `${generatedRoot}/build-summary.json`,
     `${generatedRoot}/tenant.config.ts`,
