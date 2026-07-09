@@ -1,16 +1,7 @@
 <script setup lang="ts">
-import { onLaunch, onShow } from '@dcloudio/uni-app';
 import { useTenantLifecycle } from './bootstrap.ts';
 
-const snapshot = useTenantLifecycle();
-
-onLaunch(() => {
-  console.log(`[tenant] launch ${snapshot.tenant.tenantId}`);
-});
-
-onShow(() => {
-  console.log(`[tenant] show ${snapshot.tenant.tenantId}`);
-});
+useTenantLifecycle();
 </script>
 
 <style>
