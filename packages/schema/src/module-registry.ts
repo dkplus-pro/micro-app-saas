@@ -1,7 +1,8 @@
 import type { ModuleKey, PageKey } from './types.ts';
+import { MODULE_REGISTRY, PAGE_REGISTRY } from './registry.ts';
 
-export const SUPPORTED_MODULES = ['module-a', 'module-b', 'module-c', 'module-d', 'module-e'] as const satisfies readonly ModuleKey[];
-export const SUPPORTED_PAGES = ['page-a', 'page-b', 'page-c', 'page-d'] as const satisfies readonly PageKey[];
+export const SUPPORTED_MODULES = MODULE_REGISTRY;
+export const SUPPORTED_PAGES = PAGE_REGISTRY;
 
 export function isSupportedModule(value: string): value is ModuleKey {
   return (SUPPORTED_MODULES as readonly string[]).includes(value);

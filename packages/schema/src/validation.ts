@@ -1,5 +1,5 @@
 import { normalizeTenantPages, tenantPagesToRecord, isModuleCapabilityEnabled } from './normalize.ts';
-import { MODULE_REGISTRY, MODULE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
+import { MODULE_REGISTRY, MODULE_REGISTRY_SET, PAGE_REGISTRY_SET, PAGE_ROUTE_PATTERN, featureKeyForModule } from './registry.ts';
 import type { ModuleKey, PageFeatureKey, TenantPage, TenantSchema, ValidationResult } from './types.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -25,6 +25,7 @@ export function validateTenantSchema(input: unknown): ValidationResult {
   validateLegacyFeatures(schema.features, errors);
 
   for (const [pageKey, page] of pageEntries) {
+    if (!PAGE_REGISTRY_SET.has(pageKey)) errors.push(`pages references unknown page ${pageKey}`);
     const route = typeof page.route === 'string' ? page.route : '';
     const packageValue = typeof page.package === 'string' ? page.package : undefined;
     const subPackageRoot = typeof page.subPackageRoot === 'string' ? page.subPackageRoot : undefined;
