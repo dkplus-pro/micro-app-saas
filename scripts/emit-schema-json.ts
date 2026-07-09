@@ -109,10 +109,10 @@ async function loadJsonSchema(jsonDir: string, tenant: string): Promise<TenantSc
 }
 
 function tenantSourceFor(schema: TenantSchema, outputPath: string, rootDir: string): string {
-  const importPath = relativeImportPath(
-    path.dirname(outputPath),
-    path.join(rootDir, 'packages/schema/src/authoring.ts')
-  );
+  const authoringPath = path.join(rootDir, 'packages/schema/src/authoring.ts');
+  const importPath = isPathInside(outputPath, rootDir)
+    ? relativeImportPath(path.dirname(outputPath), authoringPath)
+    : pathToFileURL(authoringPath).href;
   return [
     `import { defineTenantSchema } from '${importPath}';`,
     '',
@@ -124,6 +124,11 @@ function tenantSourceFor(schema: TenantSchema, outputPath: string, rootDir: stri
 function relativeImportPath(fromDir: string, targetFile: string): string {
   const relativePath = path.relative(fromDir, targetFile).split(path.sep).join(path.posix.sep);
   return relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
+}
+
+function isPathInside(file: string, dir: string): boolean {
+  const relativePath = path.relative(dir, file);
+  return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
 }
 
 function hasFlag(flag: string): boolean {
