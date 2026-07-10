@@ -1,7 +1,21 @@
 <template>
-  <BizPage />
+  <view class="page page-b">
+    <view class="page-header">
+      <text>{{ title }}</text>
+    </view>
+    <StreamModuleRenderer v-if="hasModules" />
+    <EmptyState v-else />
+  </view>
 </template>
 
 <script setup lang="ts">
-import BizPage from '../../biz/pages/page-b/index.vue';
+import { computed } from 'vue';
+import EmptyState from '../../biz/pages/page-b/components/EmptyState.vue';
+import StreamModuleRenderer from '../../biz/pages/page-b/components/StreamModuleRenderer.vue';
+import { usePageBController } from '../../biz/pages/page-b/hooks';
+
+const pageBController = usePageBController();
+const title = computed(() => pageBController.title);
+const modules = computed(() => pageBController.modules);
+const hasModules = computed(() => modules.value.length > 0);
 </script>

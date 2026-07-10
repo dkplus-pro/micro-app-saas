@@ -1,7 +1,3 @@
 <template>
-  <BizPage />
+  <view class="page page-c">Page C</view>
 </template>
-
-<script setup lang="ts">
-import BizPage from '../../biz/pages/page-c/index.vue';
-</script>

@@ -26,6 +26,10 @@ async function readHomeModuleRenderer(tenant) {
   return readFile(path.join(distRoot, tenant, 'home-module-renderer.vue'), 'utf8');
 }
 
+async function readPageBModuleRenderer(tenant) {
+  return readFile(path.join(distRoot, tenant, 'page-b-module-renderer.vue'), 'utf8');
+}
+
 async function readPageAAssets(tenant) {
   return readFile(path.join(distRoot, tenant, 'page-a-assets.ts'), 'utf8');
 }
@@ -82,6 +86,8 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   const app2Entry = await readModuleEntry('app2');
   const app1HomeRenderer = await readHomeModuleRenderer('app1');
   const app2HomeRenderer = await readHomeModuleRenderer('app2');
+  const app1PageBRenderer = await readPageBModuleRenderer('app1');
+  const app2PageBRenderer = await readPageBModuleRenderer('app2');
   const app1PageAAssets = await readPageAAssets('app1');
   const app2PageAAssets = await readPageAAssets('app2');
   const app1SubPackageEntry = await readSubPackageModuleEntry('app1');
@@ -96,6 +102,11 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   assert.doesNotMatch(app1HomeRenderer, /module-b/);
   assert.doesNotMatch(app1HomeRenderer, /module-c/);
   assert.doesNotMatch(app1HomeRenderer, /module-d/);
+  assert.match(app1PageBRenderer, /\.\.\/modules\/module-a\/index\.vue/);
+  assert.match(app1PageBRenderer, /\.\.\/modules\/module-b\/index\.vue/);
+  assert.match(app1PageBRenderer, /\.\.\/modules\/module-c\/index\.vue/);
+  assert.match(app1PageBRenderer, /\.\.\/modules\/module-d\/index\.vue/);
+  assert.doesNotMatch(app1PageBRenderer, /module-e/);
   assert.match(app1SubPackageEntry, /module-b/);
   assert.match(app1SubPackageEntry, /module-c/);
   assert.match(app1SubPackageEntry, /module-d/);
@@ -111,6 +122,11 @@ test('app1/app2 generated pages, tabs, titles, and modules are tenant-pruned', a
   assert.doesNotMatch(app2HomeRenderer, /module-a/);
   assert.doesNotMatch(app2HomeRenderer, /module-d/);
   assert.doesNotMatch(app2HomeRenderer, /module-c/);
+  assert.match(app2PageBRenderer, /\.\.\/modules\/module-a\/index\.vue/);
+  assert.match(app2PageBRenderer, /\.\.\/modules\/module-d\/index\.vue/);
+  assert.match(app2PageBRenderer, /\.\.\/modules\/module-c\/index\.vue/);
+  assert.doesNotMatch(app2PageBRenderer, /module-b/);
+  assert.doesNotMatch(app2PageBRenderer, /module-e/);
   assert.match(app2SubPackageEntry, /module-a/);
   assert.match(app2SubPackageEntry, /module-d/);
   assert.match(app2SubPackageEntry, /module-c/);

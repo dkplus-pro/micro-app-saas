@@ -114,7 +114,8 @@ npm run dev -- --tenant=app2
 
 - tab 页面必须在主包，因为微信小程序 tabBar 不能指向分包页面。
 - 非 tab 的启用页面默认进入分包；需要跳转到分包页时，目标页面仍必须 `enabled: true`。
-- `module-entry.ts` / `home-module-renderer.vue` 只生成首页 Page A 引用的模块，避免首页/主包静态加载其它模块。
+- `module-entry.ts` / `home-module-renderer.vue` 只生成首页 Page A 引用的模块，避免首页静态加载其它模块。
+- `page-b-module-renderer.vue` 只生成当前租户 Page B schema 引用的模块，让 Page B 按 schema 顺序渲染模块内容。
 - 首页没有引用、但其它页面引用的模块会进入 `subpackage-module-entry.ts`，并同步生成到技术分包 `pages/module-assets/module-entry.ts`。
 - 当存在首页未引用模块时，生成器会自动追加隐藏技术分包 `pages/module-assets`；tab 页面仍保留在主包，模块入口则从分包侧承载。
 - 同一页面位置展示不同租户图片时，把图片放到 `apps/miniapp-template/src/assets/tenants/<tenantId>/`，再在 schema 的 `runtime.assets.pageAImage.src` 配置 `assets/...` 路径；生成器会生成 `page-a-assets.ts` 静态 import 当前租户资源，Page A 在固定位置渲染。
@@ -210,7 +211,7 @@ Page A 从生成的 `pages.config.ts` 读取当前租户配置的模块列表并
 - `app2`：tab 为 A/B/D，对应页面 A/B/D；页面 A 不渲染 `module-a`
 - tab 页面保留在主包；非 tab 的启用页面进入分包
 - `pages.json` 只包含当前租户启用的主包页面、分包和 tabBar
-- `module-entry.ts` / `home-module-renderer.vue` 只静态导入首页引用模块；`subpackage-module-entry.ts` / `pages/module-assets/module-entry.ts` 保存首页未引用模块并进入分包
+- `module-entry.ts` / `home-module-renderer.vue` 只静态导入首页引用模块；`page-b-module-renderer.vue` 只静态导入 Page B 引用模块；`subpackage-module-entry.ts` / `pages/module-assets/module-entry.ts` 保存首页未引用模块并进入分包
 
 ## Runner dry-run
 

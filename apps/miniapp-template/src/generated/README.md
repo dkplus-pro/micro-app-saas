@@ -13,6 +13,7 @@ The template imports these generated TypeScript modules after generation:
 - `page-a-assets` importing the current tenant's Page A image asset
 - `module-entry` exporting homepage/main-package `moduleEntries`
 - `home-module-renderer.vue` rendering homepage modules with tenant-specific static imports
+- `page-b-module-renderer.vue` rendering Page B modules with tenant-specific static imports
 - `subpackage-module-entry` exporting `subPackageModuleEntries` for modules not referenced by Page A
 - `pages/module-assets/module-entry.ts` exporting the same non-home module registry from a technical subpackage root
 
@@ -23,7 +24,7 @@ npm run dev -- --tenant=app1
 npm run build -- --tenant=app1
 ```
 
-`subpackages.config` must keep non-home, non-tab pages out of the main package. `module-entry` and `home-module-renderer.vue` must import only modules referenced by Page A; modules used only outside Page A belong in `subpackage-module-entry` and the `pages/module-assets` technical subpackage so they do not create a static import edge from the homepage bundle.
+`subpackages.config` must keep non-home, non-tab pages out of the main package. `module-entry` and `home-module-renderer.vue` must import only modules referenced by Page A; `page-b-module-renderer.vue` imports only modules referenced by Page B so the stream page renders schema modules without loading disabled tenant modules. Modules used outside Page A are also described in `subpackage-module-entry` and the `pages/module-assets` technical subpackage so they remain discoverable without creating a static import edge from the homepage bundle.
 
 Tenant schemas should prefer `pages: [{ key, enabled, ... }]` for structural composition/page inclusion and `capabilities.modules` for module ability switches. The generator still accepts legacy page maps and module-only `features` for backend JSON compatibility, but generated page files are always derived from `pages[].enabled`.
 

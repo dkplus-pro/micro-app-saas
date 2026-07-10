@@ -5,6 +5,9 @@ import { toVisibleModules } from '../utils/module-visible.util.js';
 
 interface GeneratedPageConfig {
   key: string;
+  style: {
+    navigationBarTitleText?: string;
+  };
   modules?: readonly PageModuleConfig[];
 }
 
@@ -13,6 +16,7 @@ export function usePageBModulesController() {
   const pageB = generatedPages.find((page) => page.key === PAGE_B_KEY);
   const modules = toVisibleModules(pageB?.modules ?? []);
   return {
+    title: pageB?.style.navigationBarTitleText ?? 'Page B',
     modules
   };
 }

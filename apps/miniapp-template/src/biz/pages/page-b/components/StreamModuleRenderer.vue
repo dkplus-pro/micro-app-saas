@@ -1,13 +1,17 @@
 <template>
   <view class="stream-layout">
-    <view v-for="moduleRef in modules" :key="moduleRef.key" class="stream-layout__item">
-      <text>{{ moduleRef.displayName }}</text>
-    </view>
+    <GeneratedPageBModuleRenderer />
   </view>
 </template>
 
 <script setup lang="ts">
-import { usePageBModulesController } from '../hooks/usePageBModulesController';
-
-const { modules } = usePageBModulesController();
+import GeneratedPageBModuleRenderer from '../../../../generated/page-b-module-renderer.vue';
 </script>
+
+<style scoped>
+.stream-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+</style>

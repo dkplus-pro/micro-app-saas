@@ -45,10 +45,12 @@ export interface GeneratedTenantArtifacts {
   uniManifestJson: unknown;
   moduleEntrySource: string;
   homeModuleRendererSource: string;
+  pageBModuleRendererSource: string;
   pageAAssetsSource: string;
   subPackageModuleEntrySource: string;
   usedModules: ModuleKey[];
   homeModules: ModuleKey[];
+  pageBModules: ModuleKey[];
   subPackageModules: ModuleKey[];
   pageRoutes: string[];
 }
@@ -92,8 +94,10 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   const enabledPages = resolvedRegistry.enabledPages.map((page) => [page.key, page] as [string, TenantPage]);
   const usedModules = resolvedRegistry.modules.map((moduleEntry) => moduleEntry.key);
   const homeModules = collectPageModules(enabledPages.filter(([key]) => key === 'page-a'));
+  const pageBModules = collectPageModules(enabledPages.filter(([key]) => key === 'page-b'));
   const subPackageModules = usedModules.filter((moduleKey) => !homeModules.includes(moduleKey));
   const homeModuleEntries = homeModules.map((moduleKey) => requireResolvedModule(moduleKey, resolvedModulesByKey));
+  const pageBModuleEntries = pageBModules.map((moduleKey) => requireResolvedModule(moduleKey, resolvedModulesByKey));
   const subPackageModuleEntries = subPackageModules.map((moduleKey) => requireResolvedModule(moduleKey, resolvedModulesByKey));
   const tabPageKeys = new Set<string>(schema.tabs.map((tab) => tab.page));
   const pagesByKey = tenantPagesToRecord(schema.pages);
@@ -173,6 +177,7 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
   };
   const moduleEntrySource = moduleEntrySourceFor('moduleEntries', 'GeneratedModuleKey', homeModuleEntries);
   const homeModuleRendererSource = homeModuleRendererSourceFor(homeModuleEntries);
+  const pageBModuleRendererSource = orderedModuleRendererSourceFor(pageBModuleEntries);
   const pageAAssetsSource = pageAAssetsSourceFor(schema.runtime?.assets?.pageAImage);
   const subPackageModuleEntrySource = moduleDescriptorEntrySourceFor('subPackageModuleEntries', 'GeneratedSubPackageModuleKey', subPackageModuleEntries);
   return {
@@ -187,10 +192,12 @@ export function createArtifacts(schema: TenantSchema): GeneratedTenantArtifacts 
     uniManifestJson,
     moduleEntrySource,
     homeModuleRendererSource,
+    pageBModuleRendererSource,
     pageAAssetsSource,
     subPackageModuleEntrySource,
     usedModules,
     homeModules,
+    pageBModules,
     subPackageModules,
     pageRoutes: enabledPages.map(([, page]) => page.route)
   };
@@ -288,6 +295,8 @@ function homeModuleRendererSourceFor(modules: readonly ResolvedTenantModule[]): 
     '',
     '<script setup lang="ts">',
     "import { computed } from 'vue';",
+    "import { pagesConfig } from './pages.config.ts';",
+    "import { routeConfig } from './route.config.ts';",
     ...modules.map((moduleEntry) => `import ${componentIdentifierFor(moduleEntry.key)} from '${moduleEntry.registry.componentImportPath}';`),
     '',
     'type HomeModule = {',
@@ -295,16 +304,86 @@ function homeModuleRendererSourceFor(modules: readonly ResolvedTenantModule[]): 
     '  props?: Record<string, unknown>;',
     '};',
     '',
-    'const props = defineProps<{',
-    '  modules: readonly HomeModule[];',
-    '}>();',
+    'type GeneratedModuleRef = {',
+    '  key: string;',
+    '  props?: Record<string, unknown>;',
+    '};',
+    '',
+    'const generatedRoutes = routeConfig as Record<string, string>;',
+    'const pageModules = computed<HomeModule[]>(() => {',
+    "  const pageA = pagesConfig.find((page) => page.key === 'page-a');",
+    '  const modules = (pageA?.modules ?? []) as readonly GeneratedModuleRef[];',
+    '  return modules.map((moduleRef) => ({',
+    '    key: moduleRef.key,',
+    '    props: resolveModuleProps(moduleRef)',
+    '  }));',
+    '});',
     '',
     'const modulesByKey = computed(() => {',
     '  const grouped: Record<string, HomeModule[]> = {};',
-    '  for (const moduleRef of props.modules) {',
+    '  for (const moduleRef of pageModules.value) {',
     '    grouped[moduleRef.key] = [...(grouped[moduleRef.key] ?? []), moduleRef];',
     '  }',
     '  return grouped;',
+    '});',
+    '',
+    'function resolveModuleProps(moduleRef: GeneratedModuleRef): Record<string, unknown> {',
+    '  const props = { ...(moduleRef.props ?? {}) };',
+    "  const targetPage = typeof props.targetPage === 'string' ? props.targetPage : undefined;",
+    '  if (targetPage && generatedRoutes[targetPage]) {',
+    '    props.targetRoute = generatedRoutes[targetPage];',
+    '  }',
+    '  delete props.targetPage;',
+    '  return props;',
+    '}',
+    '</script>'
+  ].join('\n');
+}
+
+function orderedModuleRendererSourceFor(modules: readonly ResolvedTenantModule[]): string {
+  return [
+    '<template>',
+    '  <view class="generated-page-modules">',
+    '    <view',
+    '      v-for="(module, index) in pageModules"',
+    '      :key="module.key + \'-\' + index"',
+    '      class="generated-page-modules__item"',
+    '    >',
+    ...modules.flatMap((moduleEntry, index) => {
+      const componentName = componentIdentifierFor(moduleEntry.key);
+      return [
+        `      <${componentName}`,
+        `${index === 0 ? '        v-if' : '        v-else-if'}="module.key === '${moduleEntry.key}'"`,
+        '        v-bind="module.props"',
+        '      />'
+      ];
+    }),
+    '    </view>',
+    '  </view>',
+    '</template>',
+    '',
+    '<script setup lang="ts">',
+    "import { computed } from 'vue';",
+    "import { pagesConfig } from './pages.config.ts';",
+    ...modules.map((moduleEntry) => `import ${componentIdentifierFor(moduleEntry.key)} from '${moduleEntry.registry.componentImportPath}';`),
+    '',
+    'type PageModule = {',
+    '  key: string;',
+    '  props?: Record<string, unknown>;',
+    '};',
+    '',
+    'type GeneratedModuleRef = {',
+    '  key: string;',
+    '  props?: Record<string, unknown>;',
+    '};',
+    '',
+    'const pageModules = computed<PageModule[]>(() => {',
+    "  const pageB = pagesConfig.find((page) => page.key === 'page-b');",
+    '  const modules = (pageB?.modules ?? []) as readonly GeneratedModuleRef[];',
+    '  return modules.map((moduleRef) => ({',
+    '    key: moduleRef.key,',
+    '    props: moduleRef.props ?? {},',
+    '  }));',
     '});',
     '</script>'
   ].join('\n');
@@ -366,6 +445,7 @@ export async function generateTenant(options: GenerateOptions): Promise<Generate
   await writeFile(path.join(outputDir, 'runtime.config.ts'), tsExport('runtimeConfig', artifacts.runtimeConfig));
   await writeFile(path.join(outputDir, 'module-entry.ts'), `${artifacts.moduleEntrySource}\n`);
   await writeFile(path.join(outputDir, 'home-module-renderer.vue'), `${artifacts.homeModuleRendererSource}\n`);
+  await writeFile(path.join(outputDir, 'page-b-module-renderer.vue'), `${artifacts.pageBModuleRendererSource}\n`);
   await writeFile(path.join(outputDir, 'page-a-assets.ts'), `${artifacts.pageAAssetsSource}\n`);
   await writeFile(path.join(outputDir, 'subpackage-module-entry.ts'), `${artifacts.subPackageModuleEntrySource}\n`);
   await writeFile(path.join(outputDir, 'build-summary.json'), `${JSON.stringify({
@@ -373,6 +453,7 @@ export async function generateTenant(options: GenerateOptions): Promise<Generate
     pageRoutes: artifacts.pageRoutes,
     usedModules: artifacts.usedModules,
     homeModules: artifacts.homeModules,
+    pageBModules: artifacts.pageBModules,
     subPackageModules: artifacts.subPackageModules
   }, null, 2)}\n`);
 

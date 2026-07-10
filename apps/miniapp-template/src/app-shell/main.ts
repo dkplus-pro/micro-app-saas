@@ -1,7 +1,9 @@
-import { createSSRApp } from 'vue';
+import type { App as VueApp, Component } from 'vue';
 import App from './App.vue';
 
-export function createApp() {
+type CreateSSRApp = (rootComponent: Component) => VueApp;
+
+export function createTenantShellApp(createSSRApp: CreateSSRApp) {
   const app = createSSRApp(App);
   return { app };
 }

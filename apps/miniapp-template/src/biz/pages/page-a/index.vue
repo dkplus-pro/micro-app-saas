@@ -10,8 +10,8 @@
       <text v-if="pageAImage.description" class="page-a__asset-description">{{ pageAImage.description }}</text>
     </view>
 
-    <view v-if="pageModules.length" class="page-a__modules">
-      <HomeModuleRenderer :modules="pageModules" />
+    <view v-if="hasPageModules" class="page-a__modules">
+      <HomeModuleRenderer />
     </view>
 
     <view v-else class="page-a__empty">
@@ -60,6 +60,7 @@ const pageModules = computed<PageAModule[]>(() => {
     props: resolveModuleProps(moduleRef)
   }));
 });
+const hasPageModules = computed(() => pageModules.value.length > 0);
 
 function resolveModuleProps(moduleRef: GeneratedModuleRef): Record<string, unknown> {
   const props = { ...(moduleRef.props ?? {}) };
