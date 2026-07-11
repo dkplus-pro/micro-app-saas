@@ -1,1 +1,2 @@
-export * from '../../../biz/pages/page-a/utils/index.ts';
+export * from './module-navigation.util.ts';
+export * from './module-visible.util.ts';

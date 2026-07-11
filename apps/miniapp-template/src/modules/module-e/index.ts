@@ -1,1 +1,4 @@
-export { default } from '../../biz/modules/module-e/index.js';
+export default {
+  key: 'module-e',
+  renderLabel: 'module-e'
+} as const;

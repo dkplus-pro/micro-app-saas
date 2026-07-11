@@ -1,1 +1,1 @@
-export * from '../../../biz/pages/page-b/types/index.ts';
+export * from "./page-b.type.ts";

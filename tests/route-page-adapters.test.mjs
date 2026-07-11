@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 test('route pages render business content directly instead of a top-level biz-page wrapper', () => {
   const pageA = readFileSync('apps/miniapp-template/src/pages/page-a/index.vue', 'utf8');
@@ -14,6 +14,13 @@ test('route pages render business content directly instead of a top-level biz-pa
   assert.match(pageA, /HomeModuleRenderer/);
   assert.match(pageB, /StreamModuleRenderer/);
   assert.match(pageB, /usePageBController/);
+});
+
+test('route pages are the only page implementation surface', () => {
+  const pageRegistry = readFileSync('apps/miniapp-template/src/registry/page.registry.ts', 'utf8');
+
+  assert.equal(existsSync('apps/miniapp-template/src/biz/pages'), false);
+  assert.doesNotMatch(pageRegistry, /componentPath|routeShimPath|layer:\s*'biz'/);
 });
 
 test('miniapp entry keeps createSSRApp in the real entry so uni-mp-vite injects app mount', () => {

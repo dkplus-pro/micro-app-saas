@@ -1,1 +1,2 @@
-export * from '../../../biz/pages/page-b/hooks/index.ts';
+export * from './usePageBController.js';
+export * from './usePageBModulesController.js';

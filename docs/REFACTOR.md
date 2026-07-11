@@ -281,7 +281,7 @@ Schema 层要注意一个原则：
 
 ```json
 {
-  "componentPath": "@/biz/modules/module-a/index.vue"
+  "componentPath": "@/modules/module-a/index.vue"
 }
 ```
 
@@ -324,7 +324,7 @@ module-a 是否需要额外静态资源？
 export const moduleRegistry = {
   'module-a': {
     name: '模块A',
-    component: '@/biz/modules/module-a/index.vue',
+    component: '@/modules/module-a/index.vue',
     capabilities: ['enableAiChat'],
     stores: ['moduleAStore'],
     allowedLayouts: ['stream'],
@@ -333,7 +333,7 @@ export const moduleRegistry = {
 
   'module-c': {
     name: '模块C',
-    component: '@/biz/modules/module-c/index.vue',
+    component: '@/modules/module-c/index.vue',
     capabilities: [],
     stores: [],
     allowedLayouts: ['stream'],
@@ -342,7 +342,7 @@ export const moduleRegistry = {
 
   'module-d': {
     name: '模块D',
-    component: '@/biz/modules/module-d/index.vue',
+    component: '@/modules/module-d/index.vue',
     capabilities: [],
     stores: [],
     allowedLayouts: ['stream'],
@@ -359,20 +359,20 @@ export const moduleRegistry = {
 export const pageRegistry = {
   'page-a': {
     route: 'pages/page-a/index',
-    component: '@/biz/pages/page-a/index.vue',
+    entry: '@/pages/page-a/index.vue',
     defaultPackage: 'main'
   },
 
   'page-b': {
     route: 'pages/page-b/index',
-    component: '@/biz/pages/page-b/index.vue',
+    entry: '@/pages/page-b/index.vue',
     defaultPackage: 'main',
     supportedLayouts: ['stream']
   },
 
   'page-d': {
     route: 'pages/page-d/index',
-    component: '@/biz/pages/page-d/index.vue',
+    entry: '@/pages/page-d/index.vue',
     defaultPackage: 'business'
   }
 }
@@ -384,7 +384,8 @@ export const pageRegistry = {
 schema：租户要什么
 registry：系统有什么
 generated：生成怎么接入
-biz：真实业务实现
+pages：真实页面实现
+modules：真实模块实现
 ```
 
 ---
@@ -448,7 +449,7 @@ export const appConfig = {
 不要在运行时这样动态加载模块：
 
 ```ts
-const component = await import(`@/biz/modules/${moduleType}/index.vue`)
+const component = await import(`@/modules/${moduleType}/index.vue`)
 ```
 
 这种动态路径对小程序分包和构建优化不友好。
@@ -456,9 +457,9 @@ const component = await import(`@/biz/modules/${moduleType}/index.vue`)
 更推荐由 generator 根据 schema 生成明确的静态 import：
 
 ```ts
-import ModuleA from '@/biz/modules/module-a/index.vue'
-import ModuleD from '@/biz/modules/module-d/index.vue'
-import ModuleC from '@/biz/modules/module-c/index.vue'
+import ModuleA from '@/modules/module-a/index.vue'
+import ModuleD from '@/modules/module-d/index.vue'
+import ModuleC from '@/modules/module-c/index.vue'
 
 export const moduleMap = {
   'module-a': ModuleA,
@@ -592,10 +593,10 @@ Biz 层有一个重要原则：
 
 ```text
 只服务 page-a 的工具函数
-→ 放 biz/pages/page-a/utils.ts
+→ 放 pages/page-a/utils.ts
 
 只服务 module-a 的工具函数
-→ 放 biz/modules/module-a/utils.ts
+→ 放 modules/module-a/utils.ts
 
 只服务 order 分包多个页面的工具函数
 → 放 pages-sub/order/_shared/order-utils.ts
@@ -942,7 +943,7 @@ enableAiChat           → capability
 ```ts
 export const moduleRegistry = {
   'module-video-card': {
-    component: '@/biz/modules/module-video-card/index.vue',
+    component: '@/modules/module-video-card/index.vue',
     capabilities: ['enableVideoReplica']
   }
 }
@@ -973,7 +974,7 @@ Registry 也可以声明模块依赖的 store：
 ```ts
 export const moduleRegistry = {
   'module-a': {
-    component: '@/biz/modules/module-a/index.vue',
+    component: '@/modules/module-a/index.vue',
     stores: ['moduleA']
   }
 }
@@ -984,7 +985,7 @@ Generator 根据页面和模块依赖生成当前租户的 store 配置：
 ```ts
 import { userStore } from '@/base/store/modules/user'
 import { orderStore } from '@/biz/store/order'
-import { moduleAStore } from '@/biz/modules/module-a/store'
+import { moduleAStore } from '@/modules/module-a/store'
 
 export const storeModules = {
   user: userStore,
@@ -1104,7 +1105,7 @@ Generated 文件必须只由脚本生成。
 
 ```json
 {
-  "componentPath": "@/biz/modules/module-a/index.vue"
+  "componentPath": "@/modules/module-a/index.vue"
 }
 ```
 

@@ -2,17 +2,15 @@ export type MiniappModuleKey = 'module-a' | 'module-b' | 'module-c' | 'module-d'
 
 export interface ModuleRegistryEntry {
   key: MiniappModuleKey;
-  componentPath: `@/biz/modules/${MiniappModuleKey}/index.vue`;
-  entryPath: `@/biz/modules/${MiniappModuleKey}/index.ts`;
-  layer: 'biz';
+  componentPath: `@/modules/${MiniappModuleKey}/index.vue`;
+  entryPath: `@/modules/${MiniappModuleKey}/index.ts`;
 }
 
 function moduleEntry(key: MiniappModuleKey): ModuleRegistryEntry {
   return {
     key,
-    componentPath: `@/biz/modules/${key}/index.vue`,
-    entryPath: `@/biz/modules/${key}/index.ts`,
-    layer: 'biz'
+    componentPath: `@/modules/${key}/index.vue`,
+    entryPath: `@/modules/${key}/index.ts`
   };
 }
 

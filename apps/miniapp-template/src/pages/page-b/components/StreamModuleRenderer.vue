@@ -1,5 +1,17 @@
-<script lang="ts">
-import BizComponent from '../../../biz/pages/page-b/components/StreamModuleRenderer.vue';
+<template>
+  <view class="stream-layout">
+    <GeneratedPageBModuleRenderer />
+  </view>
+</template>
 
-export default BizComponent;
+<script setup lang="ts">
+import GeneratedPageBModuleRenderer from '../../../generated/page-b-module-renderer.vue';
 </script>
+
+<style scoped>
+.stream-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+</style>

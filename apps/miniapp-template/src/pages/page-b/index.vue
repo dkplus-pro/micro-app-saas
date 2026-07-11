@@ -10,9 +10,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import EmptyState from '../../biz/pages/page-b/components/EmptyState.vue';
-import StreamModuleRenderer from '../../biz/pages/page-b/components/StreamModuleRenderer.vue';
-import { usePageBController } from '../../biz/pages/page-b/hooks';
+import EmptyState from './components/EmptyState.vue';
+import StreamModuleRenderer from './components/StreamModuleRenderer.vue';
+import { usePageBController } from './hooks';
 
 const pageBController = usePageBController();
 const title = computed(() => pageBController.title);

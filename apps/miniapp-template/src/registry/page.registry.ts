@@ -3,18 +3,14 @@ export type MiniappPageKey = 'page-a' | 'page-b' | 'page-c' | 'page-d';
 export interface PageRegistryEntry {
   key: MiniappPageKey;
   route: `pages/${string}/index`;
-  componentPath: `@/biz/pages/${MiniappPageKey}/index.vue`;
-  routeShimPath: `@/pages/${MiniappPageKey}/index.vue`;
-  layer: 'biz';
+  entryPath: `@/pages/${MiniappPageKey}/index.vue`;
 }
 
 function pageEntry(key: MiniappPageKey): PageRegistryEntry {
   return {
     key,
     route: `pages/${key}/index`,
-    componentPath: `@/biz/pages/${key}/index.vue`,
-    routeShimPath: `@/pages/${key}/index.vue`,
-    layer: 'biz'
+    entryPath: `@/pages/${key}/index.vue`
   };
 }
 
